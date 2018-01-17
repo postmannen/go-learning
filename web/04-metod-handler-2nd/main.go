@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/postmannen/training/webTest/04-metod-handler-2nd/web"
+	"github.com/postmannen/training/web/04-metod-handler-2nd/web"
 
 	"net/http"
 )
