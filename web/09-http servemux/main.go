@@ -30,7 +30,10 @@ func main() {
 
 	var myHandlerA aType
 	//sette hvilken handler mux skal sende en path request til
+	//med Handle så trenger man en  variabel som er av en type, som igjen har method som heter ServeHTTP med writer og request som input
 	mux.Handle("/", myHandlerA)
+	//med HandleFunc så trenger man ikke å ha en type med en method ServeHTTP, det holder med å ha en vanlig func
+	//som tar http.ResponseWriter, og *http.Request som input
 	mux.HandleFunc("/hf", anotherHandler)
 
 	//parameterene for ListenAndServe er satt i server variabelen som er av typen http.Server som er en struct
