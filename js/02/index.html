@@ -1,3 +1,48 @@
 <html>
-    <p>Dette er en test tekst</p>
+    <div id="div1">
+    </div>
+
+    <button id="button1" onclick='window.alert("nisse")'>Vis en window.alert</button>
+
+    <p id="person1Id">person1 tekst for </p>
+
+    <div id="div2"></div>
+    
+    <script>
+        //Deklarer person1 som ett object. Kan også gjøres med new
+        var person1 = {name:"Donald",lastName:"Duck"}
+        //Lag en metode til objektet person1 ved å knytte en anonymous function til objektet
+        person1.myFunc = function() {document.getElementById("person1Id").innerHTML= "endret via funksjon som er metode til person1"}
+        //Kjør metoden. Dropper man () vil output være selve deklarasjonen av metoden.
+        person1.myFunc()
+
+        //test to add a button inside div1 via javascript
+        var button10Text = document.createTextNode("Button 10")
+        var button10 = document.createElement("button")
+        button10.appendChild(button10Text)
+        var div1 = document.getElementById("div1")
+        div1.setAttribute("class","divClass1")
+        div1.appendChild(button10)
+
+        //test to add several buttons with inputs based on variables
+        var buttonTextArray = ["button1","button2","button3","button4"]
+        var buttonIdArray = ["button1","button2","button3","button4"]
+        for (i=0; i < buttonTextArray.length; i++) {
+            console.log(i)
+            //skriv inn teksten du vil ha på noden som senere skal knyttes til ett element
+            var buttonText = document.createTextNode(buttonTextArray[i])
+            //lag ett element av typen "button"
+            var button = document.createElement("button")
+            button.id = buttonIdArray[i]
+            button.appendChild(buttonText)
+            var div2 = document.getElementById("div2")
+            div2.setAttribute("class","divClass2")
+            div2.appendChild(button)
+        }
+
+        
+
+
+    </script>
+    
 </html>
