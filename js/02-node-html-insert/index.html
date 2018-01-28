@@ -1,8 +1,22 @@
+<!DOCTYPE html>
+<head>
+        <!--<link rel="stylesheet" href="/styles.css">-->
+        <title>apekatt</title>
+</head>
+
+<style>
+    .myButtons button{
+        size: 100px;
+        border-color: green;
+        background-color: yellow;
+    }
+</style>
+
 <html>
     <div id="div1">
     </div>
 
-    <button id="button1" onclick='window.alert("nisse")'>Vis en window.alert</button>
+    <button id="button1" onclick="window.alert('nisse')">Vis en window.alert</button>
 
     <p id="person1Id">person1 tekst for </p>
 
@@ -27,6 +41,7 @@
         //test to add several buttons with inputs based on variables
         var buttonTextArray = ["button1","button2","button3","button4"]
         var buttonIdArray = ["button1","button2","button3","button4"]
+        var lineBreak = document.createElement("br")
         for (i=0; i < buttonTextArray.length; i++) {
             console.log(i)
             //skriv inn teksten du vil ha på noden som senere skal knyttes til ett element
@@ -34,6 +49,7 @@
             //lag ett element av typen "button"
             var button = document.createElement("button")
             button.id = buttonIdArray[i]
+            button.setAttribute("class","myButtons")
             button.appendChild(buttonText)
             var div2 = document.getElementById("div2")
             div2.setAttribute("class","divClass2")

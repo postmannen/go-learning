@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<head>
+        <!--<link rel="stylesheet" href="/styles.css">-->
+        <title>apekatt</title>
+</head>
+
+<style>
+    div.divClass1 {
+        background-color: yellow;
+    }
+    div.divClass1 .myButtonsNew {
+        display: block;
+        color: red;
+    }
+</style>
+
+<html>
+<div id="divId1"class="divClass1"></div>
+
+<script>
+        //test to add several buttons with inputs based on variables
+        var buttonTextArray = ["button1","button2","button3","button4"]
+        var buttonIdArray = ["button1","button2","button3","button4"]
+        var lineBreak = document.createElement("br")
+        for (i=0; i < buttonTextArray.length; i++) {
+            console.log(i)
+            //skriv inn teksten du vil ha på noden som senere skal knyttes til ett element
+            var buttonText = document.createTextNode(buttonTextArray[i])
+            //lag ett element av typen "button"
+            var button = document.createElement("button")
+            button.id = buttonIdArray[i]
+            button.className = "myButtonsNew"
+            //button.setAttribute("class","myButtons")
+            button.appendChild(buttonText)
+            var div1 = document.getElementById("divId1")
+            div1.setAttribute("class","divClass1")
+            div1.appendChild(button)
+        }
+    </script>
+    
+</html>
