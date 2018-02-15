@@ -1,0 +1,7 @@
+Tekst som blir lagt til
+tekst som blir lagt til med f.WriteString
+t til
+Tekst som blir lagt til
+tekst som blir lagt til med f.WriteStringTekst som blir lagt til
+tekst som blir lagt til med f.WriteStringTekst som blir lagt til
+tekst som blir lagt til med f.WriteString
