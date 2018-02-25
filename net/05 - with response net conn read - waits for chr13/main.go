@@ -45,12 +45,12 @@ func handleConn(conn net.Conn) {
 		//append each 4 byte slice to a new buffer for printing out later when iteration is done
 		readData = append(readData, buf...)
 
-		//check if enter was pressed in message
+		//range the buffer to check if enter was pressed in message
 		foundNL := false
 		for _, v := range buf {
 			if v == 13 {
 				foundNL = true
-				continue
+				break
 			}
 		}
 		if foundNL {
