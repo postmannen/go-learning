@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"net"
+	"os"
 )
 
 func main() {
@@ -28,22 +30,29 @@ func main() {
 
 func handleConn(conn net.Conn) {
 	defer conn.Close()
-	//var netBuf bytes.Buffer
-	data := make([]byte, 1024)
+	var buf bytes.Buffer
+
 	for {
+
+		data := make([]byte, 32)
 		n, err := conn.Read(data)
+
 		if err != nil {
 			fmt.Println("Error: conn.Read: ", err)
 			break
 		}
 		fmt.Println("bytes read = ", n)
-		fmt.Println(string(data))
 
 		//if the first 4 characters contain "exit", then break the for loop
 		if string(data[:4]) == "exit" {
 			fmt.Println("found exit")
 			break
 		}
+
+		buf.Write(data)
+
 	}
 	fmt.Println("exiting handleFunc")
+	buf.WriteTo(os.Stdout)
+
 }
