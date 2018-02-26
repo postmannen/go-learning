@@ -13,6 +13,7 @@ type myS struct {
 
 func main() {
 	cows := []myS{}
+	moreCows := []myS{}
 
 	cow1 := myS{
 		Name:   "dagros",
@@ -26,6 +27,7 @@ func main() {
 		Number: 101,
 	}
 
+	fmt.Println("-----------------Testing marshalling--------------------")
 	cow1Mars, err := json.Marshal(cow1)
 	if err != nil {
 		fmt.Println("Error: marshalling: ", err)
@@ -40,4 +42,10 @@ func main() {
 	}
 	fmt.Printf("Data: %v, type: %T \n", string(cowsMars), cowsMars)
 
+	fmt.Println("-----------------Testing unmarshalling--------------------")
+	err = json.Unmarshal(cowsMars, &moreCows)
+	if err != nil {
+		fmt.Println("Error: unmarshalling: ", err)
+	}
+	fmt.Println("The unmarshalled data: ", moreCows)
 }
