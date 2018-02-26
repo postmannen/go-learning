@@ -33,6 +33,7 @@ func handleConn(conn net.Conn) {
 	buf := make([]byte, blockSize)
 	readData := []byte{}
 
+	//read from the connection
 	for {
 		n, err := conn.Read(buf)
 		if err != nil {
