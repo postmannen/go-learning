@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	//make a channel
 	ch1 := make(chan int)
 	defer close(ch1)
 
