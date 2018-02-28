@@ -28,7 +28,17 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//print message to console
-		fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), msg)
+		fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), string(msg))
+
+		//check if message from client is special, and change the response if it is by chaning the content of msg
+		strMsg := string(msg)
+		switch strMsg {
+		case "button":
+			msg = []byte("<button>Test button</button>")
+		case "input":
+			msg = []byte("<input placeholder='put something here'></input>")
+		default:
+		}
 
 		//write message back to browser
 		err = conn.WriteMessage(msgType, msg)
