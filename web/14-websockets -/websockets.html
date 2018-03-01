@@ -1,7 +1,7 @@
 <input type="text" id="input" />
 <button onclick="send()">send</button>
-<button onclick="addButtonWebSocket()">add button websocket</button>
-<button onclick="addButtonJS(9999)">add button JS</button>
+<!--<button onclick="addButtonWebSocket()">add button websocket</button>
+<buton onclick="addButtonJS(9999)">add button JS</button>-->
 <pre id="output"></pre>
 <script>
     var input = document.getElementById("input");
@@ -15,7 +15,11 @@
     //here we are receiving messages from the server
     //the event is delivered to onmessage, and used in function as "serverEvent"
     socket.onmessage = function (serverEvent) {
+        if (serverEvent.data == "test") {
+            addButtonJS(500)
+        } else {
         output.innerHTML += "server: " + serverEvent.data + "\n";
+        }
     };
 
     //this is the function that is being called in the onclick of button
@@ -44,6 +48,25 @@
         button.appendChild(buttonText)
         div.appendChild(button)
         document.body.appendChild(div)
+
+        var button = document.createElement("button",{id:myID})
+        button.setAttribute("id",myID)
+        button.onclick = function () {
+            deleteButtonJS(myID)
+        }
+        var buttonText = document.createTextNode("javascript-button-delete"+myID)
+        button.appendChild(buttonText)
+        div.appendChild(button)
+        document.body.appendChild(div)
+    }
+
+    function deleteButtonJS(i) {
+        var parent = document.getElementById("divID"+i)
+        
+        while (parent.firstChild) {
+            parent.removeChild(parent.firstChild)
+        }
+        document.body.removeChild(parent)
     }
         
  
