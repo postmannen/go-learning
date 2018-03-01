@@ -1,0 +1,50 @@
+<input type="text" id="input" />
+<button onclick="send()">send</button>
+<button onclick="addButtonWebSocket()">add button websocket</button>
+<button onclick="addButtonJS(9999)">add button JS</button>
+<pre id="output"></pre>
+<script>
+    var input = document.getElementById("input");
+    var output = document.getElementById("output");
+    var socket = new WebSocket("ws://localhost:8080/echo");
+
+    socket.onopen = function () {
+        output.innerHTML += "status: connected\n";
+    };
+
+    //here we are receiving messages from the server
+    //the event is delivered to onmessage, and used in function as "serverEvent"
+    socket.onmessage = function (serverEvent) {
+        output.innerHTML += "server: " + serverEvent.data + "\n";
+    };
+
+    //this is the function that is being called in the onclick of button
+    function send() {
+        socket.send(input.value);
+        input.value = "";
+    }
+
+    //this is the function that is being called in the onclick of "add button" button
+    function addButtonWebSocket() {
+        socket.send("<button>new button</button>")
+    }
+
+    socket.onclose = function () {
+        output.innerHTML += "The socket is no longer open"
+    }
+
+    //button testing
+
+    function addButtonJS(myID) {
+        var div = document.createElement("div")
+        div.setAttribute("id","divID"+myID)
+        var button = document.createElement("button",{id:"buttonID"+myID})
+        button.setAttribute("id","buttonID"+myID)
+        var buttonText = document.createTextNode("javascript-button"+myID)
+        button.appendChild(buttonText)
+        div.appendChild(button)
+        document.body.appendChild(div)
+    }
+        
+ 
+</script>
