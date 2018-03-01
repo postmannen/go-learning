@@ -26,6 +26,7 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 	for {
 		divStart := fmt.Sprintf("<div id=%v>", d.divID)
 		divEnd := fmt.Sprintf("</div>")
+		buttonDelete := fmt.Sprintf("<button id=%v>button %v</button>", d.divID, d.divID)
 
 		//read the message
 		msgType, msg, err := conn.ReadMessage()
@@ -43,10 +44,9 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 		case "button":
 			msg = []byte("<button>Test button</button>")
 		case "input":
-			m := fmt.Sprint(divStart, "<input placeholder='put something here'></input>", divEnd)
+			m := fmt.Sprint(divStart, "<input placeholder='put something here'></input>", buttonDelete, divEnd)
 			msg = []byte(m)
 			d.divID++
-			fmt.Println("d.divID = ", d.divID)
 		default:
 		}
 
