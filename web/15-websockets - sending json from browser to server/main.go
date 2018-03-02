@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -16,6 +17,11 @@ type webData struct {
 	divID int
 }
 
+type jsonMsg struct {
+	Function string `json:"function"`
+	Param1   string `json:"param1"`
+}
+
 func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 	//upgrade the handler to a websocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -24,39 +30,21 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for {
-		divStart := fmt.Sprintf("<div id=%v>", d.divID)
-		divEnd := fmt.Sprintf("</div>")
-		buttonDelete := fmt.Sprintf("<button id=%v>button %v</button>", d.divID, d.divID)
-
 		//read the message
-		msgType, msg, err := conn.ReadMessage()
+		msgType, msgJson, err := conn.ReadMessage()
 		if err != nil {
 			fmt.Println("error: websocket ReadMessage: ", err)
 			return
 		}
 
+		var msg jsonMsg
+		err = json.Unmarshal(msgJson, &msg)
+
 		//print message to console
-		fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), string(msg))
-
-		//check if message from client contains a "do action" keyword,
-		//if it matches a case, change the content of 'msg', before it is sendt back to the web browser
-		strMsg := string(msg)
-		switch strMsg {
-		case "button1":
-			msg = []byte("<button>Test button</button>")
-		case "button2":
-			m := fmt.Sprint("<script>", "addButtonJS(100)", "</script>")
-			msg = []byte(m)
-		case "input":
-			m := fmt.Sprint(divStart, "<input placeholder='put something here'></input>", buttonDelete, divEnd)
-			msg = []byte(m)
-			d.divID++
-		default:
-
-		}
+		fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), msg)
 
 		//write message back to browser
-		err = conn.WriteMessage(msgType, msg)
+		err = conn.WriteMessage(msgType, []byte(msg.Function))
 		if err != nil {
 			fmt.Println("error: WriteMessage failed :", err)
 			return

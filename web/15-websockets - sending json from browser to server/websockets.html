@@ -24,7 +24,12 @@
 
     //this is the function that is being called in the onclick of button
     function send() {
-        socket.send(input.value);
+        var msg = {
+            function: "testFunction",
+            param1: "someValue"
+        };
+        socket.send(JSON.stringify(msg));
+        //socket.send(input.value);
         input.value = "";
     }
 
