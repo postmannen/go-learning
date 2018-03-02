@@ -1,8 +1,7 @@
 <input type="text" id="input" />
 <button onclick="send()">send</button>
-<!--<button onclick="addButtonWebSocket()">add button websocket</button>
-<buton onclick="addButtonJS(9999)">add button JS</button>-->
 <pre id="output"></pre>
+
 <script>
     var input = document.getElementById("input");
     var output = document.getElementById("output");
@@ -18,6 +17,7 @@
         if (serverEvent.data == "test") {
             addButtonJS(500)
         } else {
+        //default print message to console if no other action matched 
         output.innerHTML += "server: " + serverEvent.data + "\n";
         }
     };

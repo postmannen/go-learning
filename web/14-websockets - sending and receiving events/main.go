@@ -38,16 +38,21 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 		//print message to console
 		fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), string(msg))
 
-		//check if message from client is special, and change the response if it is by chaning the content of msg
+		//check if message from client contains a "do action" keyword,
+		//if it matches a case, change the content of 'msg', before it is sendt back to the web browser
 		strMsg := string(msg)
 		switch strMsg {
-		case "button":
+		case "button1":
 			msg = []byte("<button>Test button</button>")
+		case "button2":
+			m := fmt.Sprint("<script>", "addButtonJS(100)", "</script>")
+			msg = []byte(m)
 		case "input":
 			m := fmt.Sprint(divStart, "<input placeholder='put something here'></input>", buttonDelete, divEnd)
 			msg = []byte(m)
 			d.divID++
 		default:
+
 		}
 
 		//write message back to browser
