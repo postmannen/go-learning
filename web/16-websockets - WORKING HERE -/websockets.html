@@ -26,17 +26,12 @@
     function send() {
         //make a struct with info to send to server
         var msg = {
-            function: "data for function",
-            param1: "value of param1"
+            action: "CLIENTACTION",
+            param1: "PARAMETER"
         };
         socket.send(JSON.stringify(msg));
         //socket.send(input.value);
         input.value = "";
-    }
-
-    //this is the function that is being called in the onclick of "add button" button
-    function addButtonWebSocket() {
-        socket.send("<button>new button</button>")
     }
 
     socket.onclose = function () {

@@ -24,6 +24,22 @@ type jsonMsg struct {
 	Param1   string `json:"param1"`
 }
 
+func main() {
+	wd := webData{
+		id: 0,
+	}
+
+	http.HandleFunc("/echo", wd.echoHandler)
+	http.HandleFunc("/", rootHandle)
+
+	http.ListenAndServe(":8080", nil)
+
+}
+
+func rootHandle(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "websockets.html")
+}
+
 func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 	//upgrade the handler to a websocket connection
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -48,9 +64,6 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 		//var msg jsonMsg
 		err = json.Unmarshal(msgIn, &msg)
 
-		//print message to console
-		fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), msg)
-
 		//write message back to browser, and marshal msgOut
 		msgOut, err := json.Marshal(msg)
 		if err != nil {
@@ -63,20 +76,4 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
-}
-
-func rootHandle(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "websockets.html")
-}
-
-func main() {
-	wd := webData{
-		id: 0,
-	}
-
-	http.HandleFunc("/echo", wd.echoHandler)
-	http.HandleFunc("/", rootHandle)
-
-	http.ListenAndServe(":8080", nil)
-
 }
