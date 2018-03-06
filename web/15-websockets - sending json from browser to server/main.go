@@ -14,10 +14,12 @@ var upgrader = websocket.Upgrader{
 }
 
 type webData struct {
-	divID int
+	id int
 }
 
 type jsonMsg struct {
+	ID       int    `json:"id"`
+	Action   string `json:"action"`
 	Function string `json:"function"`
 	Param1   string `json:"param1"`
 }
@@ -29,22 +31,32 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error: websocket Upgrade: ", err)
 	}
 
+	var msg jsonMsg
+	msg.ID = 100
+
 	for {
 		//read the message
-		msgType, msgJson, err := conn.ReadMessage()
+		msgType, msgIn, err := conn.ReadMessage()
 		if err != nil {
 			fmt.Println("error: websocket ReadMessage: ", err)
 			return
 		}
 
-		var msg jsonMsg
-		err = json.Unmarshal(msgJson, &msg)
+		msg.ID++
+
+		//unmarshal the incomming message, and put it in the struct 'msg'
+		//var msg jsonMsg
+		err = json.Unmarshal(msgIn, &msg)
 
 		//print message to console
 		fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), msg)
 
-		//write message back to browser
-		err = conn.WriteMessage(msgType, []byte(msg.Function))
+		//write message back to browser, and marshal msgOut
+		msgOut, err := json.Marshal(msg)
+		if err != nil {
+			fmt.Println("error: marshaling failed: ", err)
+		}
+		err = conn.WriteMessage(msgType, []byte(msgOut))
 		if err != nil {
 			fmt.Println("error: WriteMessage failed :", err)
 			return
@@ -59,7 +71,7 @@ func rootHandle(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	wd := webData{
-		divID: 0,
+		id: 0,
 	}
 
 	http.HandleFunc("/echo", wd.echoHandler)

@@ -14,19 +14,20 @@
     //here we are receiving messages from the server
     //the event is delivered to onmessage, and used in function as "serverEvent"
     socket.onmessage = function (serverEvent) {
-        if (serverEvent.data == "test") {
-            addButtonJS(500)
-        } else {
-        //default print message to console if no other action matched 
-        output.innerHTML += "server: " + serverEvent.data + "\n";
-        }
+        var parsedMsg = JSON.parse(serverEvent.data)
+        output.innerHTML += "server: serverEvent.data = " + serverEvent.data + "\n";
+        output.innerHTML += "server: JSON.parse'ed = " + parsedMsg.id + "\n";
+
+        
+        
     };
 
     //this is the function that is being called in the onclick of button
     function send() {
+        //make a struct with info to send to server
         var msg = {
-            function: "testFunction",
-            param1: "someValue"
+            function: "data for function",
+            param1: "value of param1"
         };
         socket.send(JSON.stringify(msg));
         //socket.send(input.value);
@@ -42,8 +43,7 @@
         output.innerHTML += "The socket is no longer open"
     }
 
-    //button testing
-
+    //button testing *************************************************************************
     function addButtonJS(myID) {
         var div = document.createElement("div")
         div.setAttribute("id","divID"+myID)
