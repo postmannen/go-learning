@@ -1,3 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>
+
+
 <input type="text" id="input" />
 <button onclick="send()">send</button>
 <pre id="output"></pre>
@@ -24,14 +38,16 @@
 
     //this is the function that is being called in the onclick of button
     function send() {
+        var actionValue = document.getElementById("input").value
         //make a struct with info to send to server
         var msg = {
-            action: "CLIENTACTION",
-            param1: "PARAMETER"
+            action: actionValue,
+            parameter: "PARAMETER"
         };
         socket.send(JSON.stringify(msg));
         //socket.send(input.value);
         input.value = "";
+        actionValue = "";
     }
 
     socket.onclose = function () {

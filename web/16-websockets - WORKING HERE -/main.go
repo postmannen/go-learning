@@ -11,6 +11,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -22,14 +23,14 @@ var upgrader = websocket.Upgrader{
 }
 
 type webData struct {
-	id int
+	IndexID int
+	Names   []string
 }
 
 type jsonMsg struct {
-	ID       int    `json:"id"`
-	Action   string `json:"action"`
-	Function string `json:"function"`
-	Param1   string `json:"param1"`
+	ID        int    `json:"id"`
+	Action    string `json:"action"`
+	Parameter string `json:"parameter"`
 }
 
 func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
@@ -39,10 +40,13 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error: websocket Upgrade: ", err)
 	}
 
-	var msg jsonMsg
-	msg.ID = 100
-
 	for {
+		//initialize a blank msg of type jsonMsg. Used to compose a message back to client.
+		//if you want msg.ID to start at zero after each refresh, move the initialization of 'msg' outside the for loop,
+		//and set msg.ID statically to for example one, and have an increment inside the for loop
+		var msg jsonMsg
+		msg.ID = d.IndexID
+
 		//read the message
 		msgType, msgIn, err := conn.ReadMessage()
 		if err != nil {
@@ -50,7 +54,7 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		msg.ID++
+		d.IndexID++
 
 		//unmarshal the incomming message, and put it in the struct 'msg'
 		//var msg jsonMsg
@@ -58,7 +62,13 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 		//print message to console
 		fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), msg)
 
-		if msg.Action == "CLIENTACTION" {
+		/*
+			msg.Action = "clientaction changed by server"
+
+		}*/
+
+		switch msg.Action {
+		case "CLIENTACTION":
 			msg.Action = "clientaction changed by server"
 		}
 
@@ -76,18 +86,28 @@ func (d *webData) echoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func rootHandle(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "websockets.html")
+func (d *webData) rootHandle(w http.ResponseWriter, r *http.Request) {
+	//http.ServeFile(w, r, "websockets.html")
+	//load template file into 't'
+	t, err := template.ParseFiles("websockets.html")
+	if err != nil {
+		fmt.Println("error: template.ParseFiles: ", err)
+	}
+	//execute template file and pass in the receiver 'd' of type webData to the template
+	t.Execute(w, d)
 }
 
 func main() {
+	//create some dummy webData to pass in to the Handler functions and templates
 	wd := webData{
-		id: 0,
+		IndexID: 0,
+		Names:   []string{"Arne", "Knut", "Ole"},
 	}
 
+	//HandlerFunctions to call for the given url's
 	http.HandleFunc("/echo", wd.echoHandler)
-	http.HandleFunc("/", rootHandle)
+	http.HandleFunc("/", wd.rootHandle)
 
+	//start the web server at port 8080
 	http.ListenAndServe(":8080", nil)
-
 }
