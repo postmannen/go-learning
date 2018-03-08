@@ -25,18 +25,7 @@
         output.innerHTML += "status: connected\n";
     };
 
-    //here we are receiving messages from the server
-    //the event is delivered to onmessage, and used in function as "serverEvent"
-    socket.onmessage = function (serverEvent) {
-        var parsedMsg = JSON.parse(serverEvent.data)
-        output.innerHTML += "server: serverEvent.data = " + serverEvent.data + "\n";
-        output.innerHTML += "server: JSON.parse'ed = " + parsedMsg.id + "\n";
-
-        
-        
-    };
-
-    //this is the function that is being called in the onclick of button
+    //this is the function that is being called in the onclick of button, and sends message to the backend
     function send() {
         var actionValue = document.getElementById("input").value
         //make a struct with info to send to server
@@ -49,6 +38,17 @@
         input.value = "";
         actionValue = "";
     }
+
+    //here we are receiving messages from the server
+    //the event is delivered to onmessage, and used in function as "serverEvent"
+    socket.onmessage = function (serverEvent) {
+        var parsedMsg = JSON.parse(serverEvent.data)
+        output.innerHTML += "server: serverEvent.data = " + serverEvent.data + "\n";
+        output.innerHTML += "server: JSON.parse'ed = " + parsedMsg.id + "\n";
+
+        
+        
+    };
 
     socket.onclose = function () {
         output.innerHTML += "The socket is no longer open"

@@ -1,17 +1,37 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Page Title</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
-</head>
-<body>
-    <p>nok en test side til</p>
-    <p>{{.Str1}}</p>
-    <p>{{.Str2}}</p>
-</body>
+    <body>
+        <div id="id1"></div> 
+        <div id="id2"></div>       
+
+    </body>
+
+    <script>
+            var para1 = document.createElement("p");
+            var para2 = document.createElement("p");
+            var text1 = document.createTextNode("text1 :noe tekst fra JS");
+            var text2 = document.createTextNode("text2 :noe mer tekst fra JS");
+            para1.appendChild(text1);
+            para2.appendChild(text2);
+
+            var div1 = document.getElementById("id1");
+            div1.appendChild(para1);
+            var div2 = document.getElementById("id2");
+            div2.appendChild(para2);
+
+            var div2 = document.createElement("div");
+
+            var div3 = document.createElement("div");
+            div3.id = "id3";
+            document.body.appendChild(div3)
+
+            var para3 = document.createElement("p");
+            var text3 = document.createTextNode("text3 :og enda noe mer tekst");
+            para3.appendChild(text3);
+            div3.appendChild(text3)
+
+          
+
+    </script>
 </html>
 
