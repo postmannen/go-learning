@@ -1,0 +1,1 @@
+{"FirstName":"Ole","LastName":"Olsen","HairColor":"Brown","Age":30}
