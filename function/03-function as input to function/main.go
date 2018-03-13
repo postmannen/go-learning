@@ -4,19 +4,15 @@ import (
 	"fmt"
 )
 
-func two() {
-	fmt.Println("calling two")
+func addToString(s string) string {
+	return fmt.Sprint(s, " apekatt")
+
 }
 
-func three() {
-	fmt.Println("calling three")
-}
-
-func abc(a func()) {
-	a()
+func stringMe(name string, addS func(string) string) string {
+	return addS(name)
 }
 
 func main() {
-	abc(two)
-
+	fmt.Println(stringMe("Anna", addToString))
 }
