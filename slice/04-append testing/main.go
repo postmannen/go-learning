@@ -29,6 +29,7 @@ var mySlice1 []string
 func main() {
 	fmt.Println("--------------------------")
 	//test1
+	//This is not working.
 	//It is only the header of a slice that is passed to the function,
 	//it is also the header who contains the length and capacity of the slice.
 	//The function below are able to append to the slice, but since the capacity in the header
@@ -60,6 +61,7 @@ func main() {
 	changeExisting(mySlice2, "test 2.1")
 
 	fmt.Println("test2.1 result = ", mySlice2)
+	fmt.Println("--------------------------")
 
 	//test3
 	//By using pointers it is no longer a value of the slice header that is passed to the function,
