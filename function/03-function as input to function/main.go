@@ -9,6 +9,7 @@ func addToString(s string) string {
 
 }
 
+//let the function accept another function as a parameter
 func stringMe(name string, addS func(string) string) string {
 	return addS(name)
 }
