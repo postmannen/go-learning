@@ -9,6 +9,7 @@ func main() {
 	slice1 := []int{10, 20, 30, 40, 50, 60, 70, 80, 90}
 	map1 := make(map[int]int)
 
+	//fill values to the map, and use the slice index as key, and slice value as map value
 	for i, v := range slice1 {
 		fmt.Println("Content of slice1 = ", v)
 		map1[i] = v
