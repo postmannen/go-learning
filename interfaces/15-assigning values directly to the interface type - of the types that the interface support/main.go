@@ -83,6 +83,7 @@ func main() {
 	var vehicles2 []printer
 
 	//This works, since we break up the the slice, and append each slice element individually
+	//explanation can be found here https://github.com/golang/go/wiki/InterfaceSlice
 	for _, v := range tractors {
 		vehicles2 = append(vehicles2, v)
 	}
