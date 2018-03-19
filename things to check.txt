@@ -1,0 +1,1 @@
+- Close channel by receiving an empty struct, and using select statement.
