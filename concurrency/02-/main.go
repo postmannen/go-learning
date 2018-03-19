@@ -24,6 +24,7 @@ func main() {
 
 	/*
 		With mutex Lock(), it is made certain that only one thread is writing to the variable at a time,
+		a Mutex serializes the code in the lock
 	*/
 	counter = 0
 
