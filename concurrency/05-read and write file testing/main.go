@@ -17,7 +17,15 @@ func main() {
 	dirContent, err := ioutil.ReadDir("./")
 	if err != nil {
 		fmt.Println("error: ReadDir: ", err)
+		os.Exit(1)
 	}
+
+	wFile, err := os.Create("/tmp/output.txt")
+	if err != nil {
+		fmt.Println("error: creating output file: ", err)
+	}
+
+	defer wFile.Close()
 
 	//range all the files found in the directory
 	for _, v := range dirContent {
@@ -29,19 +37,21 @@ func main() {
 
 		wg.Add(2)
 		go read(ch1, rFile)
-
-		go write(ch1)
+		go write(ch1, wFile)
 
 	}
 
 	wg.Wait()
 }
 
-func write(c1 chan byte) {
+func write(c1 chan byte, wf *os.File) {
+	vv := []byte{0}
 	for {
 		//read from channel, ok variable will become false if channel is closed
 		v, ok := <-c1
 		if ok {
+			vv[0] = v
+			wf.Write(vv)
 			fmt.Print(string(v))
 		} else {
 			wg.Done()
