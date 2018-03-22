@@ -4,9 +4,12 @@ import (
 	"fmt"
 )
 
-//This is the type describing what type of data that is actually stored.
-//If an interface is used with tractor type of data, then this is the underlying type that is used.
-//TODO: interface will be implemented later.
+/*
+This is the type describing what type of data that is actually stored.
+If an interface is used with tractor type of data, then this is the underlying type that is used with its
+ belonging methods.
+TODO: interface will be implemented later.
+*/
 type tractor struct {
 	name string
 }
