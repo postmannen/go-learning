@@ -7,17 +7,20 @@ import (
 
 var myXML = []byte(`
 	<sensor>
-		<sensorType>Temp Sensor</sensorType>
+		<nisse>
+			<nissefar>og nissemor</nissefar>
+		</nisse>
+		<sensorType>Temp Sensor1</sensorType>
+		<sensorType>Temp Sensor2</sensorType>
+		<sensorType>Temp Sensor3</sensorType>
 	</sensor>
 	`)
 
-type location struct {
-}
-
 //Sensor is for storing the xml values
 type Sensor struct {
-	XMLName    xml.Name `xml:"sensor"`
-	SensorType string   `xml:"sensorType"`
+	Raw        string `xml:"any"` //have to check more on this one, not doing what I thought it should do :)
+	XMLName    xml.Name
+	SensorType []string `xml:"sensorType"`
 }
 
 func main() {
