@@ -105,9 +105,9 @@ func main() {
 
 		In the above code we are using bb.WriteTo(os.StdOut)
 		The bytes.WriteTo method accepts an io.Writer as input parameter.
-		os.StdOut, StdIn and StdErr are open files pointing to stdout/stdin/stderr. We now now that they are of type File, and if
+		os.StdOut, StdIn and StdErr are open files pointing to stdout/stdin/stderr. We now know that they are of type File, and if
 		we look in pkg/os of the std library, we can see that they have a Read and Write method. Since they have a Read and Write
 		method they fullfill the requirement of the io.Reader and io.Writer interface.
-		Since the type os.StdOut fullfills the inteface  for io.Writer, it is also an io.Writer.
+		Since the type os.StdOut fullfills the inteface  for io.Writer, it is also an io.Writer, and can be used with the WriteTo method.
 	*/
 }
