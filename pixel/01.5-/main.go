@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"os"
+	"time"
 
 	_ "image/png"
 
@@ -30,6 +31,9 @@ func run() {
 		panic(err)
 	}
 
+	//will make the lines smooth when sprites are rotated etc. If not set the lines of sprites will become fuzzy.
+	win.SetSmooth(true)
+
 	//load the picture from disk
 	pic, err := loadPicture("sailor.png")
 	if err != nil {
@@ -40,17 +44,35 @@ func run() {
 	//the second argument is for what part of the picture to use. Here we use the whole picture with pic.Bounds()
 	sprite := pixel.NewSprite(pic, pic.Bounds())
 
-	win.Clear(colornames.Skyblue)
-
-	//draw the sprite in the window
-	//first parameter is what window, second parameter is where to draw it relative to the windows 0,0 position which
-	//is the lower left corner of the window.
-	sprite.Draw(win, pixel.IM)
-	sprite.Draw(win, pixel.IM.Moved(win.Bounds().Center()))
-
 	//create a loop that keeps the window open, unless the close button in the corner is pushed
 	//The function win.Update fetches new events (key presses, mouse moves and clicks, etc.) and redraws the window.
+	angle := 0.0
+	last := time.Now()
 	for !win.Closed() {
+		/*
+			sprite.Draw , draw the sprite in the window
+			first parameter is what window, second parameter is where to draw it relative to the windows 0,0 position which
+			is the lower left corner of the window.
+
+			To make cleaner code we can create a variable mat for the matrix. to make the line below more readable
+				mat = pixel.IM.Moved(win.Bounds().Center()).Rotated(win.Bounds().Center(), math.Pi/4)
+			The thing with the the code below is that each mat.xxx is a function that returns a matrix of the type pixel.Matrix,
+			and we just do changes, one at a time with that matrix by re-storing the result again in mat.
+		*/
+
+		//deltaTime is used make a factor to control the rotation with.
+		deltaTime := time.Since(last).Seconds()
+		last = time.Now()
+
+		win.Clear(colornames.Skyblue)
+		angle += 0.5 * float64(deltaTime)
+		var mat pixel.Matrix //this one is not needed, just added for clarity
+		mat = pixel.IM
+		mat = mat.Moved(win.Bounds().Center())
+		mat = mat.Rotated(win.Bounds().Center(), angle)
+
+		sprite.Draw(win, mat)
+
 		win.Update()
 	}
 }
