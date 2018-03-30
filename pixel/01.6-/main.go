@@ -48,6 +48,7 @@ func run() {
 	//The function win.Update fetches new events (key presses, mouse moves and clicks, etc.) and redraws the window.
 	angle := 0.0
 	last := time.Now()
+	//slice to remember all the different mouse positions when key was pressed, and where to draw the sprites.
 	mousePositions := []pixel.Vec{}
 	for !win.Closed() {
 
@@ -71,6 +72,9 @@ func run() {
 
 			sprite.Draw(win, mat)
 		}
+
+		win.SetClosed(win.JustPressed(pixelgl.KeyEscape))
+
 		win.Update()
 
 	}
