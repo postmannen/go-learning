@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"image"
+	"math"
 	"os"
 	"time"
 
@@ -47,8 +48,11 @@ func run() {
 	//angle := 0.0
 	var angle []float64
 	last := time.Now()
-	//slice to remember all the different mouse positions when key was pressed, and where to draw the sprites.
-	mousePositions := []pixel.Vec{}
+
+	//slice to remember all the different sprite positions when key was pressed
+	spritePosition := []pixel.Vec{}
+	x := []float64{}
+	y := []float64{}
 
 	//create a loop that keeps the window open, unless the close button in the corner is pushed
 	//The function win.Update fetches new events (key presses, mouse moves and clicks, etc.) and redraws the window.
@@ -56,27 +60,38 @@ func run() {
 
 		if win.JustPressed(pixelgl.KeySpace) {
 			fmt.Println("Space pressed")
-			mousePositions = append(mousePositions, win.MousePosition())
+			spritePosition = append(spritePosition, pixel.V(250, 250))
 			angle = append(angle, 0.0)
-			fmt.Println(mousePositions)
+			x = append(x, 0.0)
+			y = append(y, 0.0)
 		}
 
 		deltaTime := time.Since(last).Seconds()
 		last = time.Now()
 
 		win.Clear(colornames.Skyblue)
-		for i := range mousePositions {
+		for i := range spritePosition {
 			angle[i] += 0.5 * float64(deltaTime)
 			var mat pixel.Matrix //this one is not needed, just added for clarity
 			mat = pixel.IM
-			mat = mat.Scaled(pixel.ZV, 0.5)
-			mat = mat.Moved(mousePositions[i])             //move sprite to mouse position
-			mat = mat.Rotated(mousePositions[i], angle[i]) //rotate it around the current mouse position
+			mat = mat.Scaled(pixel.ZV, 0.3)
+			mat = mat.Moved(pixel.V(math.Cos(angle[i])*spritePosition[i].X, math.Cos(angle[i])*spritePosition[i].Y))
+			mat = mat.Rotated(spritePosition[i], angle[i])
 
 			sprite.Draw(win, mat)
+
+			if spritePosition[i].X > 500 || spritePosition[i].Y > 500 {
+				spritePosition[i].X = 0.0
+				spritePosition[i].Y = 0.0
+			} else {
+
+				spritePosition[i].X += 1
+				spritePosition[i].Y += 1
+			}
+
 		}
 
-		win.SetClosed(win.JustPressed(pixelgl.KeyEscape))
+		win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
 
 		win.Update()
 
