@@ -68,8 +68,9 @@ func run() {
 		angle += 0.5 * float64(deltaTime)
 		var mat pixel.Matrix //this one is not needed, just added for clarity
 		mat = pixel.IM
-		mat = mat.Moved(win.Bounds().Center())
-		mat = mat.Rotated(win.Bounds().Center(), angle)
+		mat = mat.Scaled(pixel.ZV, 0.5)
+		mat = mat.Moved(win.MousePosition())          //move sprite to mouse position
+		mat = mat.Rotated(win.MousePosition(), angle) //rotate it around the current mouse position
 
 		sprite.Draw(win, mat)
 
