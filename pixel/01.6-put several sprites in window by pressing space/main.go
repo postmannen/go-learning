@@ -44,17 +44,20 @@ func run() {
 	//the second argument is for what part of the picture to use. Here we use the whole picture with pic.Bounds()
 	sprite := pixel.NewSprite(pic, pic.Bounds())
 
-	//create a loop that keeps the window open, unless the close button in the corner is pushed
-	//The function win.Update fetches new events (key presses, mouse moves and clicks, etc.) and redraws the window.
-	angle := 0.0
+	//angle := 0.0
+	var angle []float64
 	last := time.Now()
 	//slice to remember all the different mouse positions when key was pressed, and where to draw the sprites.
 	mousePositions := []pixel.Vec{}
+
+	//create a loop that keeps the window open, unless the close button in the corner is pushed
+	//The function win.Update fetches new events (key presses, mouse moves and clicks, etc.) and redraws the window.
 	for !win.Closed() {
 
 		if win.JustPressed(pixelgl.KeySpace) {
 			fmt.Println("Space pressed")
 			mousePositions = append(mousePositions, win.MousePosition())
+			angle = append(angle, 0.0)
 			fmt.Println(mousePositions)
 		}
 
@@ -63,12 +66,12 @@ func run() {
 
 		win.Clear(colornames.Skyblue)
 		for i := range mousePositions {
-			angle += 0.5 * float64(deltaTime)
+			angle[i] += 0.5 * float64(deltaTime)
 			var mat pixel.Matrix //this one is not needed, just added for clarity
 			mat = pixel.IM
 			mat = mat.Scaled(pixel.ZV, 0.5)
-			mat = mat.Moved(mousePositions[i])          //move sprite to mouse position
-			mat = mat.Rotated(mousePositions[i], angle) //rotate it around the current mouse position
+			mat = mat.Moved(mousePositions[i])             //move sprite to mouse position
+			mat = mat.Rotated(mousePositions[i], angle[i]) //rotate it around the current mouse position
 
 			sprite.Draw(win, mat)
 		}
@@ -93,6 +96,7 @@ func loadPicture(path string) (pixel.Picture, error) {
 	}
 
 	return pixel.PictureDataFromImage(img), nil
+
 }
 
 func main() {
