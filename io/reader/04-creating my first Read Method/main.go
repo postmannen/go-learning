@@ -15,6 +15,7 @@ type myStorage struct {
 	currentPosition int    //keeps track of how current bytes been read in storage
 }
 
+//NOT IN USE YET, WILL BE USED IN PART 2 :-)
 func newMyStorage(sData string) *myStorage {
 	return &myStorage{data: sData}
 }
@@ -35,7 +36,7 @@ func (m *myStorage) Read(p []byte) (n int, err error) {
 	}
 	fmt.Println("Read Info: maxPosition = ", maxPosition)
 
-	tmpRead := []byte{}
+	tmpRead := []byte{} //to store the bytes read
 	oldPosition := m.currentPosition
 	newPosition := oldPosition
 	for newPosition < maxPosition {
@@ -61,6 +62,10 @@ func main() {
 		readData := make([]byte, 4)
 		n, err := disk.Read(readData)
 		if err != nil {
+			if err == io.EOF {
+				fmt.Println("err: Reached end of string, leaving for loop :", err)
+				break
+			}
 			fmt.Println("error: trying to use the read method from main : ", err)
 			break
 		}
