@@ -32,7 +32,7 @@ func (m *myStorage) Read(p []byte) (n int, err error) {
 		Return from function with err value = io.EOF
 	*/
 	if m.currentPosition >= len(m.data) {
-		m.currentPosition = 0
+		m.currentPosition = 0 //resets position when all reading is done
 		return 0, io.EOF
 	}
 
