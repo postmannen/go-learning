@@ -1,7 +1,13 @@
 /*
-The purpose of this program is to create a new type called storage, which can hold some data of type string
+The purpose of this program is to test creating a Read Method who follows the rule for Read methods,
+by taking a []byte as input, and returning n characters read, and an error telling when done or failed.
+
+We will create a new type called storage, which can hold some data of type string
 The storage type shall have a read method, to read the content of the storage into a variable.
 There shall also be a function to create and initialize a new storage (will be done in next version)
+
+Since our new type has a Read method, it will also satisfy the interface io.Reader. We will create another read-something function
+which takes an io.Reader as input to demonstrate that we can now use myStorage as input where it is asked for io.Reader as input type.
 */
 package main
 
@@ -16,16 +22,21 @@ type myStorage struct {
 }
 
 /*
-This function will take a type string as input.
-It will take that string, put it into the 'data' field of the myStorage struct,
+This function will take a type string as input, and create a new variable of type *myStorage, filled with the string.
+It will take the string, put it into the 'data' field of the myStorage struct,
 and return a pointer to that new struct with the 'data' variable set to the value of the string given as input with sData.
 The returning variable will be of type *myStorage, which contains the field data set to the content of sData.
+The returned variable can then be assigned to a new variable, and we have by that created a new storage.
 */
 func newMyStorage(sData string) *myStorage {
 	return &myStorage{data: sData}
 }
 
-//Read takes a []byte as input to store the data that is read into. Returns characters read, and error.
+/*
+This is the Read method for myStorage.
+We're using a pointer receiver here, since we need to update the 'currentPosition' inside the struct.
+Read takes a []byte as input to store the data that is read into. Returns characters read, and error.
+/
 func (m *myStorage) Read(p []byte) (n int, err error) {
 	/*
 		check if there are more to read after current position, if there's nothing more to read we're done.
