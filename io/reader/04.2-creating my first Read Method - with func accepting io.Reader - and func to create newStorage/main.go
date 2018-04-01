@@ -36,7 +36,7 @@ func newMyStorage(sData string) *myStorage {
 This is the Read method for myStorage.
 We're using a pointer receiver here, since we need to update the 'currentPosition' inside the struct.
 Read takes a []byte as input to store the data that is read into. Returns characters read, and error.
-/
+*/
 func (m *myStorage) Read(p []byte) (n int, err error) {
 	/*
 		check if there are more to read after current position, if there's nothing more to read we're done.
