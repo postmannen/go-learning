@@ -50,7 +50,7 @@ func mooseRead(p io.Reader) string {
 	mooseTranslated := []byte{}
 
 	for {
-		mooseTranslate := make([]byte, 4)
+		mooseTranslate := make([]byte, 8)
 		n, err := p.Read(mooseTranslate)
 		if err != nil {
 			fmt.Println("mooseRead: Read error = ", err)
