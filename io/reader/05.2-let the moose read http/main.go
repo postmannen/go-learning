@@ -8,6 +8,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strings"
 )
@@ -123,6 +124,20 @@ func main() {
 	yetAnotherMoose := newMoose(aFile)
 
 	println(mooseRead(yetAnotherMoose))
+
+	fmt.Println("-----------------------TEST5-----------------------------------")
+	resp, err := http.Get("http://www.dustyfeet.com/")
+	if err != nil {
+		fmt.Println("main: TEST5 : http.Get : ", err)
+		os.Exit(1)
+	}
+
+	/*
+		resp.Body is also of type io.Reader, that means we can make a moose of it
+	*/
+	fifthMoose := newMoose(resp.Body)
+	fmt.Println(mooseRead(fifthMoose))
+
 	fmt.Println("-----------------------TEST END-----------------------------------")
 
 }
