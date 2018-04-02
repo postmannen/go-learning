@@ -16,18 +16,24 @@ type moose struct {
 	reader io.Reader
 }
 
-//creates a new moose
+/*
+creates a new moose.
+Take the input of type reader, and return a pointer to *moose where the moose struct field 'reader' is filled with the content of the input.
+*/
 func newMoose(reader io.Reader) *moose {
 	return &moose{reader: reader}
 }
 
 func (m *moose) Read(p []byte) (n int, err error) {
+	/*
+		since m.reader is of type io.Reader we will use io.Reader's read method here.
+		We will read one byte, and if succesful read we will replace any lowercase 'm' with an uppercase 'M'....since a moose reads like that.
+	*/
 	n, err = m.reader.Read(p)
 	if err != nil {
 		return n, err
 	}
 
-	//create a buffer with the same capacity as bytes being read
 	for i := 0; i < n; i++ {
 		if p[i] == 'm' {
 			p[i] = 'M'
@@ -37,8 +43,10 @@ func (m *moose) Read(p []byte) (n int, err error) {
 	return n, nil
 }
 
+/*
+mooseRead will do the complete reading of the byteSlice given to it as input, by calling the inputs underlying Read method.
+*/
 func mooseRead(p io.Reader) string {
-
 	mooseTranslated := []byte{}
 
 	for {
@@ -89,7 +97,7 @@ func main() {
 		By doing this we can see that mooseRead will use moose's read method, and not os.File's read method like it did in TEST2.
 	*/
 	fmt.Println("-----------------------TEST3-----------------------------------")
-	aFile, err := os.Open("martinTheMoose.txt")
+	aFile, err := os.Open("mosesTheMoose.txt")
 	if err != nil {
 		fmt.Println("error: opening file = ", err)
 	}
