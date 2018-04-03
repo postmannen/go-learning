@@ -55,8 +55,10 @@ func mooseRead(p io.Reader) string {
 	mooseTranslated := []byte{}
 
 	for {
+		//create a buffer to use when calling Read method.
 		mooseTranslate := make([]byte, 16)
 		n, err := p.Read(mooseTranslate)
+		//since Read method will return error=io.EOF when done Read'ing, we check for any error here and break loop if error is received.
 		if err != nil {
 			fmt.Println("mooseRead: Read error = ", err)
 			break
