@@ -49,39 +49,40 @@ func run() {
 	//last := time.Now()
 
 	angleAdd := 1.3
+	const points int = 50
 
-	mp := [10]mainPoint{}
+	mp := [points]mainPoint{}
 	mp[0].angle = math.Pi / 3
 
 	for i := 0; i < len(mp); i++ {
 		mp[i].centreX = windowX2 / 2
 		mp[i].centreY = windowY2 / 2
-		mp[i].angle = math.Pi / 4 * float64(i) //check why setting 4 makes the ends to meet
+		mp[i].angle = math.Pi / float64(points) * float64(i) //check why setting 4 makes the ends to meet
 	}
 	for !win.Closed() {
 		//deltaTime := time.Since(last).Seconds()
 		//last = time.Now()
 		for i := 0; i < len(mp); i++ {
 			if mp[i].x >= windowX2 {
-				mp[i].centreX = mp[i].x
+				mp[i].centreX = windowX2
 				mp[i].centreY = mp[i].y
 				mp[i].radius = 0
 				mp[i].angle += angleAdd
 			}
 			if mp[i].x < windowX1 {
-				mp[i].centreX = mp[i].x
+				mp[i].centreX = windowX1
 				mp[i].centreY = mp[i].y
 				mp[i].radius = 0
 				mp[i].angle += angleAdd
 			}
 			if mp[i].y >= windowY2 {
-				mp[i].centreY = mp[i].y
+				mp[i].centreY = windowY2
 				mp[i].centreX = mp[i].x
 				mp[i].radius = 0
 				mp[i].angle += angleAdd
 			}
 			if mp[i].y < windowY1 {
-				mp[i].centreY = mp[i].y
+				mp[i].centreY = windowY1
 				mp[i].centreX = mp[i].x
 				mp[i].radius = 0
 				mp[i].angle += angleAdd
@@ -91,7 +92,7 @@ func run() {
 
 			mp[i].x = mp[i].radius*math.Cos(mp[i].angle) + mp[i].centreX
 			mp[i].y = mp[i].radius*math.Sin(mp[i].angle) + mp[i].centreY
-			//mp[len(mp)-1] = mp[0]
+			mp[len(mp)-1] = mp[0]
 		}
 
 		mainLine := imdraw.New(nil)
@@ -105,6 +106,7 @@ func run() {
 
 		//mainLine.Circle(20, 2)
 		mainLine.Line(2)
+		//mainLine.Rectangle(2)
 		mainLine.Draw(win)
 
 		win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
