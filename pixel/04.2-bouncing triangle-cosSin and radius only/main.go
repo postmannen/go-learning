@@ -48,53 +48,62 @@ func run() {
 	win.SetSmooth(true)
 	//last := time.Now()
 
-	mp := mainPoint{
-		radius: 1,
-		angle:  math.Pi / 3,
+	angleAdd := 1.3
+
+	mp := [10]mainPoint{}
+	mp[0].angle = math.Pi / 3
+
+	for i := 0; i < len(mp); i++ {
+		mp[i].centreX = windowX2 / 2
+		mp[i].centreY = windowY2 / 2
+		mp[i].angle = math.Pi / 4 * float64(i) //check why setting 4 makes the ends to meet
 	}
-
-	mp.centreX = windowX2 / 2
-	mp.centreY = windowY2 / 2
-
 	for !win.Closed() {
 		//deltaTime := time.Since(last).Seconds()
 		//last = time.Now()
+		for i := 0; i < len(mp); i++ {
+			if mp[i].x >= windowX2 {
+				mp[i].centreX = mp[i].x
+				mp[i].centreY = mp[i].y
+				mp[i].radius = 0
+				mp[i].angle += angleAdd
+			}
+			if mp[i].x < windowX1 {
+				mp[i].centreX = mp[i].x
+				mp[i].centreY = mp[i].y
+				mp[i].radius = 0
+				mp[i].angle += angleAdd
+			}
+			if mp[i].y >= windowY2 {
+				mp[i].centreY = mp[i].y
+				mp[i].centreX = mp[i].x
+				mp[i].radius = 0
+				mp[i].angle += angleAdd
+			}
+			if mp[i].y < windowY1 {
+				mp[i].centreY = mp[i].y
+				mp[i].centreX = mp[i].x
+				mp[i].radius = 0
+				mp[i].angle += angleAdd
+			}
 
-		if mp.x >= windowX2 {
-			mp.centreX = mp.x
-			mp.centreY = mp.y
-			mp.radius = 0
-			mp.angle += math.Pi / 7
-		}
-		if mp.x < windowX1 {
-			mp.centreX = mp.x
-			mp.centreY = mp.y
-			mp.radius = 0
-			mp.angle += math.Pi / 7
-		}
-		if mp.y >= windowY2 {
-			mp.centreY = mp.y
-			mp.centreX = mp.x
-			mp.radius = 0
-			mp.angle += math.Pi / 7
-		}
-		if mp.y < windowY1 {
-			mp.centreY = mp.y
-			mp.centreX = mp.x
-			mp.radius = 0
-			mp.angle += math.Pi / 7
+			mp[i].radius += 4
+
+			mp[i].x = mp[i].radius*math.Cos(mp[i].angle) + mp[i].centreX
+			mp[i].y = mp[i].radius*math.Sin(mp[i].angle) + mp[i].centreY
+			//mp[len(mp)-1] = mp[0]
 		}
 
-		mp.radius += 4
-
-		mp.x = mp.radius*math.Cos(mp.angle) + mp.centreX
-		mp.y = mp.radius*math.Sin(mp.angle) + mp.centreY
-
-		win.Clear(colornames.Skyblue)
 		mainLine := imdraw.New(nil)
-		mainLine.Push(pixel.V(mp.centreX, mp.centreY))
-		mainLine.Push(pixel.V(mp.x, mp.y))
 
+		for i := 0; i < len(mp); i++ {
+
+			win.Clear(colornames.Skyblue)
+			//mainLine.Push(pixel.V(mp[i].centreX, mp[i].centreY))
+			mainLine.Push(pixel.V(mp[i].x, mp[i].y))
+		}
+
+		//mainLine.Circle(20, 2)
 		mainLine.Line(2)
 		mainLine.Draw(win)
 
