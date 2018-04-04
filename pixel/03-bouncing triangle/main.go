@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"image"
-	"math"
 	"os"
-	"time"
+
+	"github.com/faiface/pixel/imdraw"
 
 	_ "image/png"
 
@@ -15,13 +15,20 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 )
 
+var (
+	windowX1 float64
+	windowY1 float64
+	windowX2 float64 = 500
+	windowY2 float64 = 500
+)
+
 func run() {
 	//pixelgl.WindowConfig is a struct that lets us do the initial config of a window
 	//setting Vsync=true will enable the win.Update to follow the displays refresh interval,
 	//so it does not consume all the cpu by running constantly and as fast as it can.
 	cfg := pixelgl.WindowConfig{
 		Title:  "test window",
-		Bounds: pixel.R(0, 0, 500, 500),
+		Bounds: pixel.R(windowX1, windowY1, windowX2, windowY2),
 		VSync:  true,
 	}
 
@@ -35,65 +42,69 @@ func run() {
 	//will make the lines smooth when sprites are rotated etc. If not set the lines of sprites will become fuzzy.
 	win.SetSmooth(true)
 
-	//load the picture from disk
-	pic, err := loadPicture("sailor.png")
-	if err != nil {
-		fmt.Println("error: Failed loading picture : ", err)
-	}
+	x1 := []float64{100, 200, 100, 100}
+	y1 := []float64{100, 200, 200, 100}
+	x1Direction := []bool{true, true, true, true}
+	y1Direction := []bool{true, true, true, true}
+	angle := []float64{1, 2, 3, 4}
 
-	//Create a sprite from the picture.
-	//the second argument is for what part of the picture to use. Here we use the whole picture with pic.Bounds()
-	sprite := pixel.NewSprite(pic, pic.Bounds())
-
-	//angle := 0.0
-	var angle []float64
-	last := time.Now()
-
-	//slice to remember all the different sprite positions when key was pressed
-	spritePosition := []pixel.Vec{}
-	x := []float64{}
-	y := []float64{}
+	//last := time.Now()
 
 	//create a loop that keeps the window open, unless the close button in the corner is pushed
 	//The function win.Update fetches new events (key presses, mouse moves and clicks, etc.) and redraws the window.
 	for !win.Closed() {
 
-		if win.JustPressed(pixelgl.KeySpace) {
-			fmt.Println("Space pressed")
-			spritePosition = append(spritePosition, pixel.V(250, 250))
-			angle = append(angle, 0.0)
-			x = append(x, 0.0)
-			y = append(y, 0.0)
-		}
-
-		deltaTime := time.Since(last).Seconds()
-		last = time.Now()
+		//deltaTime := time.Since(last).Seconds()
+		//last = time.Now()
 
 		win.Clear(colornames.Skyblue)
-		for i := range spritePosition {
-			angle[i] += 0.5 * float64(deltaTime)
-			var mat pixel.Matrix //this one is not needed, just added for clarity
-			mat = pixel.IM
-			mat = mat.Scaled(pixel.ZV, 0.3)
-			mat = mat.Moved(pixel.V(math.Cos(angle[i])*spritePosition[i].X, math.Cos(angle[i])*spritePosition[i].Y))
-			mat = mat.Rotated(spritePosition[i], angle[i])
 
-			sprite.Draw(win, mat)
+		something := imdraw.New(nil)
 
-			if spritePosition[i].X > 500 || spritePosition[i].Y > 500 {
-				spritePosition[i].X = 0.0
-				spritePosition[i].Y = 0.0
-			} else {
-
-				spritePosition[i].X += 1
-				spritePosition[i].Y += 1
-			}
-
+		for i := 0; i < len(x1); i++ {
+			something.Push(pixel.V(x1[i], y1[i]))
 		}
+
+		something.Line(2)
+		something.Draw(win)
 
 		win.SetClosed(win.JustPressed(pixelgl.KeyEscape) || win.JustPressed(pixelgl.KeyQ))
 
 		win.Update()
+
+		for i := 0; i < len(x1); i++ {
+			if x1[i] >= windowX2 && x1Direction[i] == true {
+				x1Direction[i] = false
+			}
+			if x1[i] <= windowX1 && x1Direction[i] == false {
+				x1Direction[i] = true
+			}
+
+			if y1[i] >= windowY2 && y1Direction[i] == true {
+				y1Direction[i] = false
+			}
+			if y1[i] <= windowY1 && y1Direction[i] == false {
+				y1Direction[i] = true
+			}
+		}
+
+		for i := 0; i < len(x1); i++ {
+			if x1Direction[i] == true {
+				x1[i] = x1[i] + 4
+			} else {
+				x1[i] = x1[i] - 4
+			}
+
+			if y1Direction[i] == true {
+				y1[i] = y1[i] + 5
+			} else {
+				y1[i] = y1[i] - 5
+			}
+
+			angle[i] = angle[i] + 0.01
+		}
+		x1[len(x1)-1] = x1[0]
+		y1[len(x1)-1] = y1[0]
 
 	}
 }
