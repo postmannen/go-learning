@@ -35,9 +35,12 @@ func main() {
 		The struct templateHandler is now also a type Handler since it satisfies the Handler interface by having a ServerHTTP method.
 		We use the struct type directly by using & before the struct name, so we don't create a reference to it with a variable, which
 		is not needed since it will be used only once right here in the code. We also fill the filname directly into the structs
-		filename field
+		filename field.
+		http.Handle wants a string for the url, and a type http.Handler.
+		Since the struct 'templateHandler' have a method called ServeHTTP, that method will be executed when the struct is given
+		as input to the http.Handle below.
 	*/
-	//http.Handle wants a string for the url, and a type http.Handler
+
 	http.Handle("/", &templateHandler{filename: "chat.html"})
 
 	//we can bundle the output for checking directly in calling a function.
