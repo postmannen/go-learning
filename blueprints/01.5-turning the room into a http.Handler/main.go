@@ -40,8 +40,14 @@ func main() {
 		Since the struct 'templateHandler' have a method called ServeHTTP, that method will be executed when the struct is given
 		as input to the http.Handle below.
 	*/
-
 	http.Handle("/", &templateHandler{filename: "chat.html"})
+
+	r := newRoom()
+	//r which is our new room is also a http.Handler since it has a ServeHTTP method
+	http.Handle("/room", r)
+
+	//start the room
+	go r.run()
 
 	//we can bundle the output for checking directly in calling a function.
 	if err := http.ListenAndServe(":8080", nil); err != nil {
