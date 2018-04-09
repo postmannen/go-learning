@@ -49,7 +49,7 @@ func run() {
 	//last := time.Now()
 
 	angleAdd := 1.3
-	const points int = 4
+	const points int = 200
 
 	mp := [points]mainPoint{}
 	mp[0].angle = math.Pi / 3
