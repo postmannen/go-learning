@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/gorilla/websocket"
@@ -40,6 +41,7 @@ func (c *client) write() {
 	defer c.socket.Close()
 	//range over the bytes in the c.send channel
 	for msg := range c.send {
+		fmt.Print(string(msg))
 		//put the read byte on the socket
 		err := c.socket.WriteMessage(websocket.TextMessage, msg)
 		if err != nil {
@@ -47,4 +49,5 @@ func (c *client) write() {
 			return
 		}
 	}
+	fmt.Println()
 }
