@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -28,11 +29,15 @@ func (r *room) run() {
 	for {
 		select {
 		case client := <-r.join:
-			//joining
+			//joining. Sets the map value for specific client to true.
 			r.clients[client] = true
 		case client := <-r.leave:
-			//leaving
+			//leaving. Deleting the specific client index from map the type room clients map.
 			delete(r.clients, client)
+			//closing the send channel for the specific client.
+			//Here we are receiving a pointer to a client, so we can pick up
+			//the client from the channel and close its channel directly based
+			//only on the pointer to client we received on the channel.
 			close(client.send)
 		case msg := <-r.forward:
 			//if we receive a message on the room forward channel, we will
@@ -40,6 +45,7 @@ func (r *room) run() {
 			//clients send channel.
 			//Then the write method of the client will pick it up and send
 			//it down the socket to the browser.
+			//Send msg to all clients in the room.
 			for client := range r.clients {
 				client.send <- msg
 			}
@@ -58,8 +64,13 @@ var upgrader = &websocket.Upgrader{
 	WriteBufferSize: socketBufferSize,
 }
 
-//creating a ServeHTTP method means the room now can act as a handler.
+/*
+creating a ServeHTTP method means the room now can act as a handler.
+The ServeHTTP method will be called once each time a new client opens the web page,
+and it will keep the page until the client leaves.
+*/
 func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	fmt.Println("The serveHTTP method for room was called")
 	//upgrading the http connection to a websocket
 	socket, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {
@@ -67,18 +78,19 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//create a client of type pointer to &client struct
 	client := &client{
-		//assign client's socket to the websocket created for room
 		socket: socket,
 		send:   make(chan []byte, messageBufferSize),
-		room:   r,
+		room:   r, //here we assign a pointer to the existing room to the client variable.
 	}
 
 	//let the client join the room by passing it to the join channel of the room
 	r.join <- client //defenition of r.join is 'join chan *client'
 	defer func() { r.leave <- client }()
 	go client.write()
+	//client.read() has a for loop, so it will read the socket continously.
+	//since client.read has a for loop it will block the rest of the operations in this
+	//function, and keep the connection alive for the client.
 	client.read()
 }
 

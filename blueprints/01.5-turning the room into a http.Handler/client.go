@@ -18,15 +18,12 @@ type client struct {
 }
 
 /*
-The read method allows our client to read from the socket via the ReadMessage method,
-and continually sending any received messages to the forward channel on the room type
+The read method read's from the socket,
+and continually sending any received messages to the room's forward channel
 */
 func (c *client) read() {
 	defer c.socket.Close()
 	for {
-		//Continuosly read from the client socket, and put whats read on the
-		//rooms forward channel. That is the reason *room is defined in the client
-		//struct, so we can directly alter the channel field defined in the room struct.
 		_, msg, err := c.socket.ReadMessage()
 		if err != nil {
 			log.Println("Error : client.Read()) : ", err)
@@ -36,7 +33,8 @@ func (c *client) read() {
 	}
 }
 
-//Here we will write messages back to the websocket
+//write will write messages back to the websocket from the send channel.
+//** The messages on the send channel have been put there by run() function **
 func (c *client) write() {
 	defer c.socket.Close()
 	//range over the bytes in the c.send channel
