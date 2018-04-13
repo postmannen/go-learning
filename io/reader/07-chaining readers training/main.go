@@ -12,7 +12,7 @@ type hardDisk struct {
 }
 
 func (h hardDisk) Read(p []byte) (n int, err error) {
-	fmt.Println("using hardFisk's Read method")
+	fmt.Println("using hardDisk's Read method")
 	n, err = h.diskData.Read(p)
 	return n, err
 }
@@ -20,7 +20,7 @@ func (h hardDisk) Read(p []byte) (n int, err error) {
 func diskReader(p io.Reader) []byte {
 	tmp := []byte{}
 	for {
-		buf := make([]byte, 4)
+		buf := make([]byte, 16)
 		_, err := p.Read(buf)
 		if err != nil {
 			fmt.Println("diskReader: failed read", err)
