@@ -8,6 +8,9 @@ import (
 )
 
 type myStructType struct {
+	//actually we only need a string here, but by using io.Reader we can use
+	//a whole lot more things than just a string.
+	//For example reading from a file, etc.
 	myStructField io.Reader
 }
 
