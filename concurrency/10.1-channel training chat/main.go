@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"time"
 )
 
@@ -29,7 +28,7 @@ func newRoom(id int) *room {
 
 //The room will allways be up, and do things based on what is received on its channels
 func (r *room) run() {
-	//log.Println("Starting up the room with ID = ", r.ID)
+	fmt.Println("-----------Starting up the room with ID = ", r.ID, "-----------")
 
 	for {
 		select {
@@ -47,7 +46,7 @@ func (r *room) run() {
 			//sends message directly to the client, and not in room for all to see
 			c.msg <- bytes.NewBufferString("Welcome to the room !")
 		case c := <-r.leaving:
-			log.Printf("*** client%v are leaving room%v\n", r.clients[c], r.ID)
+			fmt.Printf("----------- client%v are leaving room%v-----------\n", c.ID, r.ID)
 			delete(r.clients, c)
 		}
 	}
@@ -63,7 +62,7 @@ type client struct {
 //attach a room given as input to the client
 func (c *client) joinRoom(r *room) {
 	c.room = r
-	//log.Printf("joinRoom: client1.ID =%v, is now in the room client.room.ID = %v\n", c.ID, c.room.ID)
+	fmt.Printf("-----------joinRoom: client1.ID =%v, is now in the room client.room.ID = %v-----------\n", c.ID, c.room.ID)
 	//Since Hello message goes to the room all clients will se it
 	myString := fmt.Sprintf("Hello, I'm client%v, and entering the room", c.ID)
 	c.room.messages <- bytes.NewBufferString(myString)
@@ -124,8 +123,3 @@ func main() {
 	fmt.Println("room1 contains : ", room1)
 
 }
-
-/* TODO:
-Make the room forward all rooms messages to the individual client msg channels
-The way it is now its not possible to disconnect the client from the room channel.
-*/
