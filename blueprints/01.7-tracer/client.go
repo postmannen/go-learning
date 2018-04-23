@@ -21,7 +21,7 @@ type client struct {
 The read method read's from the socket,
 and continually sending any received messages to the room's forward channel
 */
-func (c *client) read() {
+func (c *client) readFromSocket() {
 	defer c.socket.Close()
 	for {
 		_, msg, err := c.socket.ReadMessage()
@@ -35,7 +35,7 @@ func (c *client) read() {
 
 //write will write messages back to the websocket from the send channel.
 //** The messages on the send channel have been put there by run() function **
-func (c *client) write() {
+func (c *client) writeToSocket() {
 	defer c.socket.Close()
 	//range over the bytes in the c.send channel
 	for msg := range c.send {

@@ -15,6 +15,7 @@ type person struct {
 }
 
 func main() {
+	//create a person based on the struct
 	p1 := person{
 		FirstName: "Ole",
 		LastName:  "Olsen",
@@ -40,25 +41,28 @@ func main() {
 		}
 	}
 
-	marshalledText, err := json.Marshal(p1)
+	//marshal the the person into the variable marshalledText
+	marshaledText, err := json.Marshal(p1)
 	if err != nil {
 		fmt.Println("error: marshal", err)
 	}
 
 	//write the marshaled text to file
-	_, err = f.Write(marshalledText)
+	_, err = f.Write(marshaledText)
 	if err != nil {
 		fmt.Println("error: file write", err)
 	}
 	f.Close()
 
-	//read from file into a []byte
+	//Then we do it the other way !
+	//Now read the same file into a []byte
 	fr, err := os.OpenFile("test.txt", os.O_RDONLY, 0755)
 	if err != nil {
 		fmt.Println("error: open file in read mode: ", err)
 	}
 	defer fr.Close()
 
+	//read the whole file into 'b'
 	var b []byte
 	b, err = ioutil.ReadAll(fr)
 	if err != nil {
@@ -69,6 +73,7 @@ func main() {
 
 	var p2 person
 
+	//since 'b' is in json format we need to unmarshal it into p2
 	err = json.Unmarshal(b, &p2)
 	if err != nil {
 		fmt.Println("error: Unmarshal : ", err)

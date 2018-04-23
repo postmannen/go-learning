@@ -87,11 +87,11 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	//let the client join the room by passing it to the join channel of the room
 	r.join <- client //defenition of r.join is 'join chan *client'
 	defer func() { r.leave <- client }()
-	go client.write()
+	go client.writeToSocket()
 	//client.read() has a for loop, so it will read the socket continously.
 	//since client.read has a for loop it will block the rest of the operations in this
 	//function, and keep the connection alive for the client.
-	client.read()
+	client.readFromSocket()
 }
 
 // newRoom makes a new room.
