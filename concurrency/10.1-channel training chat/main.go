@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
+	"net"
 	"time"
 )
 
@@ -117,6 +119,23 @@ func main() {
 
 	//send a test message to the room for all clients to receive
 	room1.messages <- bytes.NewBufferString("this is the third message for all clients in the room")
+
+	//start a tcp server for clients
+	server, err := net.Listen("tcp", "localhost:8000")
+	if err != nil {
+		log.Println("error: failed to open tcp listener : ", err)
+	}
+	defer server.Close()
+
+	clientID := 0
+	for {
+		conn, err := server.Accept()
+		if err != nil {
+			fmt.Println("error: network connection failed:", err)
+		}
+		//hvordan skal man starte en ny klient ???????????????
+		go 
+	}
 
 	time.Sleep(time.Second * 2) //a little delay, will be removed later.
 	fmt.Println("------------------------------------------------------------")
