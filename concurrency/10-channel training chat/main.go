@@ -86,6 +86,7 @@ const number int = 10
 func main() {
 	room1 := newRoom(1)
 	go room1.run()
+	time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
 
 	client1 := newClient(1)
 	client1.joinRoom(room1)
@@ -95,8 +96,8 @@ func main() {
 	client2.joinRoom(room1)
 	go client2.run()
 
-	time.Sleep(time.Second * 2)
-	//	fmt.Println("------------------------------------------------------------")
-	//	fmt.Println("room1 contains : ", room1)
+	time.Sleep(time.Second * 2) //a little delay, will be removed later.
+	fmt.Println("------------------------------------------------------------")
+	fmt.Println("room1 contains : ", room1)
 
 }
