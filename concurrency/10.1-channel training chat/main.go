@@ -77,15 +77,6 @@ func (c *client) leaveRoom(r *room) {
 	r.leaving <- c
 }
 
-func (c *client) run() {
-	for {
-		select {
-		case m := <-c.msg:
-			fmt.Printf("client%v received msg: %v\n", c.ID, m)
-		}
-	}
-}
-
 //create a new client with unique ID
 func newClient(id int) *client {
 	return &client{
@@ -94,51 +85,46 @@ func newClient(id int) *client {
 	}
 }
 
-const number int = 10
+func handleConn(conn net.Conn, cID int, r *room) {
+	fmt.Println("starting handleConn for id = ", cID)
+	client := newClient(cID)
+	client.joinRoom(r)
+	for {
+		select {
+		case m := <-client.msg:
+			m2 := fmt.Sprintf("client%v received msg: %v\n", client.ID, m)
+			fmt.Println(m2)
+			conn.Write([]byte(m2))
+		}
+	}
+}
 
 func main() {
+	//create a default room for clients to connect to
 	room1 := newRoom(1)
 	go room1.run()
 	time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
 
-	client1 := newClient(1)
-	client1.joinRoom(room1)
-	go client1.run()
-
 	//send a test message to the room for all clients to receive
 	room1.messages <- bytes.NewBufferString("this is the first message for all clients in the room")
 
-	client2 := newClient(2)
-	client2.joinRoom(room1)
-	go client2.run()
-
-	//send a test message to the room for all clients to receive
-	room1.messages <- bytes.NewBufferString("this is the second message for all clients in the room")
-
-	client1.leaveRoom(room1)
-
-	//send a test message to the room for all clients to receive
-	room1.messages <- bytes.NewBufferString("this is the third message for all clients in the room")
-
-	//start a tcp server for clients
+	//start a tcp server for accepting clients
 	server, err := net.Listen("tcp", "localhost:8000")
 	if err != nil {
 		log.Println("error: failed to open tcp listener : ", err)
 	}
 	defer server.Close()
 
-	clientID := 0
+	clientID := 1
 	for {
+		fmt.Println("***entering conn for loop")
 		conn, err := server.Accept()
 		if err != nil {
 			fmt.Println("error: network connection failed:", err)
 		}
-		//hvordan skal man starte en ny klient ???????????????
-		go 
-	}
 
-	time.Sleep(time.Second * 2) //a little delay, will be removed later.
-	fmt.Println("------------------------------------------------------------")
-	fmt.Println("room1 contains : ", room1)
+		go handleConn(conn, clientID, room1)
+		clientID++
+	}
 
 }
