@@ -59,9 +59,10 @@ func (r *room) run() {
 }
 
 type client struct {
-	ID   int         //unique ID of client
-	room *room       //room that client belongs to
-	msg  chan []byte //the channel to send a message directly to a client
+	ID           int         //unique ID of client
+	room         *room       //room that client belongs to
+	msg          chan []byte //the channel to send a message directly to a client
+	disconnected chan bool   //to be set to true if an abnormal client disconnect is detected
 }
 
 //attach a room given as input to the client
@@ -115,6 +116,19 @@ func (c *client) writeToNet(conn net.Conn, r *room) {
 	}
 }
 
+//TESTING: TO BE REMOVED IF NOT WORKING
+func (c *client) checkDisconnect() (disc bool) {
+	for v := range c.disconnected {
+		if v == true {
+			fmt.Println("value of disconnected = true")
+			return true
+		}
+	}
+
+	fmt.Println("value of disconnected = false")
+	return false
+}
+
 func handleClient(conn net.Conn, cID int, r *room) {
 	client := newClient(cID)
 	client.joinRoom(r)
@@ -127,8 +141,9 @@ func handleClient(conn net.Conn, cID int, r *room) {
 //create a new client with unique ID
 func newClient(id int) *client {
 	return &client{
-		ID:  id,
-		msg: make(chan []byte),
+		ID:           id,
+		msg:          make(chan []byte),
+		disconnected: make(chan bool),
 	}
 }
 
