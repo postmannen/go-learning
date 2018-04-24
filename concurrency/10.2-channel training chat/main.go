@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"time"
 )
 
 type room struct {
@@ -82,43 +81,47 @@ func (c *client) leaveRoom(r *room) {
 }
 
 //read from client network connection, and put the data on the messages channel to the room
-func (c *client) writeRoomChannel(conn net.Conn, r *room) {
+func (c *client) readFromNet(conn net.Conn, r *room) {
+	defer conn.Close()
 	for {
 		data := make([]byte, 1024) //Will let the Read method read 1024
 
 		_, err := conn.Read(data)
 		if err != nil {
-			log.Println("Error client.writeRoomChannel:", err)
+			log.Println("Error client.readFromNet:", err)
 			break
 		}
 
 		r.messages <- []byte(data)
 
 	}
-	conn.Close()
 
 	s := fmt.Sprintf("client%v left the room !", c.ID)
 	r.messages <- []byte(s)
 }
 
-func handleClient(conn net.Conn, cID int, r *room) {
-	client := newClient(cID)
-	client.joinRoom(r)
-	//starting detection of client.writeRoomChannel in its own go routine so it not hangs the execution waiting
-	go client.writeRoomChannel(conn, r)
-
+func (c *client) writeToNet(conn net.Conn, r *room) {
 	//check if something is received on the client.msg channel, and write it to the telnet session
+	defer conn.Close()
 	for {
-		select {
-		case m := <-client.msg:
-			m2 := fmt.Sprintf("client%v received msg: %v\n", client.ID, string(m))
+		for m := range c.msg {
+			m2 := fmt.Sprintf("client%v received msg: %v\n", c.ID, string(m))
 			_, err := conn.Write([]byte(m2))
 			if err != nil {
-				fmt.Println("---> error: conn.Write", err)
-				client.leaveRoom(r)
+				fmt.Printf("---> error: client%v.writeToNet: %v\n", c.ID, err)
+				//c.leaveRoom(r)
 			}
 		}
 	}
+}
+
+func handleClient(conn net.Conn, cID int, r *room) {
+	client := newClient(cID)
+	client.joinRoom(r)
+
+	go client.readFromNet(conn, r)
+
+	go client.writeToNet(conn, r)
 }
 
 //create a new client with unique ID
@@ -133,10 +136,6 @@ func main() {
 	//create a default room for clients to connect to
 	room1 := newRoom(1)
 	go room1.run()
-	time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
-
-	//send a test message to the room for all clients to receive
-	room1.messages <- []byte("this is the first message for all clients in the room")
 
 	//start a tcp server for accepting clients
 	server, err := net.Listen("tcp", "localhost:8000")
