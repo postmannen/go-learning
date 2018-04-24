@@ -7,9 +7,7 @@ If the client exits by closing the connection it works ok.
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"time"
@@ -17,7 +15,7 @@ import (
 
 type room struct {
 	ID       int
-	messages chan io.Reader   //the active chat messages for all in room
+	messages chan []byte      //the active chat messages for all in room
 	clients  map[*client]bool //true if client is in room
 	joining  chan *client
 	leaving  chan *client
@@ -28,9 +26,9 @@ func newRoom(id int) *room {
 	return &room{
 		ID:       id,
 		clients:  make(map[*client]bool),
-		messages: make(chan io.Reader), //initialize channel, or...deadlock
-		joining:  make(chan *client),   //initialize channel, or...deadlock
-		leaving:  make(chan *client),   //initialize channel, or...deadlock
+		messages: make(chan []byte),  //initialize channel, or...deadlock
+		joining:  make(chan *client), //initialize channel, or...deadlock
+		leaving:  make(chan *client), //initialize channel, or...deadlock
 	}
 }
 
@@ -42,7 +40,7 @@ func (r *room) run() {
 		select {
 		//any new incomming messages to the room ?
 		case msg := <-r.messages:
-			fmt.Printf("room%v received msg: %v\n", r.ID, msg)
+			fmt.Printf("room%v received msg: %v\n", r.ID, string(msg))
 			//send the room message out to all the active clients in the room
 			for cl := range r.clients {
 				cl.msg <- msg
@@ -52,7 +50,7 @@ func (r *room) run() {
 		case c := <-r.joining:
 			r.clients[c] = true
 			//sends message directly to the client, and not in room for all to see
-			c.msg <- bytes.NewBufferString("Welcome to the room !")
+			c.msg <- []byte("Welcome to the room !")
 		case c := <-r.leaving:
 			fmt.Printf("----------- client%v are leaving room%v-----------\n", c.ID, r.ID)
 			delete(r.clients, c)
@@ -62,9 +60,9 @@ func (r *room) run() {
 }
 
 type client struct {
-	ID   int            //unique ID of client
-	room *room          //room that client belongs to
-	msg  chan io.Reader //the channel to send a message directly to a client
+	ID   int         //unique ID of client
+	room *room       //room that client belongs to
+	msg  chan []byte //the channel to send a message directly to a client
 }
 
 //attach a room given as input to the client
@@ -73,7 +71,7 @@ func (c *client) joinRoom(r *room) {
 	fmt.Printf("-----------joinRoom: client1.ID =%v, is now in the room client.room.ID = %v-----------\n", c.ID, c.room.ID)
 	//Since Hello message goes to the room all clients will se it
 	myString := fmt.Sprintf("Hello, I'm client%v, and entering the room", c.ID)
-	c.room.messages <- bytes.NewBufferString(myString)
+	c.room.messages <- []byte(myString)
 
 	//set the client active in the room
 	c.room.joining <- c
@@ -94,13 +92,13 @@ func (c *client) writeRoomChannel(conn net.Conn, r *room) {
 			break
 		}
 
-		r.messages <- bytes.NewBuffer(data)
+		r.messages <- []byte(data)
 
 	}
 	conn.Close()
 
 	s := fmt.Sprintf("client%v left the room !", c.ID)
-	r.messages <- bytes.NewBufferString(s)
+	r.messages <- []byte(s)
 }
 
 func handleClient(conn net.Conn, cID int, r *room) {
@@ -113,7 +111,7 @@ func handleClient(conn net.Conn, cID int, r *room) {
 	for {
 		select {
 		case m := <-client.msg:
-			m2 := fmt.Sprintf("client%v received msg: %v\n", client.ID, m)
+			m2 := fmt.Sprintf("client%v received msg: %v\n", client.ID, string(m))
 			_, err := conn.Write([]byte(m2))
 			if err != nil {
 				fmt.Println("---> error: conn.Write", err)
@@ -127,7 +125,7 @@ func handleClient(conn net.Conn, cID int, r *room) {
 func newClient(id int) *client {
 	return &client{
 		ID:  id,
-		msg: make(chan io.Reader),
+		msg: make(chan []byte),
 	}
 }
 
@@ -138,7 +136,7 @@ func main() {
 	time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
 
 	//send a test message to the room for all clients to receive
-	room1.messages <- bytes.NewBufferString("this is the first message for all clients in the room")
+	room1.messages <- []byte("this is the first message for all clients in the room")
 
 	//start a tcp server for accepting clients
 	server, err := net.Listen("tcp", "localhost:8000")
