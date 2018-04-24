@@ -75,6 +75,49 @@ func (c *client) joinRoom(r *room) {
 
 func (c *client) leaveRoom(r *room) {
 	r.leaving <- c
+	close(c.msg) //TESTING
+}
+
+//read from client network connection, and put the data on the messages channel to the room
+func (c *client) writeRoomChannel(conn net.Conn, r *room) {
+	for {
+		data := make([]byte, 1024) //Will let the Read method read 1024
+
+		_, err := conn.Read(data)
+		if err != nil {
+			log.Println("Error client.wrote:", err)
+			break
+		}
+
+		r.messages <- bytes.NewBuffer(data)
+
+	}
+	conn.Close()
+
+	s := fmt.Sprintf("client%v left the room !", c.ID)
+	r.messages <- bytes.NewBufferString(s)
+}
+
+func handleClient(conn net.Conn, cID int, r *room) {
+	client := newClient(cID)
+	client.joinRoom(r)
+	//starting detection of client.writeRoomChannel in its own go routine so it not hangs the execution waiting
+	go client.writeRoomChannel(conn, r)
+
+	//check if something is received on the client.msg channel, and write it to the telnet session
+	for {
+		select {
+		case m := <-client.msg:
+			m2 := fmt.Sprintf("client%v received msg: %v\n", client.ID, m)
+			_, err := conn.Write([]byte(m2))
+			if err != nil {
+				fmt.Println("---> error: conn.Write", err)
+				client.leaveRoom(r)
+				break
+			}
+
+		}
+	}
 }
 
 //create a new client with unique ID
@@ -82,20 +125,6 @@ func newClient(id int) *client {
 	return &client{
 		ID:  id,
 		msg: make(chan io.Reader),
-	}
-}
-
-func handleConn(conn net.Conn, cID int, r *room) {
-	fmt.Println("starting handleConn for id = ", cID)
-	client := newClient(cID)
-	client.joinRoom(r)
-	for {
-		select {
-		case m := <-client.msg:
-			m2 := fmt.Sprintf("client%v received msg: %v\n", client.ID, m)
-			fmt.Println(m2)
-			conn.Write([]byte(m2))
-		}
 	}
 }
 
@@ -116,15 +145,15 @@ func main() {
 	defer server.Close()
 
 	clientID := 1
+	//wait for new network connection, and start new client sessions
 	for {
-		fmt.Println("***entering conn for loop")
 		conn, err := server.Accept()
 		if err != nil {
 			fmt.Println("error: network connection failed:", err)
+		} else {
+			go handleClient(conn, clientID, room1)
+			clientID++
 		}
-
-		go handleConn(conn, clientID, room1)
-		clientID++
 	}
 
 }
