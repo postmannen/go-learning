@@ -1,4 +1,5 @@
 // 10.1 - Fixed reading of data from telnet, so unexpected disconnects works without flooding
+// 10.2 - Fixed: client leaving room, room sending and writing out to all clients
 
 package main
 
@@ -41,13 +42,20 @@ func (ro *room) run() {
 		case msg := <-ro.messages:
 			//fmt.Println("content of msg =", msg)
 			fmt.Printf("room%v: %v\n", ro.ID, string(msg))
+			for k := range ro.clients {
+				fmt.Println("Active clients to get message = ", k)
+				k.msg <- msg
+			}
 
 		//create a reference of the client in the room struct, and set its value to true
 		//to indicate that this client is in the room
 		case c := <-ro.joining:
 			ro.clients[c] = true
-			c.msg <- []byte("Welcome to the room !")
+			c.msg <- []byte("Welcome to the room !\n")
 			//TODO: make the client tell the room it has left, so client is removed from the room
+		case l := <-ro.leaving:
+			log.Printf("room: client%v leaving room\n", l.ID)
+			delete(ro.clients, l)
 		}
 	}
 
@@ -75,21 +83,24 @@ func newClient(id int, con net.Conn) *client {
 func (c *client) joinRoom(ro *room) {
 	c.room = ro
 	log.Printf("joinRoom: client1.ID =%v, is now in the room client.room.ID = %v\n", c.ID, c.room.ID)
-	c.room.messages <- []byte(fmt.Sprintf("Hello, I'm client%v, and entering the room", c.ID))
+	c.room.messages <- []byte(fmt.Sprintf("Hello, I'm client%v, and entering the room\n", c.ID))
 
 	//set the client active in the room
 	c.room.joining <- c
 }
 
-//check the channels
+//check the client channels
 func (c *client) checkChannels() {
 	for {
 		select {
+		//if message received, write it to the telnet session
 		case msg := <-c.msg:
 			//fmt.Println("content of msg", msg)
 			fmt.Printf("client%v direct message: %v\n", c.ID, string(msg))
+			//write the client message to the telnet session
+			c.conn.Write(msg)
 		case <-c.exit:
-			log.Printf("leaving checkChannels goRoutine, client%v disconnected\n", c.ID)
+			log.Printf("leaving checkChannels for client goRoutine, client%v disconnected\n", c.ID)
 			break
 		}
 	}
@@ -109,10 +120,13 @@ func (c *client) handleTelnet() {
 			//above we check for ascii value 4 (EOT), since it will tell if the client session is lost
 			c.exit <- true
 			//print error message to room, and leave handleTelnet go routine
-			c.room.messages <- []byte(fmt.Sprintf("client%v unexpectedly lost connection", c.ID))
+			c.room.messages <- []byte(fmt.Sprintf("client%v unexpectedly lost connection\n", c.ID))
+			c.room.leaving <- c
 			break
 		} else {
-			c.msg <- b
+			//if all is OK above, send the message to the room, and then the room will send out to all clients
+			b := []byte(fmt.Sprintf("client%v: %v", c.ID, string(b)))
+			c.room.messages <- b
 		}
 
 	}
@@ -130,7 +144,7 @@ func main() {
 	time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
 
 	//start telnet server
-	server, err := net.Listen("tcp", "127.0.0.1:8000")
+	server, err := net.Listen("tcp", ":8000")
 	if err != nil {
 		log.Println("Failed starting net listen:", err)
 		os.Exit(1)
