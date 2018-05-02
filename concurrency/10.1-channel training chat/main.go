@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -38,7 +37,7 @@ func (ro *room) run() {
 		select {
 		//any new incomming messages to the room ?
 		case msg := <-ro.messages:
-			fmt.Println("content of msg =", msg)
+			//fmt.Println("content of msg =", msg)
 			fmt.Printf("room%v: %v\n", ro.ID, string(msg))
 
 		//create a reference of the client in the room struct, and set its value to true
@@ -46,7 +45,7 @@ func (ro *room) run() {
 		case c := <-ro.joining:
 			ro.clients[c] = true
 			c.msg <- []byte("Welcome to the room !")
-
+			//TODO: make the client tell the room it has left, so client is removed from the room
 		}
 	}
 
@@ -56,6 +55,7 @@ type client struct {
 	ID   int         //unique ID of client
 	room *room       //room that client belongs to
 	msg  chan []byte //the channel to send a message directly to a client
+	exit chan bool   //for telling if a client has left
 	conn net.Conn
 }
 
@@ -64,6 +64,7 @@ func newClient(id int, con net.Conn) *client {
 	return &client{
 		ID:   id,
 		msg:  make(chan []byte),
+		exit: make(chan bool),
 		conn: con,
 	}
 }
@@ -72,7 +73,7 @@ func newClient(id int, con net.Conn) *client {
 func (c *client) joinRoom(ro *room) {
 	c.room = ro
 	log.Printf("joinRoom: client1.ID =%v, is now in the room client.room.ID = %v\n", c.ID, c.room.ID)
-	c.room.messages <- []byte("Hello, I'm client%v, and entering the room")
+	c.room.messages <- []byte(fmt.Sprintf("Hello, I'm client%v, and entering the room", c.ID))
 
 	//set the client active in the room
 	c.room.joining <- c
@@ -83,14 +84,18 @@ func (c *client) checkChannels() {
 	for {
 		select {
 		case msg := <-c.msg:
-			fmt.Println("content of msg", msg)
+			//fmt.Println("content of msg", msg)
 			fmt.Printf("client%v direct message: %v\n", c.ID, string(msg))
+		case <-c.exit:
+			log.Printf("leaving checkChannels goRoutine, client%v disconnected\n", c.ID)
+			break
 		}
 	}
 }
 
-//read the the telnet session, and exit go-routine if error
-func (c *client) handleTelnet() (err error) {
+//Read the the telnet session, and exit go-routine if error.
+//Check for ascii value 4 (EOT=end of transmission) since it will indicate that the client connection was lost.
+func (c *client) handleTelnet() {
 	defer c.conn.Close()
 	for {
 		b := make([]byte, 256)
@@ -98,16 +103,19 @@ func (c *client) handleTelnet() (err error) {
 		if err != nil {
 			fmt.Println("error: handleTelnet read:", err)
 			break
+		} else if b[0] == 4 {
+			//above we check for ascii value 4 (EOT), since it will tell if the client session is lost
+			c.exit <- true
+			//print error message to room, and leave handleTelnet go routine
+			c.room.messages <- []byte(fmt.Sprintf("client%v unexpectedly lost connection", c.ID))
+			break
+		} else {
+			c.msg <- b
 		}
-		//we check for ascii value 4 (EOT), since it will tell if the client session is lost
-		if b[0] == 4 {
-			c.room.messages <- []byte(fmt.Sprintf("client%v unexpectedlylost connection", c.ID))
-			return errors.New("EOT end of transmission")
-		}
-		c.msg <- b
 
 	}
-	return err
+	log.Printf("leaving handleTelnet for client%v\n", c.ID)
+	//return err
 }
 
 const number int = 10
