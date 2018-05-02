@@ -1,5 +1,5 @@
 // 10.1 - Fixed reading of data from telnet, so unexpected disconnects works without flooding
-// 10.2 - Fixed: client leaving room, room sending and writing out to all clients
+//        Fixed: client leaving room, room sending and writing out to all clients
 
 package main
 
@@ -134,8 +134,6 @@ func (c *client) handleTelnet() {
 	//return err
 }
 
-const number int = 10
-
 var clientID = 1
 
 func main() {
@@ -149,6 +147,7 @@ func main() {
 		log.Println("Failed starting net listen:", err)
 		os.Exit(1)
 	}
+	defer server.Close()
 
 	//wait for telnet connection, create new client, join default room, and start the client.
 	for {
@@ -164,9 +163,5 @@ func main() {
 
 		clientID++
 	}
-
-	//time.Sleep(time.Second * 2) //a little delay, will be removed later.
-	//fmt.Println("------------------------------------------------------------")
-	//fmt.Println("room1 contains : ", room1)
 
 }
