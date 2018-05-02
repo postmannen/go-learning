@@ -5,11 +5,11 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"log"
 	"net"
 	"os"
-	"time"
 )
 
 type room struct {
@@ -26,9 +26,9 @@ func newRoom(id int) *room {
 	return &room{
 		ID:       id,
 		clients:  make(map[*client]bool),
-		messages: make(chan []byte),  //initialize channel, or...deadlock
-		joining:  make(chan *client), //initialize channel, or...deadlock
-		leaving:  make(chan *client), //initialize channel, or...deadlock
+		messages: make(chan []byte, 10), //initialize channel, or...deadlock
+		joining:  make(chan *client),    //initialize channel, or...deadlock
+		leaving:  make(chan *client),    //initialize channel, or...deadlock
 	}
 }
 
@@ -41,9 +41,9 @@ func (ro *room) run() {
 		//any new incomming messages to the room ?
 		case msg := <-ro.messages:
 			//fmt.Println("content of msg =", msg)
-			fmt.Printf("room%v: %v\n", ro.ID, string(msg))
+			log.Printf("room%v: %v\n", ro.ID, string(msg))
 			for k := range ro.clients {
-				fmt.Println("Active clients to get message = ", k)
+				log.Println("Active clients to get message = ", k)
 				k.msg <- msg
 			}
 
@@ -55,6 +55,7 @@ func (ro *room) run() {
 			//TODO: make the client tell the room it has left, so client is removed from the room
 		case l := <-ro.leaving:
 			log.Printf("room: client%v leaving room\n", l.ID)
+			ro.messages <- []byte(fmt.Sprintf("room: client%v leaving room\n", l.ID))
 			delete(ro.clients, l)
 		}
 	}
@@ -96,7 +97,7 @@ func (c *client) checkChannels() {
 		//if message received, write it to the telnet session
 		case msg := <-c.msg:
 			//fmt.Println("content of msg", msg)
-			fmt.Printf("client%v direct message: %v\n", c.ID, string(msg))
+			log.Printf("client%v direct message: %v\n", c.ID, string(msg))
 			//write the client message to the telnet session
 			c.conn.Write(msg)
 		case <-c.exit:
@@ -114,7 +115,8 @@ func (c *client) handleTelnet() {
 		b := make([]byte, 256)
 		_, err := c.conn.Read(b)
 		if err != nil {
-			fmt.Println("error: handleTelnet read:", err)
+			log.Println("error: handleTelnet read:", err)
+			c.room.leaving <- c
 			break
 		} else if b[0] == 4 {
 			//above we check for ascii value 4 (EOT), since it will tell if the client session is lost
@@ -137,12 +139,16 @@ func (c *client) handleTelnet() {
 var clientID = 1
 
 func main() {
+	addr := flag.String("addr", ":8000", "<address:port>")
+	flag.Parse()
+	fmt.Println(*addr)
+
 	room1 := newRoom(1)
 	go room1.run()
-	time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
+	//time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
 
 	//start telnet server
-	server, err := net.Listen("tcp", ":8000")
+	server, err := net.Listen("tcp", *addr)
 	if err != nil {
 		log.Println("Failed starting net listen:", err)
 		os.Exit(1)
