@@ -9,24 +9,30 @@ import (
 	"os"
 )
 
+//bundle the room message with *client, so we can track where the messages are from
+type roomMessage struct {
+	msg    []byte
+	client *client
+}
+
 type room struct {
-	ID      int
-	msg     chan []byte      //the active chat messages for all in room
-	buf     bytes.Buffer     //buffer of recent messages
-	clients map[*client]bool //true if client is in room
-	joining chan *client
-	leaving chan *client
-	command chan []byte //user for sending command action messages to server
+	ID            int
+	msg           chan roomMessage //the active chat messages for all in room
+	buf           bytes.Buffer     //buffer of recent messages
+	activeClients map[*client]bool //true if client is in room
+	joining       chan *client
+	leaving       chan *client
+	command       chan []byte //user for sending command action messages to server
 }
 
 //create a new room
 func newRoom(id int) *room {
 	return &room{
-		ID:      id,
-		clients: make(map[*client]bool),
-		msg:     make(chan []byte, 10), //initialize channel, or...deadlock
-		joining: make(chan *client),    //initialize channel, or...deadlock
-		leaving: make(chan *client),    //initialize channel, or...deadlock
+		ID:            id,
+		activeClients: make(map[*client]bool),
+		msg:           make(chan roomMessage, 10), //initialize channel, or...deadlock
+		joining:       make(chan *client),         //initialize channel, or...deadlock
+		leaving:       make(chan *client),         //initialize channel, or...deadlock
 	}
 }
 
@@ -38,23 +44,28 @@ func (ro *room) run() {
 		select {
 		//any new incomming messages to the room ? if so...send them out on each client.msg channel to
 		//be handlet by the client methods
-		case msg := <-ro.msg:
-			log.Printf("room%v: %v\n", ro.ID, string(msg))
-			for k := range ro.clients {
+		case rm := <-ro.msg:
+			log.Printf("room%v: %v\n", ro.ID, string(rm.msg))
+			for k := range ro.activeClients {
 				log.Println("Active clients to get message = ", k)
-				k.msg <- msg
+				//prepare the message from room to clients with the sender id so all can see who sent the message
+				tmpMsg := []byte(fmt.Sprintf("client%v: %v", rm.client.ID, string(rm.msg)))
+				k.msg <- tmpMsg
 			}
 
 		//create a reference of the client in the room struct, and set its value to true
 		//to indicate that this client is in the room
 		case c := <-ro.joining:
-			ro.clients[c] = true
+			ro.activeClients[c] = true
 			c.msg <- []byte("Welcome to the room !\n")
 			//TODO: make the client tell the room it has left, so client is removed from the room
 		case l := <-ro.leaving:
 			log.Printf("room: client%v leaving room\n", l.ID)
-			ro.msg <- []byte(fmt.Sprintf("room: client%v leaving room\n", l.ID))
-			delete(ro.clients, l)
+			tmpMsg := roomMessage{
+				msg: []byte(fmt.Sprintf("room: client%v leaving room\n", l.ID)),
+			}
+			ro.msg <- tmpMsg
+			delete(ro.activeClients, l)
 		}
 	}
 
@@ -82,7 +93,11 @@ func newClient(id int, con net.Conn) *client {
 func (c *client) joinRoom(ro *room) {
 	c.room = ro
 	log.Printf("joinRoom: client1.ID =%v, is now in the room client.room.ID = %v\n", c.ID, c.room.ID)
-	c.room.msg <- []byte(fmt.Sprintf("Hello, I'm client%v, and entering the room\n", c.ID))
+	tmpMsg := roomMessage{
+		msg:    []byte(fmt.Sprintf("Hello, I'm client%v, and entering the room\n", c.ID)),
+		client: c,
+	}
+	c.room.msg <- tmpMsg
 
 	//set the client active in the room
 	c.room.joining <- c
@@ -120,13 +135,21 @@ func (c *client) handleTelnet() {
 			//above we check for ascii value 4 (EOT), since it will tell if the client session is lost
 			c.exit <- true
 			//print error message to room, and leave handleTelnet go routine
-			c.room.msg <- []byte(fmt.Sprintf("client%v unexpectedly lost connection\n", c.ID))
+			tmpMsg := roomMessage{
+				msg:    []byte(fmt.Sprintf("client%v unexpectedly lost connection\n", c.ID)),
+				client: c,
+			}
+			c.room.msg <- tmpMsg
 			c.room.leaving <- c
 			break
 		} else {
 			//if all is OK above, send the message to the room, and then the room will send out to all clients
-			b := []byte(fmt.Sprintf("client%v: %v", c.ID, string(b)))
-			c.room.msg <- b
+
+			tmpMsg := roomMessage{
+				msg:    []byte(fmt.Sprintf("%v", string(b))),
+				client: c,
+			}
+			c.room.msg <- tmpMsg
 		}
 
 	}
