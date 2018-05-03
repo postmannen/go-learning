@@ -11,28 +11,28 @@ import (
 
 //bundle the room message with *client, so we can track where the messages are from
 type roomMessage struct {
-	msg    []byte
-	client *client
+	msg    []byte  //the message to send to the room
+	client *client //the client who sent the message
 }
 
 type room struct {
 	ID            int
-	msg           chan roomMessage //the active chat messages for all in room
+	msg           chan roomMessage //the active chat messages for all in room, bundled with a field for *client
 	buf           bytes.Buffer     //buffer of recent messages
-	activeClients map[*client]bool //true if client is in room
+	activeClients map[*client]bool //true if client is in room to keep track of active clients
 	joining       chan *client
 	leaving       chan *client
 	command       chan []byte //user for sending command action messages to server
 }
 
 //create a new room
-func newRoom(id int) *room {
+func newRoom(id int, maxRoomMsg int) *room {
 	return &room{
 		ID:            id,
 		activeClients: make(map[*client]bool),
-		msg:           make(chan roomMessage, 10), //initialize channel, or...deadlock
-		joining:       make(chan *client),         //initialize channel, or...deadlock
-		leaving:       make(chan *client),         //initialize channel, or...deadlock
+		msg:           make(chan roomMessage, maxRoomMsg), //initialize channel, or...deadlock
+		joining:       make(chan *client),                 //initialize channel, or...deadlock
+		leaving:       make(chan *client),                 //initialize channel, or...deadlock
 	}
 }
 
@@ -45,6 +45,9 @@ func (ro *room) run() {
 		//any new incomming messages to the room ? if so...send them out on each client.msg channel to
 		//be handlet by the client methods
 		case rm := <-ro.msg:
+			if rm.msg[0] == '/' {
+				roomCheckCommand(rm)
+			}
 			log.Printf("room%v: %v\n", ro.ID, string(rm.msg))
 			for k := range ro.activeClients {
 				log.Println("Active clients to get message = ", k)
@@ -69,6 +72,31 @@ func (ro *room) run() {
 		}
 	}
 
+}
+
+func roomCheckCommand(m roomMessage) {
+	//find the 'space' which seperate the command from the option that follows, then the 'enter' who ends the command
+	i := 0
+	spacePosition := 0
+	enterPosition := 0
+	var command string
+	var parameter string
+	for _, v := range m.msg {
+		if v == ' ' {
+			spacePosition = i
+			log.Println("found space at spot = ", spacePosition)
+			command = string(m.msg[1:spacePosition])
+			log.Printf("command='%v'\n", command)
+		}
+		i++
+		if v == 10 {
+			fmt.Println("enterPosition =", enterPosition)
+			parameter = string(m.msg[spacePosition+1 : enterPosition-1])
+			fmt.Printf("parameter='%v'\n", parameter)
+			break
+		}
+		enterPosition++
+	}
 }
 
 type client struct {
@@ -161,10 +189,11 @@ var clientID = 1
 
 func main() {
 	addr := flag.String("addr", ":8000", "<address:port>")
+	maxRoomMsg := flag.Int("maxRoomMsg", 100, "Max messages to be handled by room at once")
 	flag.Parse()
 	fmt.Println(*addr)
 
-	room1 := newRoom(1)
+	room1 := newRoom(1, *maxRoomMsg)
 	go room1.run()
 	//time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
 
