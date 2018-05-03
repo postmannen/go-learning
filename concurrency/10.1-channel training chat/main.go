@@ -1,6 +1,3 @@
-// 10.1 - Fixed reading of data from telnet, so unexpected disconnects works without flooding
-//        Fixed: client leaving room, room sending and writing out to all clients
-
 package main
 
 import (
@@ -13,22 +10,23 @@ import (
 )
 
 type room struct {
-	ID       int
-	messages chan []byte      //the active chat messages for all in room
-	buf      bytes.Buffer     //buffer of recent messages
-	clients  map[*client]bool //true if client is in room
-	joining  chan *client
-	leaving  chan *client
+	ID      int
+	msg     chan []byte      //the active chat messages for all in room
+	buf     bytes.Buffer     //buffer of recent messages
+	clients map[*client]bool //true if client is in room
+	joining chan *client
+	leaving chan *client
+	command chan []byte //user for sending command action messages to server
 }
 
 //create a new room
 func newRoom(id int) *room {
 	return &room{
-		ID:       id,
-		clients:  make(map[*client]bool),
-		messages: make(chan []byte, 10), //initialize channel, or...deadlock
-		joining:  make(chan *client),    //initialize channel, or...deadlock
-		leaving:  make(chan *client),    //initialize channel, or...deadlock
+		ID:      id,
+		clients: make(map[*client]bool),
+		msg:     make(chan []byte, 10), //initialize channel, or...deadlock
+		joining: make(chan *client),    //initialize channel, or...deadlock
+		leaving: make(chan *client),    //initialize channel, or...deadlock
 	}
 }
 
@@ -38,8 +36,9 @@ func (ro *room) run() {
 
 	for {
 		select {
-		//any new incomming messages to the room ?
-		case msg := <-ro.messages:
+		//any new incomming messages to the room ? if so...send them out on each client.msg channel to
+		//be handlet by the client methods
+		case msg := <-ro.msg:
 			//fmt.Println("content of msg =", msg)
 			log.Printf("room%v: %v\n", ro.ID, string(msg))
 			for k := range ro.clients {
@@ -55,7 +54,7 @@ func (ro *room) run() {
 			//TODO: make the client tell the room it has left, so client is removed from the room
 		case l := <-ro.leaving:
 			log.Printf("room: client%v leaving room\n", l.ID)
-			ro.messages <- []byte(fmt.Sprintf("room: client%v leaving room\n", l.ID))
+			ro.msg <- []byte(fmt.Sprintf("room: client%v leaving room\n", l.ID))
 			delete(ro.clients, l)
 		}
 	}
@@ -84,7 +83,7 @@ func newClient(id int, con net.Conn) *client {
 func (c *client) joinRoom(ro *room) {
 	c.room = ro
 	log.Printf("joinRoom: client1.ID =%v, is now in the room client.room.ID = %v\n", c.ID, c.room.ID)
-	c.room.messages <- []byte(fmt.Sprintf("Hello, I'm client%v, and entering the room\n", c.ID))
+	c.room.msg <- []byte(fmt.Sprintf("Hello, I'm client%v, and entering the room\n", c.ID))
 
 	//set the client active in the room
 	c.room.joining <- c
@@ -122,13 +121,16 @@ func (c *client) handleTelnet() {
 			//above we check for ascii value 4 (EOT), since it will tell if the client session is lost
 			c.exit <- true
 			//print error message to room, and leave handleTelnet go routine
-			c.room.messages <- []byte(fmt.Sprintf("client%v unexpectedly lost connection\n", c.ID))
+			c.room.msg <- []byte(fmt.Sprintf("client%v unexpectedly lost connection\n", c.ID))
 			c.room.leaving <- c
 			break
+		} else if b[0] == '/' {
+			fmt.Println("Found a slash")
+
 		} else {
 			//if all is OK above, send the message to the room, and then the room will send out to all clients
 			b := []byte(fmt.Sprintf("client%v: %v", c.ID, string(b)))
-			c.room.messages <- b
+			c.room.msg <- b
 		}
 
 	}
