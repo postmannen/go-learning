@@ -193,8 +193,11 @@ func main() {
 	flag.Parse()
 	fmt.Println(*addr)
 
-	room1 := newRoom(1, *maxRoomMsg)
-	go room1.run()
+	//to hold all the rooms created
+	rooms := make(map[int]*room)
+
+	rooms[1] = newRoom(1, *maxRoomMsg)
+	go rooms[1].run()
 	//time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
 
 	//start telnet server
@@ -213,7 +216,7 @@ func main() {
 		}
 
 		client1 := newClient(clientID, conn)
-		client1.joinRoom(room1)
+		client1.joinRoom(rooms[1])
 		go client1.checkChannels()
 		go client1.handleTelnet()
 
@@ -224,4 +227,5 @@ func main() {
 
 /*
  10.2-Added server command checking
+ 10.3-TODO: Add more rooms
 */
