@@ -191,14 +191,10 @@ func main() {
 	addr := flag.String("addr", ":8000", "<address:port>")
 	maxRoomMsg := flag.Int("maxRoomMsg", 100, "Max messages to be handled by room at once")
 	flag.Parse()
-	fmt.Println(*addr)
-
 	//to hold all the rooms created
 	rooms := make(map[int]*room)
-
 	rooms[1] = newRoom(1, *maxRoomMsg)
 	go rooms[1].run()
-	//time.Sleep(time.Millisecond * 50) //let the room fully start before starting clients, will be removed later.
 
 	//start telnet server
 	server, err := net.Listen("tcp", *addr)
