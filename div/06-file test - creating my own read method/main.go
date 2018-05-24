@@ -45,8 +45,8 @@ func main() {
 	}
 	defer fh.Close()
 
-	words := []aWord{}
-	wordFound := aWord{}
+	words := []aWord{}   //slice to hold all the words found
+	wordFound := aWord{} //a single word found
 	for {
 		var n int
 		wordFound.word, n = readWord(fh)
