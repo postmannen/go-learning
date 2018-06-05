@@ -54,7 +54,7 @@ func main() {
 
 	//Signature : http.Handle(pattern string, handler http.Handler)
 	//A http.Handlerfunc type is a type of type function, which also have ServeHTTP method.
-	//Since it has a ServeHTTP method it is also of type 'handler', and can be passed to http.Handle,
+	//Since it has a ServeHTTP method it is also of type 'handler',
 	// and we can pass it into the http.Handle function.
 	http.Handle("/Handle_myHandlerFunc1", varHandlerFunc1)
 
