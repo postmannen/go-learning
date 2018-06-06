@@ -1,5 +1,5 @@
 /*
-The purpose of this exercise is to understand the differences betwee  handle, handler, handlefunc, handlerfunc.
+The purpose of this exercise is to understand the differences between : handle, handler, handlefunc, handlerfunc.
 	1. type http.Handler
 	2. function http.Handle
 	3. type http.HandlerFunc
