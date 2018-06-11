@@ -28,6 +28,12 @@ type server struct {
 	tmpl     *template.Template
 }
 
+//handleSome is not a real HandleFunc, it is just a normal function who
+// returns a type HandlerFunc.
+//The nice thing with this is that you can prepare and initialise needed to
+// serve the web page without even calling the web page to be shown if
+// something goes wrong.
+//It is the returned type HandlerFunc thats beeing executed by the HandleFunc function.
 func (s *server) handleSome() http.HandlerFunc {
 	s.once.Do(func() {
 		fmt.Println("This is only going to be written once !!")
