@@ -10,7 +10,7 @@ import (
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	err := homeView.Template.Execute(w, nil)
+	err := homeView.Template.ExecuteTemplate(w, homeView.Layout, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -19,7 +19,7 @@ func home(w http.ResponseWriter, r *http.Request) {
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	err := contactView.Template.Execute(w, nil)
+	err := contactView.Template.ExecuteTemplate(w, homeView.Layout, nil)
 	if err != nil {
 		panic(err)
 	}
@@ -30,12 +30,12 @@ var homeView *views.View
 var contactView *views.View
 
 func main() {
-	homeView = views.NewView("views/home.html")
-	contactView = views.NewView("views/contact.html")
+	homeView = views.NewView("bootstrap", "views/home.html")
+	contactView = views.NewView("bootstrap", "views/contact.html")
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":3000", r)
 }
