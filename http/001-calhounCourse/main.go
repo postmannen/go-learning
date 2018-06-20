@@ -10,20 +10,12 @@ import (
 
 func home(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	err := homeView.Template.ExecuteTemplate(w, homeView.Layout, nil)
-	if err != nil {
-		panic(err)
-	}
-
+	must(homeView.Render(w, nil))
 }
 
 func contact(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-	err := contactView.Template.ExecuteTemplate(w, homeView.Layout, nil)
-	if err != nil {
-		panic(err)
-	}
-
+	must(contactView.Render(w, nil))
 }
 
 var homeView *views.View
@@ -38,4 +30,10 @@ func main() {
 	r.HandleFunc("/", home)
 	r.HandleFunc("/contact", contact)
 	http.ListenAndServe(":3000", r)
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

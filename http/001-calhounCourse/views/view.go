@@ -3,6 +3,7 @@ package views
 import (
 	"fmt"
 	"html/template"
+	"net/http"
 	"path/filepath"
 )
 
@@ -30,6 +31,11 @@ func NewView(layout string, files ...string) *View {
 type View struct {
 	Template *template.Template
 	Layout   string
+}
+
+//Render renders the template
+func (v *View) Render(w http.ResponseWriter, data interface{}) error {
+	return v.Template.ExecuteTemplate(w, v.Layout, data)
 }
 
 //layoutFiles will get a slice containing the name of all the *.html files in the views/layout directory
