@@ -14,7 +14,10 @@
 {{end}}
 
 {{define "signupForm"}}
-<form>
+<!-- When submit is pressed the action below will be executed
+      and the method will be POST, and not GET as it is in the
+      first shown /signup page -->
+<form action="/signup" method="POST">
     <div class="form-group">
       <label for="email">Email address</label>
       <input type="email" name="email" class="form-control" id="email" placeholder="Email">
