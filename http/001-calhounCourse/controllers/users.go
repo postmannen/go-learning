@@ -21,7 +21,9 @@ type Users struct {
 
 //New used to render the form for the create user page
 func (u *Users) New(w http.ResponseWriter, r *http.Request) {
-	u.NewView.Render(w, nil)
+	if err := u.NewView.Render(w, nil); err != nil {
+		panic(err)
+	}
 }
 
 //Create is the method who actually handles the logic to create the user after
