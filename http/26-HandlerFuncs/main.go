@@ -5,14 +5,34 @@ import (
 	"html/template"
 	"net/http"
 	"sync"
+
+	"github.com/gorilla/mux"
 )
 
 type server struct {
 	addr   string
-	router http.Handler
+	router *mux.Router //server type will use gorilla mux
 }
 
-func login() http.HandlerFunc {
+//routes contain all the routes for the server
+func (s *server) routes() {
+	s.router.HandleFunc("/login", s.login())
+}
+
+func newServer() *server {
+	return &server{
+		addr:   ":3000",
+		router: mux.NewRouter()}
+}
+
+//by making a function returning a HandlerFunc we get more flexibility compared to
+//the normal 'func someName(w http.ResponseWriter, r *http.Request' way.
+//The HandlerFunction's are also methods of the server object allowing us to use
+//the data available trough the server struct.
+//We can now also pass in arguments to the function when calling it without voilating
+//the interface specification of how a HandlerFunc shall look like, since it now returns
+//a HandlerFunc, and is not specified as a HandlerFunc.
+func (s *server) login() http.HandlerFunc {
 	var tpl *template.Template
 	var err error
 	var init sync.Once
@@ -35,13 +55,10 @@ func login() http.HandlerFunc {
 	}
 }
 
-func newServer() *server {
-	return &server{addr: ":3000", router: http.DefaultServeMux}
-}
-
 func main() {
-	server1 := newServer()
-
-	http.HandleFunc("/login", login())
-	http.ListenAndServe(server1.addr, server1.router)
+	srv1 := newServer()
+	srv1.router = mux.NewRouter()
+	srv1.routes()
+	//srv1.router.HandleFunc("/login", srv1.login())
+	http.ListenAndServe(srv1.addr, srv1.router)
 }
