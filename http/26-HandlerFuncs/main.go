@@ -21,7 +21,7 @@ type server struct {
 //routes contain all the routes for the server
 func (s *server) routes() {
 	s.router.HandleFunc("/login", s.login())
-	s.router.HandleFunc("/loginOK", s.loginOK())
+	s.router.HandleFunc("/register", s.register())
 }
 
 func newServer() *server {
@@ -71,17 +71,15 @@ func (s *server) login() http.HandlerFunc {
 
 		err = s.checkUserExist(u)
 		if err != nil {
-			log.Println("Error : ", err)
+			fmt.Fprintf(w, "The user %v does not exist !", u.Email)
 		} else {
 			//login user things should come here !!!
 		}
 	}
 }
 
-func (s *server) loginOK() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "You've logged in")
-	}
+func (s *server) register() http.HandlerFunc {
+	return nil
 }
 
 func (s *server) checkUserExist(u user) (err error) {
@@ -103,10 +101,12 @@ func readUserLoginForm(r *http.Request) (u user, err error) {
 	err = r.ParseForm()
 	if err != nil {
 		log.Println("error: Parsing form: ", err)
+		return u, err
 	}
 	err = decoder.Decode(&u, r.PostForm)
 	if err != nil {
 		log.Println("Error Decoding form : ", err)
+		return u, err
 	}
 	return u, nil
 }
@@ -117,7 +117,7 @@ type user struct {
 	Password string `schema:"password"`
 	Submit   string `schema:"submit"`
 	Cancel   string `schema:"cancel"`
-	token    bool
+	loggedIn bool
 }
 
 func main() {
