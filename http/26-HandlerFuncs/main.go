@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"log"
@@ -14,6 +15,7 @@ import (
 type server struct {
 	addr   string
 	router *mux.Router //server type will use gorilla mux
+	user   []user
 }
 
 //routes contain all the routes for the server
@@ -61,18 +63,18 @@ func (s *server) login() http.HandlerFunc {
 		}
 		log.Println("After initialized the HandlerFunction")
 
-		var u User
-		var decoder = schema.NewDecoder()
-		err = r.ParseForm()
+		u, err := readUserLoginForm(r)
 		if err != nil {
-			log.Println("error: Parsing form: ", err)
+			log.Println("Could not readUserLoginForm", err)
 		}
-		err = decoder.Decode(&u, r.PostForm)
-		if err != nil {
-			log.Println("Error Decoding form : ", err)
-		}
+		fmt.Println(u)
 
-		fmt.Println("user info = ", u)
+		err = s.checkUserExist(u)
+		if err != nil {
+			log.Println("Error : ", err)
+		} else {
+			//login user things should come here !!!
+		}
 	}
 }
 
@@ -82,31 +84,40 @@ func (s *server) loginOK() http.HandlerFunc {
 	}
 }
 
-func readUserLoginForm(u *User, w http.ResponseWriter, r *http.Request) error {
+func (s *server) checkUserExist(u user) (err error) {
+	//check if user exist
+	if len(s.user) != 0 {
+		for _, v := range s.user {
+			if v.Email == u.Email {
+				break
+			}
+		}
+	} else {
+		return errors.New("Could not find user")
+	}
+	return nil
+}
+
+func readUserLoginForm(r *http.Request) (u user, err error) {
 	var decoder = schema.NewDecoder()
-	err := r.ParseForm()
+	err = r.ParseForm()
 	if err != nil {
-		return err
+		log.Println("error: Parsing form: ", err)
 	}
 	err = decoder.Decode(&u, r.PostForm)
 	if err != nil {
 		log.Println("Error Decoding form : ", err)
 	}
-
-	fmt.Println("user info : ")
-	fmt.Println("email", u.Email)
-	fmt.Println("password", u.Password)
-	fmt.Println("submit", u.Submit)
-	fmt.Println("cancel", u.Cancel)
-	return nil
+	return u, nil
 }
 
 //User to hold all user info
-type User struct {
+type user struct {
 	Email    string `schema:"email"`
 	Password string `schema:"password"`
 	Submit   string `schema:"submit"`
 	Cancel   string `schema:"cancel"`
+	token    bool
 }
 
 func main() {
