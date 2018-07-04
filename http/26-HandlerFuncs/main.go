@@ -12,6 +12,14 @@ import (
 	"github.com/gorilla/schema"
 )
 
+//User to hold all user info
+type user struct {
+	Email    string `schema:"email"`
+	Password string `schema:"password"`
+	Submit   string `schema:"submit"`
+	Cancel   string `schema:"cancel"`
+}
+
 type server struct {
 	addr   string
 	router *mux.Router //server type will use gorilla mux
@@ -46,14 +54,12 @@ func (s *server) login() http.HandlerFunc {
 
 	//make sure the templates are only loaded once.
 	init.Do(func() {
-		log.Println("Loading the template from filesystem.")
 		tpl, err = template.ParseFiles("login.html")
 		if err != nil {
 			fmt.Println("failed parsing template", err)
 		}
 	})
 
-	log.Println("Before initializing the HandlerFunction")
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := tpl.ExecuteTemplate(w, "login", nil)
 		if err != nil {
@@ -63,7 +69,7 @@ func (s *server) login() http.HandlerFunc {
 		}
 		log.Println("After initialized the HandlerFunction")
 
-		u, err := readUserLoginForm(r)
+		u, err := s.readUserLoginForm(r)
 		if err != nil {
 			log.Println("Could not readUserLoginForm", err)
 		}
@@ -79,24 +85,73 @@ func (s *server) login() http.HandlerFunc {
 }
 
 func (s *server) register() http.HandlerFunc {
-	return nil
+	var tpl *template.Template
+	var init sync.Once
+	var err error
+
+	//load the template only once for a given server
+	init.Do(func() {
+		tpl, err = template.ParseFiles("register.html")
+		if err != nil {
+			log.Println("Error : parsing template file", err)
+		}
+	})
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := tpl.ExecuteTemplate(w, "register", nil)
+		if err != nil {
+			//testing giving errors back to the client
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			fmt.Fprintln(w, err)
+		}
+
+		u, err := s.readUserLoginForm(r)
+		if err != nil {
+			log.Println("Error : failed reading user register form ", err)
+		}
+
+		s.user = append(s.user, user{
+			Email: "nisse@nisse.com",
+		})
+
+		err = s.checkUserExist(u)
+		fmt.Printf("------------The value of err = %v--------------\n", err)
+		if err != nil {
+			//if user do not exist, append the new user to the slice
+			fmt.Fprintln(w, "Could not find user appending to slice")
+			s.user = append(s.user, u)
+		} else {
+			fmt.Printf("The user %v exist !", u)
+			fmt.Fprintf(w, "The user %v exist !", u)
+		}
+
+	}
 }
 
+//if user exist, return error = nil
+//if user do not exist, return error
 func (s *server) checkUserExist(u user) (err error) {
+	fmt.Println("The whole content of s = ", s)
 	//check if user exist
-	if len(s.user) != 0 {
-		for _, v := range s.user {
+	if len(s.user) != 0 { //if slice is empty..no users exists at all
+		for i, v := range s.user {
+			fmt.Printf("i:%v, v:%v\n", i, v)
+			fmt.Printf("comparing v.Email:%v with u.Email:%v\n", v.Email, u.Email)
 			if v.Email == u.Email {
+				fmt.Println("--found user--")
 				break
+			} else {
+				fmt.Println("--did not find user--")
+				return errors.New("Could not find user")
 			}
 		}
 	} else {
-		return errors.New("Could not find user")
+		fmt.Println("s.[]user was empty, no users to check")
 	}
 	return nil
 }
 
-func readUserLoginForm(r *http.Request) (u user, err error) {
+func (s *server) readUserLoginForm(r *http.Request) (u user, err error) {
 	var decoder = schema.NewDecoder()
 	err = r.ParseForm()
 	if err != nil {
@@ -109,15 +164,6 @@ func readUserLoginForm(r *http.Request) (u user, err error) {
 		return u, err
 	}
 	return u, nil
-}
-
-//User to hold all user info
-type user struct {
-	Email    string `schema:"email"`
-	Password string `schema:"password"`
-	Submit   string `schema:"submit"`
-	Cancel   string `schema:"cancel"`
-	loggedIn bool
 }
 
 func main() {
