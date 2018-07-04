@@ -17,8 +17,11 @@ type user struct {
 	Password string `schema:"password"`
 	Submit   string `schema:"submit"`
 	Cancel   string `schema:"cancel"`
+	loggedIn bool
 }
 
+//server, holds all the dynamic and static data needed to control
+//a http server instance
 type server struct {
 	addr   string
 	router *mux.Router //server type will use gorilla mux
@@ -26,8 +29,8 @@ type server struct {
 }
 
 //routes contain all the routes for the server
-func (s *server) routes() {
-	s.router.HandleFunc("/login", s.login())
+func (s *server) routes(u *user) {
+	s.router.HandleFunc("/login", s.login(u))
 	s.router.HandleFunc("/register", s.register())
 }
 
@@ -46,27 +49,26 @@ func newServer() *server {
 //a HandlerFunc, and is not specified as a HandlerFunc.
 //
 //The login method
-func (s *server) login() http.HandlerFunc {
+func (s *server) login(usr *user) http.HandlerFunc {
 	var tpl *template.Template
 	var err error
 	var init sync.Once
 
 	//make sure the templates are only loaded once.
 	init.Do(func() {
-		tpl, err = template.ParseFiles("login.html")
+		tpl, err = template.ParseFiles("login.html", "wrapper.html")
 		if err != nil {
 			fmt.Println("failed parsing template", err)
 		}
 	})
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		err := tpl.ExecuteTemplate(w, "login", nil)
+		err := tpl.ExecuteTemplate(w, "wrapper", nil)
 		if err != nil {
 			//testing giving errors back to the client
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			fmt.Fprintln(w, err)
 		}
-		log.Println("After initialized the HandlerFunction")
 
 		u, err := s.readUserLoginForm(r)
 		if err != nil {
@@ -78,25 +80,29 @@ func (s *server) login() http.HandlerFunc {
 			fmt.Fprintf(w, "The user %v does not exist !", u.Email)
 		} else {
 			//login user things should come here !!!
+			*usr = u
+			usr.loggedIn = true
+			fmt.Fprintf(w, "Logged in user %v\n", usr.Email)
 		}
 	}
 }
 
+//Method and control of html template to handle the new user registration.
 func (s *server) register() http.HandlerFunc {
 	var tpl *template.Template
 	var init sync.Once
 	var err error
 
-	//load the template only once for a given server
 	init.Do(func() {
-		tpl, err = template.ParseFiles("register.html")
+		//load the template only once for a given server
+		tpl, err = template.ParseFiles("register.html", "wrapper.html")
 		if err != nil {
 			log.Println("Error : parsing template file", err)
 		}
 	})
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		err := tpl.ExecuteTemplate(w, "register", nil)
+		err := tpl.ExecuteTemplate(w, "wrapper", nil)
 		if err != nil {
 			//testing giving errors back to the client
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -144,6 +150,8 @@ func (s *server) checkUserExist(u user) (found bool) {
 	return false
 }
 
+//Reads the form, and uses gorilla/schema to decode the values based
+//on the user struct.
 func (s *server) readUserLoginForm(r *http.Request) (u user, err error) {
 	var decoder = schema.NewDecoder()
 	err = r.ParseForm()
@@ -159,10 +167,18 @@ func (s *server) readUserLoginForm(r *http.Request) (u user, err error) {
 	return u, nil
 }
 
+func newUser() *user {
+	return &user{
+		loggedIn: false,
+	}
+}
+
 func main() {
+	u := newUser()
+
 	srv1 := newServer()
 	srv1.router = mux.NewRouter()
-	srv1.routes()
+	srv1.routes(u)
 	//srv1.router.HandleFunc("/login", srv1.login())
 	http.ListenAndServe(srv1.addr, srv1.router)
 }
