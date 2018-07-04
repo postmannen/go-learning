@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"log"
@@ -75,8 +74,7 @@ func (s *server) login() http.HandlerFunc {
 		}
 		fmt.Println(u)
 
-		err = s.checkUserExist(u)
-		if err != nil {
+		if found := s.checkUserExist(u); found == false {
 			fmt.Fprintf(w, "The user %v does not exist !", u.Email)
 		} else {
 			//login user things should come here !!!
@@ -114,23 +112,21 @@ func (s *server) register() http.HandlerFunc {
 			Email: "nisse@nisse.com",
 		})
 
-		err = s.checkUserExist(u)
-		fmt.Printf("------------The value of err = %v--------------\n", err)
-		if err != nil {
+		if found := s.checkUserExist(u); found {
+			fmt.Printf("The user %v exist !", u)
+			fmt.Fprintf(w, "The user %v exist !", u)
+		} else {
 			//if user do not exist, append the new user to the slice
 			fmt.Fprintln(w, "Could not find user appending to slice")
 			s.user = append(s.user, u)
-		} else {
-			fmt.Printf("The user %v exist !", u)
-			fmt.Fprintf(w, "The user %v exist !", u)
 		}
 
 	}
 }
 
-//if user exist, return error = nil
-//if user do not exist, return error
-func (s *server) checkUserExist(u user) (err error) {
+//if user exist, return true
+//if user do not exist, return false
+func (s *server) checkUserExist(u user) (found bool) {
 	fmt.Println("The whole content of s = ", s)
 	//check if user exist
 	if len(s.user) != 0 { //if slice is empty..no users exists at all
@@ -139,16 +135,13 @@ func (s *server) checkUserExist(u user) (err error) {
 			fmt.Printf("comparing v.Email:%v with u.Email:%v\n", v.Email, u.Email)
 			if v.Email == u.Email {
 				fmt.Println("--found user--")
-				break
-			} else {
-				fmt.Println("--did not find user--")
-				return errors.New("Could not find user")
+				return true
 			}
 		}
 	} else {
 		fmt.Println("s.[]user was empty, no users to check")
 	}
-	return nil
+	return false
 }
 
 func (s *server) readUserLoginForm(r *http.Request) (u user, err error) {
