@@ -30,6 +30,7 @@ type server struct {
 
 //routes contain all the routes for the server
 func (s *server) routes(u *user) {
+	s.router.HandleFunc("/", s.mainPage())
 	s.router.HandleFunc("/login", s.login(u))
 	s.router.HandleFunc("/register", s.register())
 }
@@ -127,6 +128,25 @@ func (s *server) register() http.HandlerFunc {
 			s.user = append(s.user, u)
 		}
 
+	}
+}
+
+func (s *server) mainPage() http.HandlerFunc {
+	var init sync.Once
+	var tpl *template.Template
+	var err error
+	init.Do(func() {
+		tpl, err = template.ParseFiles("wrapper.html", "mainPage.html")
+		if err != nil {
+			log.Println("Error: parsing files for main template", err)
+		}
+	})
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := tpl.ExecuteTemplate(w, "wrapper", nil); err != nil {
+			log.Println("Error: executing main template ", err)
+		}
+		fmt.Fprintf(w, "This is the main page\n")
 	}
 }
 
