@@ -81,13 +81,17 @@ func (s *server) login(usr *user) http.HandlerFunc {
 		}
 		fmt.Println(u)
 
-		if found := s.checkUserExist(u); found == false {
-			fmt.Fprintf(w, "The user %v does not exist !", u.Email)
-		} else {
-			//login user things should come here !!!
-			*usr = u
-			usr.loggedIn = true
-			fmt.Fprintf(w, "Logged in user %v\n", usr.Email)
+		if u.Submit == "submit" {
+			//TODO: Hent data fra server type og ikke bruk data for form
+			//for å logge inn brukeren !!!!!!!!!!
+			if found := s.checkUserExist(u); found == false {
+				fmt.Fprintf(w, "The user %v does not exist !", u.Email)
+			} else {
+				//login user things should come here !!!
+				*usr = u
+				usr.loggedIn = true
+				fmt.Fprintf(w, "Logged in user %v\n", usr.Email)
+			}
 		}
 	}
 }
@@ -119,9 +123,9 @@ func (s *server) register(usr *user) http.HandlerFunc {
 			log.Println("Error : failed reading user register form ", err)
 		}
 
-		s.user = append(s.user, user{
-			Email: "nisse@nisse.com",
-		})
+		//s.user = append(s.user, user{
+		//	Email: "nisse@nisse.com",
+		//})
 
 		if found := s.checkUserExist(u); found {
 			fmt.Printf("The user %v exist !", u)
@@ -130,6 +134,8 @@ func (s *server) register(usr *user) http.HandlerFunc {
 			//if user do not exist, append the new user to the slice
 			//which is the db for all the users.
 			s.userLastID++
+			u.ID = s.userLastID
+			fmt.Println("-------user ID set to---------", u.ID)
 			fmt.Fprintln(w, "Could not find user appending to slice")
 			s.user = append(s.user, u)
 		}
@@ -188,8 +194,13 @@ func (s *server) readUserLoginForm(r *http.Request) (u user, err error) {
 	err = decoder.Decode(&u, r.PostForm)
 	if err != nil {
 		log.Println("Error Decoding form : ", err)
+		//return u, err
+	}
+
+	if u.Submit == "submit" {
 		return u, err
 	}
+
 	return u, nil
 }
 
