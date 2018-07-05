@@ -18,27 +18,30 @@ type user struct {
 	Submit   string `schema:"submit"`
 	Cancel   string `schema:"cancel"`
 	loggedIn bool
+	ID       int
 }
 
-//server, holds all the dynamic and static data needed to control
-//a http server instance
+//server, holds data needed to control a http server instance
 type server struct {
-	addr   string
-	router *mux.Router //server type will use gorilla mux
-	user   []user
+	addr       string
+	router     *mux.Router //server type will use gorilla mux
+	user       []user
+	userLastID int
 }
 
 //routes contain all the routes for the server
 func (s *server) routes(u *user) {
-	s.router.HandleFunc("/", s.mainPage())
+	s.router.HandleFunc("/", s.mainPage(u))
 	s.router.HandleFunc("/login", s.login(u))
-	s.router.HandleFunc("/register", s.register())
+	s.router.HandleFunc("/register", s.register(u))
 }
 
 func newServer() *server {
 	return &server{
-		addr:   ":3000",
-		router: mux.NewRouter()}
+		addr:       ":3000",
+		router:     mux.NewRouter(),
+		userLastID: 0,
+	}
 }
 
 //By making a function returning a HandlerFunc we get more flexibility compared to
@@ -64,7 +67,8 @@ func (s *server) login(usr *user) http.HandlerFunc {
 	})
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		err := tpl.ExecuteTemplate(w, "wrapper", nil)
+
+		err := tpl.ExecuteTemplate(w, "wrapper", usr)
 		if err != nil {
 			//testing giving errors back to the client
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -89,7 +93,7 @@ func (s *server) login(usr *user) http.HandlerFunc {
 }
 
 //Method and control of html template to handle the new user registration.
-func (s *server) register() http.HandlerFunc {
+func (s *server) register(usr *user) http.HandlerFunc {
 	var tpl *template.Template
 	var init sync.Once
 	var err error
@@ -103,7 +107,7 @@ func (s *server) register() http.HandlerFunc {
 	})
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		err := tpl.ExecuteTemplate(w, "wrapper", nil)
+		err := tpl.ExecuteTemplate(w, "wrapper", usr)
 		if err != nil {
 			//testing giving errors back to the client
 			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -124,6 +128,8 @@ func (s *server) register() http.HandlerFunc {
 			fmt.Fprintf(w, "The user %v exist !", u)
 		} else {
 			//if user do not exist, append the new user to the slice
+			//which is the db for all the users.
+			s.userLastID++
 			fmt.Fprintln(w, "Could not find user appending to slice")
 			s.user = append(s.user, u)
 		}
@@ -131,7 +137,7 @@ func (s *server) register() http.HandlerFunc {
 	}
 }
 
-func (s *server) mainPage() http.HandlerFunc {
+func (s *server) mainPage(usr *user) http.HandlerFunc {
 	var init sync.Once
 	var tpl *template.Template
 	var err error
@@ -143,7 +149,7 @@ func (s *server) mainPage() http.HandlerFunc {
 	})
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := tpl.ExecuteTemplate(w, "wrapper", nil); err != nil {
+		if err := tpl.ExecuteTemplate(w, "wrapper", usr); err != nil {
 			log.Println("Error: executing main template ", err)
 		}
 		fmt.Fprintf(w, "This is the main page\n")
