@@ -1,3 +1,11 @@
+/*
+Test for registering users, and put them in a slice within the server struct.
+Login the with the users, and they should get all theyre private variables
+based on whats in the user struct.
+
+This example does not handle different sessions for each user.
+*/
+
 package main
 
 import (
