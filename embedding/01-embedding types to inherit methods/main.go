@@ -1,6 +1,6 @@
 /*
-	Test out embedding an existing type, and inherit all the methods that the
-	original type have. This is done by closing the underlying type into struct{T}
+Test out embedding an existing type, and inherit all the methods that the
+original type have. This is done by closing the underlying type into struct{T}
 */
 package main
 
