@@ -1,3 +1,12 @@
+/*
+Test loading templates, and use them to be drawn via
+a websocket to the browser. The element that is made
+in the browser can then be deleted.
+The templates are being parsed normally but instead
+of executing the template to http.ResponseWrite, we
+execute it to a bytes.Buffer which got a io.Writer,
+and we then send that buffer over the websocket.
+*/
 package main
 
 import (
@@ -69,7 +78,7 @@ func socketHandler() http.HandlerFunc {
 				msg = []byte("<button>Test button</button>")
 			case "input":
 				msg = []byte("<input placeholder='put something here'></input>")
-			case "tpl":
+			case "addTpl":
 				//Create a buffer to hold all the data in the template.
 				//Since bytes.Buffer is a writer we can use it as the
 				//destination when executing the template.
