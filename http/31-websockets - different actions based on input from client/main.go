@@ -45,11 +45,9 @@ func socketHandler() http.HandlerFunc {
 			fmt.Println("error: websocket Upgrade: ", err)
 		}
 
-		//Create a buffer to hold all the data in the template.
-		//Since bytes.Buffer is a writer we can use it as the
-		//destination when executing the template.
-		var tplData bytes.Buffer
-		tpl.ExecuteTemplate(&tplData, "socketTemplate1", nil)
+		//divID is to keep track of the sections sendt to the
+		//socket to be shown in the browser.
+		divID := 0
 
 		for {
 			//read the message
@@ -72,8 +70,14 @@ func socketHandler() http.HandlerFunc {
 			case "input":
 				msg = []byte("<input placeholder='put something here'></input>")
 			case "tpl":
+				//Create a buffer to hold all the data in the template.
+				//Since bytes.Buffer is a writer we can use it as the
+				//destination when executing the template.
+				var tplData bytes.Buffer
+				tpl.ExecuteTemplate(&tplData, "socketTemplate1", divID)
 				d := tplData.String()
 				msg = []byte(d)
+				divID++
 			default:
 			}
 
