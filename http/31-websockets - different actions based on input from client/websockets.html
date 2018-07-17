@@ -1,0 +1,34 @@
+{{define "websocket"}}
+<input type="text" id="input" />
+<button onclick="send()">send</button>
+<button onclick="addButton()">add button</button>
+<pre id="output"></pre>
+<script>
+    var input = document.getElementById("input");
+    var output = document.getElementById("output");
+    var socket = new WebSocket("ws://localhost:8080/echo");
+
+    socket.onopen = function () {
+        output.innerHTML += "status: connected\n";
+    };
+
+    //here we are receiving messages from the server
+    //the event is delivered to onmessage, and used in function as "serverEvent"
+    socket.onmessage = function (serverEvent) {
+        output.innerHTML += "server: " + serverEvent.data + "\n";
+    };
+
+    //this is the function that is being called in the onclick of button
+    function send() {
+        socket.send(input.value);
+        input.value = "";
+    }
+
+    function addButton() {
+        socket.send("<button>new button</button>")
+    }
+
+    socket.onclose = function () {
+        output.innerHTML += "The socket is no longer open"
+    }
+</script> {{end}}
