@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,12 +27,29 @@ func socketHandler() http.HandlerFunc {
 		ReadBufferSize:  1024,
 		WriteBufferSize: 1024,
 	}
+	var init sync.Once
+	var tpl *template.Template
+	var err error
+
+	init.Do(func() {
+		tpl, err = template.ParseFiles("socketTemplates.html")
+		if err != nil {
+			log.Printf("error: ParseFiles : %v\n", err)
+		}
+	})
+
 	return func(w http.ResponseWriter, r *http.Request) {
 		//upgrade the handler to a websocket connection
 		conn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			fmt.Println("error: websocket Upgrade: ", err)
 		}
+
+		//Create a buffer to hold all the data in the template.
+		//Since bytes.Buffer is a writer we can use it as the
+		//destination when executing the template.
+		var tplData bytes.Buffer
+		tpl.ExecuteTemplate(&tplData, "socketTemplate1", nil)
 
 		for {
 			//read the message
@@ -44,13 +62,18 @@ func socketHandler() http.HandlerFunc {
 			//print message to console
 			fmt.Printf("Client=%v typed : %v \n", conn.RemoteAddr(), string(msg))
 
-			//check if message from client is special, and change the response if it is by chaning the content of msg
+			//Check if message from client is special,
+			//and change the response is special,
+			//by chaning the content of msg
 			strMsg := string(msg)
 			switch strMsg {
 			case "button":
 				msg = []byte("<button>Test button</button>")
 			case "input":
 				msg = []byte("<input placeholder='put something here'></input>")
+			case "tpl":
+				d := tplData.String()
+				msg = []byte(d)
 			default:
 			}
 
@@ -79,15 +102,25 @@ func rootHandle() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		tpl.ExecuteTemplate(w, "websocket", nil)
-		//http.ServeFile(w, r, "websockets.html")
+		fmt.Println(tpl)
 	}
 }
 
 func secondHandle() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "websockets.html")
-	}
+	var init sync.Once
+	var tpl *template.Template
+	var err error
 
+	init.Do(func() {
+		tpl, err = template.ParseFiles("websockets1.html")
+		if err != nil {
+			log.Printf("error: ParseFile : %v\n", err)
+		}
+	})
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		tpl.ExecuteTemplate(w, "websocket", nil)
+	}
 }
 
 func main() {
