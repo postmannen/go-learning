@@ -2,17 +2,30 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"sync"
+	"text/template"
 
 	"github.com/gorilla/websocket"
 )
 
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
+//var upgrader = websocket.Upgrader{
+//	ReadBufferSize:  1024,
+//	WriteBufferSize: 1024,
+//}
 
-func echoHandler() http.HandlerFunc {
+//socketHandler is the handler who controls all the serverside part
+//of the websocket. The other handlers like the rootHandle have to
+//load a page containing the JS websocket code to start up the
+//communication with the serside websocket.
+//This handler is used with all the other handlers if they open a
+//websocket on the client side.
+func socketHandler() http.HandlerFunc {
+	var upgrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		//upgrade the handler to a websocket connection
 		conn, err := upgrader.Upgrade(w, r, nil)
@@ -53,9 +66,20 @@ func echoHandler() http.HandlerFunc {
 }
 
 func rootHandle() http.HandlerFunc {
+	var init sync.Once
+	var tpl *template.Template
+	var err error
+
+	init.Do(func() {
+		tpl, err = template.ParseFiles("websockets1.html")
+		if err != nil {
+			log.Printf("error: ParseFile : %v\n", err)
+		}
+	})
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "websockets.html")
+		tpl.ExecuteTemplate(w, "websocket", nil)
+		//http.ServeFile(w, r, "websockets.html")
 	}
 }
 
@@ -67,7 +91,7 @@ func secondHandle() http.HandlerFunc {
 }
 
 func main() {
-	http.HandleFunc("/echo", echoHandler())
+	http.HandleFunc("/echo", socketHandler())
 	http.HandleFunc("/", rootHandle())
 	http.HandleFunc("/second", secondHandle())
 
