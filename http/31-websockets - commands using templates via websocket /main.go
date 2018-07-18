@@ -75,7 +75,8 @@ func socketHandler() http.HandlerFunc {
 			strMsg := string(msg)
 			switch strMsg {
 			case "button":
-				msg = []byte("<button>Test button</button>")
+				s := fmt.Sprintf("<div id='%v'><button>Test button</button></div>", divID)
+				msg = []byte(s)
 			case "input":
 				msg = []byte("<input placeholder='put something here'></input>")
 			case "addTpl":
@@ -119,27 +120,9 @@ func rootHandle() http.HandlerFunc {
 	}
 }
 
-func secondHandle() http.HandlerFunc {
-	var init sync.Once
-	var tpl *template.Template
-	var err error
-
-	init.Do(func() {
-		tpl, err = template.ParseFiles("websockets1.html")
-		if err != nil {
-			log.Printf("error: ParseFile : %v\n", err)
-		}
-	})
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		tpl.ExecuteTemplate(w, "websocket", nil)
-	}
-}
-
 func main() {
 	http.HandleFunc("/echo", socketHandler())
 	http.HandleFunc("/", rootHandle())
-	http.HandleFunc("/second", secondHandle())
 
 	http.ListenAndServe(":8080", nil)
 
