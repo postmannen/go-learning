@@ -20,11 +20,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//var upgrader = websocket.Upgrader{
-//	ReadBufferSize:  1024,
-//	WriteBufferSize: 1024,
-//}
-
 //socketHandler is the handler who controls all the serverside part
 //of the websocket. The other handlers like the rootHandle have to
 //load a page containing the JS websocket code to start up the
