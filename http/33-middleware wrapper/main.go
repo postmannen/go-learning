@@ -27,11 +27,9 @@ func (s *server) mainHandler() http.HandlerFunc {
 //the inner function, call the original function "h(w,r)", and return
 //that whole as a new HandlerFunction.
 func (s *server) timeLogger(h http.HandlerFunc) http.HandlerFunc {
-	tStart := time.Now()
-
 	return func(w http.ResponseWriter, r *http.Request) {
-		tElapsed := time.Since(tStart)
-		fmt.Fprintln(w, "Wrapper HandlerFunc: Time since server started : ", tElapsed)
+		tStart := time.Now()
+		defer fmt.Fprintln(w, "Wrapper HandlerFunc: Time to load page : ", time.Now().Sub(tStart))
 
 		fmt.Fprintf(w, "\nWrapper HandlerFunc: Before calling the original HandlerFunc\n")
 		h(w, r)
