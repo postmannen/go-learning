@@ -1,7 +1,8 @@
 /*
 The whole purpose if this program is to limit what variables and methods gets
 exported out of the package.
-Since the printerType is not exported its methods will not be exported either.
+Since the printerType is not exported its methods will not be exported either,
+but we will now export them via the new APrinter interface.
 
 We then create an interface containing printerType's methods.
 The interface APrinter is exported, and will be available outside the package.
