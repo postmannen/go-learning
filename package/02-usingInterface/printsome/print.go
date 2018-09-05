@@ -1,4 +1,5 @@
 /*
+Package printsome for testing package interface boundary.
 The whole purpose if this program is to limit what variables and methods gets
 exported out of the package.
 Since the printerType is not exported its methods will not be exported either,
