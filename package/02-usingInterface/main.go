@@ -17,6 +17,7 @@ package main
 
 import (
 	"fmt"
+	_ "net/http/pprof"
 
 	"github.com/postmannen/go-learning/package/02-usingInterface/printsome"
 )
