@@ -1,3 +1,4 @@
+// +build example
 package main
 
 import (
@@ -5,7 +6,7 @@ import (
 )
 
 func main() {
-	webcam, _ := gocv.VideoCaptureDevice(0)
+	webcam, _ := gocv.OpenVideoCapture(0)
 	window := gocv.NewWindow("Hello")
 	img := gocv.NewMat()
 
