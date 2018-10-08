@@ -10,7 +10,6 @@
 //
 // 		go run ./cmd/motion-detect/main.go 0
 //
-// +build example
 
 package main
 
@@ -23,6 +22,7 @@ import (
 	"gocv.io/x/gocv"
 )
 
+//MinimumArea tells minimum area to have changed
 const MinimumArea = 3000
 
 func main() {
