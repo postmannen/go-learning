@@ -41,6 +41,8 @@ type Puller interface {
 
 //Func will try to pull all data,
 //or return an error if it fails.
+//Since db is a Puller we can replace the Database argument with a Puller,
+//and we have then decoupled the function from the Databasetype.
 func pullAll(db Puller) (d []byte, err error) {
 	for {
 		e := make([]byte, 1)
@@ -92,7 +94,8 @@ type Pusher interface {
 }
 
 //pushAll will push a larger chunc of data to the file system
-//Since *FileSystem is a Pusher we can replace FileSystem with Pusher as input
+//Since *FileSystem is a Pusher we can replace FileSystem with Pusher as input,
+//and we have then decoupled the function from the filesystem type
 func pushAll(fs Pusher, b []byte) (n int, err error) {
 	n, err = fs.Push(b)
 	if n == 0 && err != nil {
