@@ -10,13 +10,15 @@ import (
 
 //tractorBus simulates a bus on a tractor controller
 type tractorBus struct {
-	bus chan int
+	name string
+	bus  chan int
 }
 
-func newTractorBus() *tractorBus {
+func newTractorBus(name string) *tractorBus {
 	tb := make(chan int)
 	return &tractorBus{
-		bus: tb,
+		name: name,
+		bus:  tb,
 	}
 }
 
@@ -39,13 +41,15 @@ func (t *tractorBus) Read() (int, error) {
 // ==========================================================
 //carBus simulates a bus on a tractor controller
 type carBus struct {
-	bus chan int
+	name string
+	bus  chan int
 }
 
-func newCarBus() *carBus {
+func newCarBus(name string) *carBus {
 	cb := make(chan int)
 	return &carBus{
-		bus: cb,
+		name: name,
+		bus:  cb,
 	}
 }
 
@@ -75,21 +79,25 @@ type Reader interface {
 // ==========================================================
 
 func readToScreen(v Reader, amount int) error {
-	tractorData, err := v.Read()
-	if err != nil {
-		log.Println("Error: Read tractor: ", err)
-	}
+	for i := 0; i < amount; i++ {
+		tractorData, err := v.Read()
+		if err != nil {
+			log.Printf("Error: Read %T: %v \n ", v, err)
+		}
 
-	fmt.Println("Read tractor returned : ", tractorData)
+		fmt.Printf("Read %T returned : %v\n", v, tractorData)
+	}
 	return nil
 }
 
+// ==========================================================
+
 func main() {
-	tractor := newTractorBus()
+	tractor := newTractorBus("John Deere")
 	tractor.Start()
 	readToScreen(tractor, 5)
 
-	car := newCarBus()
+	car := newCarBus("Nissan")
 	car.Start()
 	readToScreen(car, 5)
 
