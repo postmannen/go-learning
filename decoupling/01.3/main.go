@@ -134,25 +134,26 @@ func CopyContent(pllr Puller, pshr Pusher) error {
 // =============================================================
 
 func main() {
-	pllr := &Database{
+	myDB := Database{
 		Name: "my first database",
 	}
-	pshr := &FileSystem{
+
+	err := myDB.Open()
+	if err != nil {
+		log.Println("Error: ", err)
+	}
+	defer myDB.Close()
+
+	myFS := FileSystem{
 		Name: "my first filesystem",
 	}
 
-	err := pllr.Open()
+	err = myFS.Open()
 	if err != nil {
 		log.Println("Error: ", err)
 	}
-	defer pllr.Close()
+	defer myFS.Close()
 
-	err = pshr.Open()
-	if err != nil {
-		log.Println("Error: ", err)
-	}
-	defer pshr.Close()
-
-	CopyContent(pllr, pshr)
+	CopyContent(&myDB, &myFS)
 
 }
