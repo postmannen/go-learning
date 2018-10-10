@@ -158,6 +158,9 @@ func main() {
 	}
 	defer myFS.Close()
 
+	//CopyContent will take a Puller and a Pusher as input,
+	//it will then run the pullAll(Puller) and pushAll(Pusher),
+	//which again will run the Push and Pull methods on the concrete data.
 	CopyContent(&myDB, &myFS)
 
 }
