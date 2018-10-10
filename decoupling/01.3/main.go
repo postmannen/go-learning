@@ -10,11 +10,12 @@ import (
 type Database struct {
 	Name      string
 	DBHandler *os.File
+	FileName  string
 }
 
 //Open a database
 func (db *Database) Open() (err error) {
-	db.DBHandler, err = os.Open("db1.db")
+	db.DBHandler, err = os.Open(db.FileName)
 	if err != nil {
 		log.Println("Failed to open DB file : ", err)
 		return err
@@ -60,11 +61,12 @@ func pullAll(db Puller) (d []byte, err error) {
 type FileSystem struct {
 	Name      string
 	FSHandler *os.File
+	FileName  string
 }
 
 //Open a file system
 func (fs *FileSystem) Open() (err error) {
-	fs.FSHandler, err = os.Create("db2.db")
+	fs.FSHandler, err = os.Create(fs.FileName)
 	if err != nil {
 		log.Println("Failed to open file system file : ", err)
 		return err
@@ -135,7 +137,8 @@ func CopyContent(pllr Puller, pshr Pusher) error {
 
 func main() {
 	myDB := Database{
-		Name: "my first database",
+		Name:     "my first database",
+		FileName: "db1.db",
 	}
 
 	err := myDB.Open()
@@ -145,7 +148,8 @@ func main() {
 	defer myDB.Close()
 
 	myFS := FileSystem{
-		Name: "my first filesystem",
+		Name:     "my first filesystem",
+		FileName: "db2.db",
 	}
 
 	err = myFS.Open()
