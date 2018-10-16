@@ -49,9 +49,9 @@ func main() {
 
 	//Process logs
 
-	for ii := 0; ii < 1000; ii++ {
+	for ii := 0; ii < 100; ii++ {
 		//Putting in a time.Sleep here to simulate a slow worker
-		time.Sleep(time.Millisecond * 550)
+		time.Sleep(time.Millisecond * 50)
 		l := <-chLog
 		fmt.Println("###Processing log : ", l)
 	}
