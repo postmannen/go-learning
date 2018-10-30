@@ -20,9 +20,10 @@ func main() {
 	//bufio lets us read files line by line
 	fReader := bufio.NewReader(f)
 
+	//Start with the first line
 	lineNR := 1
+
 	for {
-		//fmt.Println("----------Line nr = ", lineNR)
 		//read a line
 		line, _, err := fReader.ReadLine()
 		if err != nil {
@@ -42,6 +43,14 @@ func main() {
 			if err := checkForClosingBracket(line); err != nil {
 				log.Fatal("Error: missed closing bracket, incomplete line!")
 			}
+
+			lastPosition := findWord(line, "Name=")
+			if lastPosition > 0 {
+				fmt.Println("Looking for word in 'project' Last Position = ", lastPosition)
+			} else {
+				fmt.Println("Did not find the word you were looking for.")
+			}
+
 		}
 
 		//Look for the end tag called </project>
@@ -90,9 +99,6 @@ func tagProjectStart(line []byte) tagProject {
 		if tag == "<project" {
 			tp := tagProject{foundStart: true}
 
-			lastPosition := findWord(line, "name=")
-			fmt.Println("*******************Last Position = ", lastPosition)
-
 			return tp
 		}
 	}
@@ -119,6 +125,7 @@ func tagProjectEnd(line []byte) tagProject {
 }
 
 //findWord looks for a word, and returns the position the last character found in slice.
+// Returns zero if no word was found.
 func findWord(line []byte, myWordString string) (lastPosition int) {
 	//find word in []byte
 	myWordByte := []byte(myWordString)
