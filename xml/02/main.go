@@ -35,19 +35,30 @@ func main() {
 		line = []byte(tmpLine)
 		//printLine(line)
 
-		if tp := checkTagProject(line); tp.foundStart {
-			fmt.Println("AAA found project start on lineNR : ", lineNR)
+		//Look for the start tag called <project>
+		tp := tagProjectStart(line)
+		if tp.foundStart {
+			fmt.Println("Found project start on lineNR : ", lineNR)
 			if err := checkForClosingBracket(line); err != nil {
-				log.Fatal("Error: missed closing bracket")
+				log.Fatal("Error: missed closing bracket, incomplete line!")
 			}
 		}
 
-		if tp := checkTagProject(line); tp.foundEnd {
-			fmt.Println("AAA found project end on lineNR : ", lineNR)
+		//Look for the end tag called </project>
+		tp = tagProjectEnd(line)
+		if tp.foundEnd {
+			fmt.Println("Found project end on lineNR : ", lineNR)
 			if err := checkForClosingBracket(line); err != nil {
-				log.Fatal("Error: missed closing bracket")
+				log.Fatal("Error: missed closing bracket, incomplete line!")
 			}
 		}
+
+		//if tp := checkTagProject(line); tp.foundEnd {
+		//	fmt.Println("AAA found project end on lineNR : ", lineNR)
+		//	if err := checkForClosingBracket(line); err != nil {
+		//		log.Fatal("Error: missed closing bracket")
+		//	}
+		//}
 
 		lineNR++
 	}
@@ -71,75 +82,93 @@ type tagProject struct {
 	id         string
 }
 
-func checkTagProject(line []byte) tagProject {
+//tagagProjectStart will check if there is a <project> tag in xml
+func tagProjectStart(line []byte) tagProject {
 	var tag string
 	if len(line) > 0 {
 		tag = string(line[0:8])
 		if tag == "<project" {
 			tp := tagProject{foundStart: true}
 
-			//find word in []byte
-			myWordString := "name="
-			myWordByte := []byte(myWordString)
-			foundWord := false
-
-			for linePosition := 0; linePosition < len(line)-len(myWordByte); linePosition++ {
-				wordPosition := 0
-				for {
-					if wordPosition >= len(myWordByte) {
-						fmt.Println("Reached the end of the word, breaking out of word loop", linePosition, wordPosition)
-						foundWord = true
-						break
-					}
-
-					fmt.Println("Comparing : ", line[linePosition+wordPosition], myWordByte[wordPosition])
-
-					if line[linePosition+wordPosition] == myWordByte[wordPosition] {
-						fmt.Println("found letter: ", string(myWordByte[wordPosition]))
-					} else {
-						fmt.Println("Letters don't match, breaking out of inner loop")
-						break
-					}
-
-					//if wordPosition == len(myWordByte)-1 {
-					//	fmt.Println("Found the word")
-					//	break
-					//}
-
-					wordPosition++
-				}
-
-				if foundWord {
-					fmt.Println("Breaking out of outer loop")
-					break
-				}
-			}
+			lastPosition := findWord(line, "name=")
+			fmt.Println("*******************Last Position = ", lastPosition)
 
 			return tp
 		}
+	}
 
+	//If no found, return an empty struct of type tagProject
+	tp := tagProject{}
+	return tp
+}
+
+//tagProjectEnd will check if there is a <project> tag in xml
+func tagProjectEnd(line []byte) tagProject {
+	var tag string
+	if len(line) > 0 {
 		tag = string(line[0:9])
 		if tag == "</project" {
 			tp := tagProject{foundEnd: true}
 			return tp
 		}
-
 	}
 
+	//If no found, return an empty struct of type tagProject
 	tp := tagProject{}
 	return tp
 }
 
+//findWord looks for a word, and returns the position the last character found in slice.
+func findWord(line []byte, myWordString string) (lastPosition int) {
+	//find word in []byte
+	myWordByte := []byte(myWordString)
+	foundWord := false
+
+	for linePosition := 0; linePosition < len(line)-len(myWordByte); linePosition++ {
+		wordPosition := 0
+		for {
+
+			//Since the iteration over the word using wordPosition as a counter will break out
+			// if there is a mismatch in the matching, we can be sure that the word was found
+			// if word position reaches the same value as the length of the word.
+			// And we can then return the result and exit.
+			if wordPosition >= len(myWordByte) {
+				fmt.Println("Reached the end of the word, breaking out of word loop", linePosition, wordPosition)
+				foundWord = true
+				lastPosition = linePosition + wordPosition
+				return lastPosition
+			}
+
+			//If there is no match break out of the loop imediatly, since there is no reason
+			// to continue if one fails. Better to break out of the inner for loop and start
+			// the iteration of the next charater and see if we are more lucky.
+			if line[linePosition+wordPosition] != myWordByte[wordPosition] {
+				break
+			}
+
+			wordPosition++
+		}
+
+		fmt.Println("---- Value of foundWord = ", foundWord)
+		if foundWord {
+			fmt.Println("Breaking out of outer loop")
+			break
+		}
+	}
+	return 0
+}
+
+//checkForClosingBracker
+//Check for opening and closing angle bracket.
+//Will return nil if both start and end bracker was found.
 func checkForClosingBracket(line []byte) error {
-	//Check for opening and closing angle bracket.
-	//Will return nil if both start and end bracker was found.
 	for i := 0; i < len(line); i++ {
 		character := string(line[i])
 		if character == "<" {
 			ii := 0
 			for {
 				if string(line[ii]) == ">" {
-					fmt.Println("Found closing angular bracket at position: ", ii)
+					//fmt.Println("Found closing angular bracket at position: ", ii)
 					break
 				}
 				if ii == len(line)-1 {
