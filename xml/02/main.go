@@ -10,11 +10,7 @@ import (
 )
 
 func main() {
-	a := []string{"ape", "bever", "chinchilla", "dompapp", "esel", "frosk"}
-	del := 2
-	a = append(a[:del], a[del+1:]...)
 
-	fmt.Println(a)
 	//------------------------------
 
 	fileName := "ardrone3.xml"
@@ -41,7 +37,7 @@ func main() {
 			break
 		}
 
-		//Remove leading spaces in line
+		//Remove leading spaces in the current line
 		tmpLine := strings.TrimSpace(string(line))
 		line = []byte(tmpLine)
 		//printLine(line)
@@ -52,9 +48,33 @@ func main() {
 		found := findTag("<project", line)
 		if found {
 			iteratorStack.push("project")
-			fmt.Println("Found project start on lineNR : ", lineNR)
-			if err := checkForClosingBracket(line); err != nil {
-				log.Fatal("Error: missed closing bracket, incomplete line at : ", lineNR)
+		}
+
+		{
+			//Look for the start tag called <class>
+			found = findTag("<class", line)
+			if found {
+				iteratorStack.push("class")
+			}
+
+			{
+				//Look for the start tag called <cmd>
+				found = findTag("<cmd", line)
+				if found {
+					iteratorStack.push("cmd")
+				}
+
+				//Look for the end tag called </cmd>
+				found = findTag("</cmd>", line)
+				if found {
+					iteratorStack.pop()
+				}
+			}
+
+			//Look for the end tag called </class>
+			found = findTag("</class>", line)
+			if found {
+				iteratorStack.pop()
 			}
 		}
 
@@ -63,9 +83,6 @@ func main() {
 		if found {
 			fmt.Println("Found project end on lineNR : ", lineNR)
 			iteratorStack.pop()
-			if err := checkForClosingBracket(line); err != nil {
-				log.Fatal("Error: missed closing bracket, incomplete line at : ", lineNR)
-			}
 		}
 
 		lineNR++
