@@ -31,6 +31,8 @@ func main() {
 	lineNR := 1
 
 	//Iterate the file and the xml data, and parse values.
+	//create a stack to use
+	iteratorStack := newStack()
 	for {
 		//read a line
 		line, _, err := fReader.ReadLine()
@@ -44,9 +46,12 @@ func main() {
 		line = []byte(tmpLine)
 		//printLine(line)
 
+		//----------------------------------------------
+
 		//Look for the start tag called <project>
 		found := findTag("<project", line)
 		if found {
+			iteratorStack.push("project")
 			fmt.Println("Found project start on lineNR : ", lineNR)
 			if err := checkForClosingBracket(line); err != nil {
 				log.Fatal("Error: missed closing bracket, incomplete line at : ", lineNR)
@@ -57,6 +62,7 @@ func main() {
 		found = findTag("</project>", line)
 		if found {
 			fmt.Println("Found project end on lineNR : ", lineNR)
+			iteratorStack.pop()
 			if err := checkForClosingBracket(line); err != nil {
 				log.Fatal("Error: missed closing bracket, incomplete line at : ", lineNR)
 			}
@@ -75,18 +81,25 @@ type stack struct {
 }
 
 func newStack() *stack {
-	return &stack{}
+	return &stack{
+		//data: make([]string, 0, 100),
+	}
 }
 
 //push will add another item to the end of the stack with a normal append
 func (s *stack) push(d string) {
 	s.data = append(s.data, d)
+	fmt.Println("DEBUG: Putting on stack : ", s)
 }
 
 //pop will remove the last element of the stack
 func (s *stack) pop() {
+	fmt.Println("DEBUG: Before pop:", s)
 	last := len(s.data)
+	// ---
 	s.data = append(s.data[0:0], s.data[:last-1]...)
+	fmt.Println("DEBUG: After pop:", s)
+
 }
 
 // =============================================================================
