@@ -10,6 +10,13 @@ import (
 )
 
 func main() {
+	a := []string{"ape", "bever", "chinchilla", "dompapp", "esel", "frosk"}
+	del := 2
+	a = append(a[:del], a[del+1:]...)
+
+	fmt.Println(a)
+	//------------------------------
+
 	fileName := "ardrone3.xml"
 	f, err := os.Open(fileName)
 	if err != nil {
@@ -37,11 +44,11 @@ func main() {
 		//printLine(line)
 
 		//Look for the start tag called <project>
-		found := tagProjectStart("<project", line)
+		found := findTag("<project", line)
 		if found {
 			fmt.Println("Found project start on lineNR : ", lineNR)
 			if err := checkForClosingBracket(line); err != nil {
-				log.Fatal("Error: missed closing bracket, incomplete line!")
+				log.Fatal("Error: missed closing bracket, incomplete line at : ", lineNR)
 			}
 
 			lastPosition := findWord(line, "name=")
@@ -54,11 +61,11 @@ func main() {
 		}
 
 		//Look for the end tag called </project>
-		found = tagProjectEnd(line)
+		found = findTag("</project>", line)
 		if found {
 			fmt.Println("Found project end on lineNR : ", lineNR)
 			if err := checkForClosingBracket(line); err != nil {
-				log.Fatal("Error: missed closing bracket, incomplete line!")
+				log.Fatal("Error: missed closing bracket, incomplete line at : ", lineNR)
 			}
 		}
 
@@ -81,26 +88,11 @@ func printLine(line []byte) {
 //		flytt type logikken over i main.
 //
 //tagProjectStart will check if there is a <project> tag in xml
-func tagProjectStart(theWord string, line []byte) (found bool) {
+func findTag(theWord string, line []byte) (found bool) {
 	var tag string
 	if len(line) > 0 {
 		tag = string(line[0:len(theWord)])
 		if tag == theWord {
-			return true
-		}
-	}
-
-	//If no found, return an empty struct of type tagProject
-
-	return false
-}
-
-//tagProjectEnd will check if there is a <project> tag in xml
-func tagProjectEnd(line []byte) (found bool) {
-	var tag string
-	if len(line) > 0 {
-		tag = string(line[0:9])
-		if tag == "</project" {
 			return true
 		}
 	}
@@ -142,7 +134,6 @@ func findWord(line []byte, myWordString string) (lastPosition int) {
 			wordPosition++
 		}
 
-		fmt.Println("---- Value of foundWord = ", foundWord)
 		if foundWord {
 			fmt.Println("Breaking out of outer loop")
 			break
