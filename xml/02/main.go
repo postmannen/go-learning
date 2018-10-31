@@ -30,6 +30,7 @@ func main() {
 	//Start with the first line
 	lineNR := 1
 
+	//Iterate the file and the xml data, and parse values.
 	for {
 		//read a line
 		line, _, err := fReader.ReadLine()
@@ -50,14 +51,6 @@ func main() {
 			if err := checkForClosingBracket(line); err != nil {
 				log.Fatal("Error: missed closing bracket, incomplete line at : ", lineNR)
 			}
-
-			lastPosition := findWord(line, "name=")
-			if lastPosition > 0 {
-				fmt.Println("Looking for word in 'project' Last Position = ", lastPosition)
-			} else {
-				fmt.Println("Did not find the word you were looking for.")
-			}
-
 		}
 
 		//Look for the end tag called </project>
