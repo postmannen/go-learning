@@ -28,7 +28,7 @@ func main() {
 
 	//Iterate the file and the xml data, and parse values.
 	//create a stack to use
-	iteratorStack := newStack()
+	tagStack := newTagStack()
 	for {
 		//read a line
 		line, _, err := fReader.ReadLine()
@@ -47,34 +47,34 @@ func main() {
 		//Look for the start tag called <project>
 		found := findTag("<project", line)
 		if found {
-			iteratorStack.push("project")
+			tagStack.push("project")
 		}
 
 		{
 			//Look for the start tag called <class>
 			found = findTag("<class", line)
 			if found {
-				iteratorStack.push("class")
+				tagStack.push("class")
 			}
 
 			{
 				//Look for the start tag called <cmd>
 				found = findTag("<cmd", line)
 				if found {
-					iteratorStack.push("cmd")
+					tagStack.push("cmd")
 				}
 
 				//Look for the end tag called </cmd>
 				found = findTag("</cmd>", line)
 				if found {
-					iteratorStack.pop()
+					tagStack.pop()
 				}
 			}
 
 			//Look for the end tag called </class>
 			found = findTag("</class>", line)
 			if found {
-				iteratorStack.pop()
+				tagStack.pop()
 			}
 		}
 
@@ -82,7 +82,7 @@ func main() {
 		found = findTag("</project>", line)
 		if found {
 			fmt.Println("Found project end on lineNR : ", lineNR)
-			iteratorStack.pop()
+			tagStack.pop()
 		}
 
 		lineNR++
@@ -93,24 +93,24 @@ func main() {
 // =============================================================================
 
 //stack will keep track of where we are working in the iteration,
-type stack struct {
+type tagStack struct {
 	data []string
 }
 
-func newStack() *stack {
-	return &stack{
+func newTagStack() *tagStack {
+	return &tagStack{
 		//data: make([]string, 0, 100),
 	}
 }
 
 //push will add another item to the end of the stack with a normal append
-func (s *stack) push(d string) {
+func (s *tagStack) push(d string) {
 	s.data = append(s.data, d)
 	fmt.Println("DEBUG: Putting on stack : ", s)
 }
 
 //pop will remove the last element of the stack
-func (s *stack) pop() {
+func (s *tagStack) pop() {
 	fmt.Println("DEBUG: Before pop:", s)
 	last := len(s.data)
 	// ---
