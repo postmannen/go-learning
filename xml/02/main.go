@@ -74,6 +74,30 @@ func main() {
 
 }
 
+// =============================================================================
+
+//stack will keep track of where we are working in the iteration,
+type stack struct {
+	data []string
+}
+
+func newStack() *stack {
+	return &stack{}
+}
+
+//push will add another item to the end of the stack with a normal append
+func (s *stack) push(d string) {
+	s.data = append(s.data, d)
+}
+
+//pop will remove the last element of the stack
+func (s *stack) pop() {
+	last := len(s.data)
+	s.data = append(s.data[0:0], s.data[:last-1]...)
+}
+
+// =============================================================================
+
 func printLine(line []byte) {
 	//fmt.Printf("Line : %v \n Type %T\n", line, line)
 	for i := 0; i < len(line); i++ {
@@ -84,10 +108,7 @@ func printLine(line []byte) {
 	fmt.Println()
 }
 
-//TODO: Gjør så denne returnerer true/false og ikke type, og
-//		flytt type logikken over i main.
-//
-//tagProjectStart will check if there is a <project> tag in xml
+//find tag will check if there is a <project> tag in xml
 func findTag(theWord string, line []byte) (found bool) {
 	var tag string
 	if len(line) > 0 {
@@ -96,9 +117,6 @@ func findTag(theWord string, line []byte) (found bool) {
 			return true
 		}
 	}
-
-	//If no found, return an empty struct of type tagProject
-
 	return false
 }
 
@@ -142,7 +160,7 @@ func findWord(line []byte, myWordString string) (lastPosition int) {
 	return 0
 }
 
-//checkForClosingBracker
+//checkForClosingBracket
 //Check for opening and closing angle bracket.
 //Will return nil if both start and end bracker was found.
 func checkForClosingBracket(line []byte) error {
