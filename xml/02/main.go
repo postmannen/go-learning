@@ -37,14 +37,14 @@ func main() {
 		//printLine(line)
 
 		//Look for the start tag called <project>
-		tp := tagProjectStart(line)
-		if tp.foundStart {
+		found := tagProjectStart("<project", line)
+		if found {
 			fmt.Println("Found project start on lineNR : ", lineNR)
 			if err := checkForClosingBracket(line); err != nil {
 				log.Fatal("Error: missed closing bracket, incomplete line!")
 			}
 
-			lastPosition := findWord(line, "Name=")
+			lastPosition := findWord(line, "name=")
 			if lastPosition > 0 {
 				fmt.Println("Looking for word in 'project' Last Position = ", lastPosition)
 			} else {
@@ -54,20 +54,13 @@ func main() {
 		}
 
 		//Look for the end tag called </project>
-		tp = tagProjectEnd(line)
-		if tp.foundEnd {
+		found = tagProjectEnd(line)
+		if found {
 			fmt.Println("Found project end on lineNR : ", lineNR)
 			if err := checkForClosingBracket(line); err != nil {
 				log.Fatal("Error: missed closing bracket, incomplete line!")
 			}
 		}
-
-		//if tp := checkTagProject(line); tp.foundEnd {
-		//	fmt.Println("AAA found project end on lineNR : ", lineNR)
-		//	if err := checkForClosingBracket(line); err != nil {
-		//		log.Fatal("Error: missed closing bracket")
-		//	}
-		//}
 
 		lineNR++
 	}
@@ -84,44 +77,37 @@ func printLine(line []byte) {
 	fmt.Println()
 }
 
-type tagProject struct {
-	foundStart bool
-	foundEnd   bool
-	name       string
-	id         string
-}
-
-//tagagProjectStart will check if there is a <project> tag in xml
-func tagProjectStart(line []byte) tagProject {
+//TODO: Gjør så denne returnerer true/false og ikke type, og
+//		flytt type logikken over i main.
+//
+//tagProjectStart will check if there is a <project> tag in xml
+func tagProjectStart(theWord string, line []byte) (found bool) {
 	var tag string
 	if len(line) > 0 {
-		tag = string(line[0:8])
-		if tag == "<project" {
-			tp := tagProject{foundStart: true}
-
-			return tp
+		tag = string(line[0:len(theWord)])
+		if tag == theWord {
+			return true
 		}
 	}
 
 	//If no found, return an empty struct of type tagProject
-	tp := tagProject{}
-	return tp
+
+	return false
 }
 
 //tagProjectEnd will check if there is a <project> tag in xml
-func tagProjectEnd(line []byte) tagProject {
+func tagProjectEnd(line []byte) (found bool) {
 	var tag string
 	if len(line) > 0 {
 		tag = string(line[0:9])
 		if tag == "</project" {
-			tp := tagProject{foundEnd: true}
-			return tp
+			return true
 		}
 	}
 
 	//If no found, return an empty struct of type tagProject
-	tp := tagProject{}
-	return tp
+
+	return false
 }
 
 //findWord looks for a word, and returns the position the last character found in slice.
