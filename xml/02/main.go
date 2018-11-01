@@ -121,6 +121,11 @@ func (s *tagStack) pop() {
 
 // =============================================================================
 
+type xmlTree struct {
+}
+
+// =============================================================================
+
 func printLine(line []byte) {
 	//fmt.Printf("Line : %v \n Type %T\n", line, line)
 	for i := 0; i < len(line); i++ {
