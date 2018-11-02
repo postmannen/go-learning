@@ -6,13 +6,12 @@ import (
 )
 
 //chrPositions , finds the positions containing a chr in a string
+//
 func findChrPositions(myString string, chr byte) (equalPosition []int) {
 	for i := 0; i < len(myString); i++ {
 		//find the positions of the "=" character
 		if myString[i] == byte(chr) {
-			//fmt.Println(myString[i])
 			equalPosition = append(equalPosition, i)
-			//fmt.Println("DEBUG : equalPosition : ", equalPosition)
 		}
 	}
 	return
@@ -21,10 +20,10 @@ func findChrPositions(myString string, chr byte) (equalPosition []int) {
 //findPriorOccurance .
 // Searches backwards in a string from a given positions,
 // for the first occurence of a character.
+//
 func findPriorOccurance(myString string, preChr byte, origChrPositions []int) (preChrPositions []int) {
 	for _, v := range origChrPositions {
 		vv := v
-		//fmt.Println("DEBUG: vv : ", vv)
 
 		//find the first space before the preceding word
 		for {
@@ -41,7 +40,6 @@ func findPriorOccurance(myString string, preChr byte, origChrPositions []int) (p
 			}
 		}
 	}
-	//will return the preceding chr's positions found
 	return
 }
 
@@ -50,10 +48,10 @@ func findPriorOccurance(myString string, preChr byte, origChrPositions []int) (p
 // for the first occurence of a character after it.
 // The function takes multiple positions as input,
 // and will also return multiplex positions
+//
 func findNextOccurance(myString string, preChr byte, origChrPositions []int) (nextChrPositions []int) {
 	for _, v := range origChrPositions {
 		vv := v
-		//fmt.Println("DEBUG: vv : ", vv)
 
 		//find the first space before the preceding word
 		for {
@@ -76,16 +74,16 @@ func findNextOccurance(myString string, preChr byte, origChrPositions []int) (ne
 }
 
 //findLettersBetween
+// takes a string, and two positions given as slices as input,
+// and returns a slice of string with the words found.
+//
 func findLettersBetween(myString string, firstPositions []int, secondPositions []int) (words []string) {
 	for i, v := range firstPositions {
 		letters := []byte{}
 
 		//as long as first position is lower than second position....
 		for v < secondPositions[i] {
-			//fmt.Printf("DEBUG: *** v : %v, secondposition : %v\n", v, secondPositions[i])
-
 			letters = append(letters, myString[v])
-
 			v++
 		}
 		words = append(words, string(letters))
@@ -93,13 +91,16 @@ func findLettersBetween(myString string, firstPositions []int, secondPositions [
 	return
 }
 
-func main() {
-	myString := `<arg name="longitude" type="double" ape="apekatt" hest="folafolablakken">`
-
+//getAttributes
+// takes a string as input, and return the attribute names and
+// values as two different slices. Reason for using slices and
+// not maps are to preserve the order.
+//
+func getAttributes(s string) (attributeNames []string, attributeValues []string) {
 	//Find the positions where there is an equal sign in the string
-	equalPositions := findChrPositions(myString, '=')
+	equalPositions := findChrPositions(s, '=')
 
-	preChrPositions := findPriorOccurance(myString, ' ', equalPositions)
+	preChrPositions := findPriorOccurance(s, ' ', equalPositions)
 
 	//==============find the word before the equal sign==============================
 
@@ -109,18 +110,18 @@ func main() {
 		preChrPositions[i]++
 	}
 
-	attributeNames := findLettersBetween(myString, preChrPositions, equalPositions)
-	fmt.Printf("DEBUG: Found word >%v<\n", attributeNames)
+	attributeNames = findLettersBetween(s, preChrPositions, equalPositions)
+	//fmt.Printf("DEBUG: Found word >%v<\n", attributeNames)
 	//fmt.Printf("Equal position : %v, preChrPositions : %v \n", equalPositions, preChrPositions)
 
 	// =================find the word after the equal and between " "===========================
 
 	fmt.Println("===================================================================")
 
-	nextChrPositions := findNextOccurance(myString, '"', equalPositions)
+	nextChrPositions := findNextOccurance(s, '"', equalPositions)
 	//fmt.Println("********nextChrPositions : ", nextChrPositions)
 
-	nextNextChrPositions := findNextOccurance(myString, '"', nextChrPositions)
+	nextNextChrPositions := findNextOccurance(s, '"', nextChrPositions)
 	//fmt.Println("********nextNextChrPositions : ", nextNextChrPositions)
 
 	//We need to add 2 to all the pre positions, since the word we're
@@ -129,6 +130,19 @@ func main() {
 		nextChrPositions[i] = nextChrPositions[i] + 1
 	}
 
-	attributeValues := findLettersBetween(myString, nextChrPositions, nextNextChrPositions)
-	fmt.Printf("DEBUG: Found word >%v<\n", attributeValues)
+	attributeValues = findLettersBetween(s, nextChrPositions, nextNextChrPositions)
+	//fmt.Printf("DEBUG: Found word >%v<\n", attributeValues)
+
+	return
+}
+
+func main() {
+	myString := `<arg name="longitude" type="double" ape="apekatt" hest="folafolablakken">`
+
+	attributeNames, attributeValues := getAttributes(myString)
+	fmt.Println("Found the following key/value pairs")
+	for i := range attributeNames {
+		fmt.Printf("Key = %v, Value = %v \n", attributeNames[i], attributeValues[i])
+	}
+
 }
