@@ -7,10 +7,10 @@ import (
 
 //chrPositions , finds the positions containing a chr in a string
 //
-func findChrPositions(myString string, chr byte) (equalPosition []int) {
-	for i := 0; i < len(myString); i++ {
+func findChrPositions(s string, chr byte) (equalPosition []int) {
+	for i := 0; i < len(s); i++ {
 		//find the positions of the "=" character
-		if myString[i] == byte(chr) {
+		if s[i] == byte(chr) {
 			equalPosition = append(equalPosition, i)
 		}
 	}
@@ -21,7 +21,7 @@ func findChrPositions(myString string, chr byte) (equalPosition []int) {
 // Searches backwards in a string from a given positions,
 // for the first occurence of a character.
 //
-func findPriorOccurance(myString string, preChr byte, origChrPositions []int) (preChrPositions []int) {
+func findPriorOccurance(s string, preChr byte, origChrPositions []int) (preChrPositions []int) {
 	for _, v := range origChrPositions {
 		vv := v
 
@@ -33,13 +33,14 @@ func findPriorOccurance(myString string, preChr byte, origChrPositions []int) (p
 				log.Println("Found no space before the equal sign, reached the beginning of the line")
 				break
 			}
-
-			if myString[vv] == preChr {
+			if s[vv] == preChr {
 				preChrPositions = append(preChrPositions, vv)
 				break
 			}
 		}
 	}
+
+	//Will return the position of the prior occurance of the a the character
 	return
 }
 
@@ -49,7 +50,7 @@ func findPriorOccurance(myString string, preChr byte, origChrPositions []int) (p
 // The function takes multiple positions as input,
 // and will also return multiplex positions
 //
-func findNextOccurance(myString string, preChr byte, origChrPositions []int) (nextChrPositions []int) {
+func findNextOccurance(s string, preChr byte, origChrPositions []int) (nextChrPositions []int) {
 	for _, v := range origChrPositions {
 		vv := v
 
@@ -57,12 +58,12 @@ func findNextOccurance(myString string, preChr byte, origChrPositions []int) (ne
 		for {
 			vv++
 
-			if vv > len(myString)-1 {
+			if vv > len(s)-1 {
 				log.Println("Found no space before the equal sign, reached the end of the line")
 				break
 			}
 
-			if myString[vv] == preChr {
+			if s[vv] == preChr {
 				nextChrPositions = append(nextChrPositions, vv)
 				break
 			}
@@ -77,13 +78,13 @@ func findNextOccurance(myString string, preChr byte, origChrPositions []int) (ne
 // takes a string, and two positions given as slices as input,
 // and returns a slice of string with the words found.
 //
-func findLettersBetween(myString string, firstPositions []int, secondPositions []int) (words []string) {
+func findLettersBetween(s string, firstPositions []int, secondPositions []int) (words []string) {
 	for i, v := range firstPositions {
 		letters := []byte{}
 
 		//as long as first position is lower than second position....
 		for v < secondPositions[i] {
-			letters = append(letters, myString[v])
+			letters = append(letters, s[v])
 			v++
 		}
 		words = append(words, string(letters))
@@ -99,7 +100,6 @@ func findLettersBetween(myString string, firstPositions []int, secondPositions [
 func getAttributes(s string) (attributeNames []string, attributeValues []string) {
 	//Find the positions where there is an equal sign in the string
 	equalPositions := findChrPositions(s, '=')
-
 	preChrPositions := findPriorOccurance(s, ' ', equalPositions)
 
 	//==============find the word before the equal sign==============================
@@ -111,18 +111,11 @@ func getAttributes(s string) (attributeNames []string, attributeValues []string)
 	}
 
 	attributeNames = findLettersBetween(s, preChrPositions, equalPositions)
-	//fmt.Printf("DEBUG: Found word >%v<\n", attributeNames)
-	//fmt.Printf("Equal position : %v, preChrPositions : %v \n", equalPositions, preChrPositions)
 
 	// =================find the word after the equal and between " "===========================
 
-	fmt.Println("===================================================================")
-
 	nextChrPositions := findNextOccurance(s, '"', equalPositions)
-	//fmt.Println("********nextChrPositions : ", nextChrPositions)
-
 	nextNextChrPositions := findNextOccurance(s, '"', nextChrPositions)
-	//fmt.Println("********nextNextChrPositions : ", nextNextChrPositions)
 
 	//We need to add 2 to all the pre positions, since the word we're
 	// looking for starts after that character.
@@ -131,8 +124,6 @@ func getAttributes(s string) (attributeNames []string, attributeValues []string)
 	}
 
 	attributeValues = findLettersBetween(s, nextChrPositions, nextNextChrPositions)
-	//fmt.Printf("DEBUG: Found word >%v<\n", attributeValues)
-
 	return
 }
 
@@ -140,6 +131,7 @@ func main() {
 	myString := `<arg name="longitude" type="double" ape="apekatt" hest="folafolablakken">`
 
 	attributeNames, attributeValues := getAttributes(myString)
+
 	fmt.Println("Found the following key/value pairs")
 	for i := range attributeNames {
 		fmt.Printf("Key = %v, Value = %v \n", attributeNames[i], attributeValues[i])
