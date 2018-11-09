@@ -57,21 +57,17 @@ func readBlock(r *bufio.Reader) (string, error) {
 		simpleEndOK := strings.HasSuffix(lString, ">")
 		peekStartOK := strings.HasPrefix(string(peekString), "<")
 		_ = fmt.Sprintln(startOK, simpleEndOK, peekStartOK)
-		//fmt.Printf("PEEKSTARTOK:%v:%v\n ", peekStartOK, peekString)
-		// If the string starts or ends with a bracket, add add that line
-		// to tmpString and break out of loop. If this was a normal line
-		// with a start "<" tmpString will then only contain 1 line since
-		// there is no previous runs of the foor loop buffered in tmpLine.
-		//
-		// In the IF below just specify when you want to run once, or break out.
-		//if strings.HasPrefix(lString, "<") || strings.HasSuffix(lString, "/>") {
 
-		if (startOK && simpleEndOK) || //check if line contains "<" and ">"
-			peekStartOK { //check if next line contains "<"
+		// In the IF below just specify when you want to run once, or break out.
+		// Breaking out means read no more lines this run.
+		//
+		if (startOK && simpleEndOK) || //check if line contains "<" and ">", indicating complete tag line.
+			peekStartOK { //check if next line contains "<", indicating new bracket on next line
 			tmpString = fmt.Sprintf("%v %v", tmpString, lString)
 
-			//If the finnished line don't have any brackets at all, we assume it is
-			// a descriptio, so we add a new tags called <description> & </description>.
+			// If the finnished line don't have any brackets at all, we assume it is
+			// a description, so we add a new tags called <description> & </description>.
+			//
 			tmpString = strings.TrimSpace(tmpString)
 			startOK := strings.HasPrefix(tmpString, "<")
 			simpleEndOK := strings.HasSuffix(tmpString, ">")
