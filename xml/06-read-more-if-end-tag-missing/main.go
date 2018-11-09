@@ -42,6 +42,7 @@ func main() {
 func readBlock(r *bufio.Reader, ch chan string) {
 	fmt.Println("--------------------------------------------------------------------")
 	var currentLine string
+	var combinedLine string
 	for {
 		l, _, err := r.ReadLine()
 		if err != nil {
@@ -56,8 +57,18 @@ func readBlock(r *bufio.Reader, ch chan string) {
 		peekStartOK := strings.HasPrefix(string(nextLine), "<")
 		_ = fmt.Sprintf("=== StartOK:%v, simpleEndOK:%v ,peekStartOK:%v\n", startOK, simpleEndOK, peekStartOK)
 
+		if (startOK && !simpleEndOK) || !startOK {
+			combinedLine = fmt.Sprintf("%v %v", combinedLine, currentLine)
+		} else {
+
+		}
+
+		//If the line got both start and end brackets, send it to the channel
 		ch <- currentLine
 
+		//The reader allways lies one step ahead of where we work, all work
+		// is now done for the current line, so swap it with the next, re run
+		// for loop, and read a new line into next line.
 		currentLine = nextLine
 	}
 	fmt.Println("--------------------------------------------------------------------")

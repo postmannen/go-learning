@@ -23,7 +23,7 @@ func main() {
 			log.Println("Error: ", err)
 			break
 		}
-		fmt.Println("OUTPUT:", s, ":ENDOUTPUT")
+		fmt.Println(s)
 	}
 
 }
@@ -45,16 +45,13 @@ func readBlock(r *bufio.Reader) (string, error) {
 			log.Println("Error: failed reading line: ", err)
 			return "", err
 		}
-		fmt.Printf("===== l =====:%v\n", string(l))
-		fmt.Printf("===== l =====:%v\n", l)
+		//fmt.Printf("===== l =====:%v\n", string(l))
+		//fmt.Printf("===== l =====:%v\n", l)
 
-		peek, err := r.Peek(10)
-		if err != nil {
-			log.Println("Error: peek: ", err)
-		}
+		peek, _ := r.Peek(4)
 		peekString := strings.TrimSpace(string(peek))
 		lString = strings.TrimSpace(string(l))
-		fmt.Printf("== lString ==:%v\n", lString)
+		//fmt.Printf("== lString ==:%v\n", lString)
 
 		startOK := strings.HasPrefix(lString, "<")
 		simpleEndOK := strings.HasSuffix(lString, ">")
@@ -66,15 +63,25 @@ func readBlock(r *bufio.Reader) (string, error) {
 		// with a start "<" tmpString will then only contain 1 line since
 		// there is no previous runs of the foor loop buffered in tmpLine.
 		//
-		// In the IF below just specify when you want to run once.
+		// In the IF below just specify when you want to run once, or break out.
 		//if strings.HasPrefix(lString, "<") || strings.HasSuffix(lString, "/>") {
-		if (startOK && simpleEndOK) || (!startOK && peekStartOK) {
+
+		if (startOK && simpleEndOK) || //check if line contains "<" and ">"
+			peekStartOK { //check if next line contains "<"
 			tmpString = fmt.Sprintf("%v %v", tmpString, lString)
-			fmt.Printf("===tmpString in if=====:%v\n", tmpString)
+
+			//If the finnished line don't have any brackets at all, we assume it is
+			// a descriptio, so we add a new tags called <description> & </description>.
+			tmpString = strings.TrimSpace(tmpString)
+			startOK := strings.HasPrefix(tmpString, "<")
+			simpleEndOK := strings.HasSuffix(tmpString, ">")
+			if !startOK && !simpleEndOK {
+				tmpString = fmt.Sprintf("<description>%v</description>", tmpString)
+			}
+
 			break
 		}
 		tmpString = fmt.Sprintf("%v %v", tmpString, lString)
-		fmt.Printf("===tmpString after if=====:%v\n", tmpString)
 	}
 	fmt.Println("--------------------------------------------------------------------")
 	return tmpString, nil
