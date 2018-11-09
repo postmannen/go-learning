@@ -1,4 +1,10 @@
-// Working but the peek function with a fixed nr is not optimal
+//Reading an xml file, and if there are multiple lines that
+// belong together we add them together so lexing them later
+// will be easir.
+// For example a description block can span several lines
+// each ending with a line break. Then we remove all line
+// breaks and combine them together before we return it to
+// as a single line.
 package main
 
 import (
@@ -45,9 +51,8 @@ func readBlock(r *bufio.Reader) (string, error) {
 			log.Println("Error: failed reading line: ", err)
 			return "", err
 		}
-		//fmt.Printf("===== l =====:%v\n", string(l))
-		//fmt.Printf("===== l =====:%v\n", l)
 
+		//Checks the first 4 characters of the next line.
 		peek, _ := r.Peek(4)
 		peekString := strings.TrimSpace(string(peek))
 		lString = strings.TrimSpace(string(l))
@@ -61,12 +66,12 @@ func readBlock(r *bufio.Reader) (string, error) {
 		// In the IF below just specify when you want to run once, or break out.
 		// Breaking out means read no more lines this run.
 		//
-		if (startOK && simpleEndOK) || //check if line contains "<" and ">", indicating complete tag line.
+		if (startOK && simpleEndOK) || //check if line contains "<" and ">", indicating complete tag line, or...
 			peekStartOK { //check if next line contains "<", indicating new bracket on next line
 			tmpString = fmt.Sprintf("%v %v", tmpString, lString)
 
 			// If the finnished line don't have any brackets at all, we assume it is
-			// a description, so we add a new tags called <description> & </description>.
+			// a description, so we add new tags called <description> & </description>.
 			//
 			tmpString = strings.TrimSpace(tmpString)
 			startOK := strings.HasPrefix(tmpString, "<")
