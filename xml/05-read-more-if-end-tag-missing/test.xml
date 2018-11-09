@@ -1,0 +1,11 @@
+			<comment
+				title="Move the drone"
+				desc="Move the drone.\n
+				The libARController is sending the command each 50ms.\n\n
+				**Please note that you should call setPilotingPCMD and not sendPilotingPCMD because the libARController is handling the periodicity and the buffer on which it is sent.**"
+				support="0901;090c;090e"
+				result="The drone moves! Yaaaaay!\n
+				Event [SpeedChanged](#1-4-5), [AttitudeChanged](#1-4-6) and [PositionChanged](#1-4-4) (only if gps of the drone has fixed) are triggered."/>
+			<arg name="flag" type="u8">
+				Boolean flag: 1 if the roll and pitch values should be taken in consideration. 0 otherwise
+			</arg>
