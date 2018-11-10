@@ -60,15 +60,15 @@ func WriteTmpFile(fh *os.File, tfh *os.File) error {
 	br := bufio.NewReader(fh)
 
 	for {
+		//Prepare a line or block from the original xml file and put in "s".
 		s, err := readBlock(br)
 		if err != nil {
 			log.Println("Error: ", err)
 			break
 		}
-		fmt.Println(s)
-		//_, err = bw.WriteString(s)
-		_, err = tfh.WriteString(s)
 
+		//Write the prepared line or block into the tmp file as a string.
+		_, err = tfh.WriteString(s)
 		if err != nil {
 			log.Fatal("Error: writing to tmp file: ", err)
 
