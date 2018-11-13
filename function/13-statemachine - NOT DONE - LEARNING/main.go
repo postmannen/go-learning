@@ -19,6 +19,7 @@ type data struct {
 }
 
 func (d *data) less() aFunction {
+	fmt.Printf("Starting inside d.less\n")
 	fmt.Println("less : ", d.counter, " is less than 5")
 	// less is the last function in the chain, so we call the
 	// initial d.checkSize function again to get the next
@@ -27,6 +28,7 @@ func (d *data) less() aFunction {
 }
 
 func (d *data) more() aFunction {
+	fmt.Printf("Starting inside d.more\n")
 	fmt.Println("more : ", d.counter, " is more than 5")
 	// less is the last function in the chain, so we call the
 	// initial d.checkSize function again to get the next
@@ -35,25 +37,27 @@ func (d *data) more() aFunction {
 }
 
 func (d *data) checkSize() aFunction {
+	fmt.Printf("Starting inside d.checkSize\n")
 	d.counter++
 	// If we are at the end of the slice, return nil back to main,
 	// and break the for loop there. Since nil contains no function
 	// to call no more functions will be called.
 	if d.counter == d.length {
+		fmt.Printf("The index counter is now equal to the slice length, lets exit\n")
 		return nil
 	}
 
 	// If the number is below 5, return the d.less function to be
 	// executed in main for loop.
 	if d.numbers[d.counter] <= 5 {
-		fmt.Println("checkSize : ", d.counter, " is less than 5")
+		fmt.Println("checkSize : ", d.counter, " is less than 5, will call d.less next")
 		return d.less
 	}
 
 	// If the number is above 5, return the d.more function to be
 	// executed in main for loop.
 	if d.numbers[d.counter] > 5 {
-		fmt.Println("checkSize : ", d.counter, " is larger than 5")
+		fmt.Println("checkSize : ", d.counter, " is larger than 5, will call d.more next")
 		return d.more
 	}
 
