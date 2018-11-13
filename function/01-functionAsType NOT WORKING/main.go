@@ -19,6 +19,7 @@ func main() {
 	myDB.deleteLine()
 
 	var a deleter
-	deleter.deleteLine()
+
+	fmt.Printf("a is of type %T\n", a)
 
 }
