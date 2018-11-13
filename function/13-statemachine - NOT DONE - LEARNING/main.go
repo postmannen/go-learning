@@ -20,11 +20,17 @@ type data struct {
 
 func (d *data) less() aFunction {
 	fmt.Println("less : ", d.counter, " is less than 5")
+	// less is the last function in the chain, so we call the
+	// initial d.checkSize function again to get the next
+	// number, and start all over.
 	return d.checkSize
 }
 
 func (d *data) more() aFunction {
 	fmt.Println("more : ", d.counter, " is more than 5")
+	// less is the last function in the chain, so we call the
+	// initial d.checkSize function again to get the next
+	// number, and start all over.
 	return d.checkSize
 }
 
@@ -66,7 +72,7 @@ func main() {
 	f := d.checkSize()
 	for {
 		fmt.Println("------------------------------------------------------------------")
-		fmt.Printf("Main: Calling %#v\n", f)
+		fmt.Printf("Main: Calling %#v, type = %T\n", f, f)
 		// Here we are constantly looping and executing the returned functions.
 		// Again we put the returned function value into f to then be executed
 		// on the next round of the for loop.
