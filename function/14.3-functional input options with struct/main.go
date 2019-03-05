@@ -16,7 +16,7 @@ package main
 
 import "fmt"
 
-//myFunc is a function type with no input and no return values.
+//myFunc is a function type which takes a pointer to person as input, and no return values.
 type myFunc func(*person)
 
 type person struct {
