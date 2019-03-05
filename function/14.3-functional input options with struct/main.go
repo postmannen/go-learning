@@ -64,6 +64,9 @@ func NewPerson(s string, mFunc ...myFunc) *person {
 func main() {
 	//Here we call NewPerson, and are giving it several functions to execute
 	// up on creation.
+	// In NewPerson above me set p.logging to true as a default, but we override it
+	// here when creating the person, since we are tired of surveillance, and we don't
+	// want to use the default.
 	p1 := NewPerson("Even", setName("Harald"), setAge(140), turnOffLogging())
 
 	fmt.Println("p1 now contains : ", p1)
