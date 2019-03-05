@@ -2,10 +2,14 @@
 Function type, and function who returns a function.
  NB: The important thing to remember here is that it is the returned function
  functions signature that have to match the myFunc type, which is being used
- as input in functionExecutor. The called function can look whatever way it wants,
+ as input in the NewPerson function. The called function can look whatever way it wants,
  just as long as the returned function matches to myFunc signature.
 
  The idea here is to test functions as input parameters in a function when beeing called.
+
+ The advantage is that you can set defaults when constructing new types, and the user of that
+ type can choose to go with the defaults by calling none of the functions, or a mix of defaults
+ and changed values that are being used here in this example.
 */
 
 package main
