@@ -55,7 +55,9 @@ func turnOffLogging() myFunc {
 // below with the `for range`loop to get each one, and call them.
 func NewPerson(s string, mFunc ...myFunc) *person {
 	p := &person{}
+	p.name = "none"
 	p.logging = true
+	p.age = 100
 
 	//Here we finally give p as input parameter to the function thats beeing executed.
 	for _, myF := range mFunc {
