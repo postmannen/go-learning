@@ -16,8 +16,9 @@ import "fmt"
 type myFunc func(*person)
 
 type person struct {
-	name string
-	age  int
+	name    string
+	age     int
+	logging bool
 }
 
 //setName takes the name of type string as input, but it returns
@@ -38,12 +39,19 @@ func setAge(n int) myFunc {
 	}
 }
 
+func turnOffLogging() myFunc {
+	return func(p *person) {
+		p.logging = false
+	}
+}
+
 //NewPerson takes a myFunc as it input argument.
 // Since mFunc is a variadic input, meaning we specify more than one when calling it,
 // we loop over all the functions that might be given as input when calling NewPerson
 // below with the `for range`loop to get each one, and call them.
 func NewPerson(s string, mFunc ...myFunc) *person {
 	p := &person{}
+	p.logging = true
 
 	//Here we finally give p as input parameter to the function thats beeing executed.
 	for _, myF := range mFunc {
@@ -56,7 +64,7 @@ func NewPerson(s string, mFunc ...myFunc) *person {
 func main() {
 	//Here we call NewPerson, and are giving it several functions to execute
 	// up on creation.
-	p1 := NewPerson("Even", setName("Harald"), setAge(140))
+	p1 := NewPerson("Even", setName("Harald"), setAge(140), turnOffLogging())
 
 	fmt.Println("p1 now contains : ", p1)
 
