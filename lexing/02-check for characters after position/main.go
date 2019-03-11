@@ -42,5 +42,6 @@ func checkForChrAfter(s string, curPos int, characters string) (found bool) {
 		}
 	}
 
+	//No match of the complete character string found, return false.
 	return false
 }
