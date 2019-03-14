@@ -28,13 +28,18 @@ func writeToConsole(s string) {
 type outputType int
 
 const (
+	//toChannel will send all the output to a channel
 	toChannel outputType = iota
+	//toConsole will send all the output to the console
 	toConsole
 )
 
-//newOutput takes and outputType as it's input, and will return a function that will
+//outputFunction is a type of function that takes a string as it's input.
+type outputFunction func(string)
+
+//newOutput takes an outputType as it's input, and will return a function that will
 // produce that kind of output. The returned function can then be called in main.
-func newOutput(ot outputType) func(string) {
+func newOutput(ot outputType) outputFunction {
 	if ot == toChannel {
 		return writeToChannel
 	}
