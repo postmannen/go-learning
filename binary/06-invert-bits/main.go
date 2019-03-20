@@ -1,3 +1,8 @@
+/*
+	Invert the bits in an uint32.
+	Make all 0's to 1's, and all 1's to 0's.
+	It is the ^ operator who do the inversion.
+*/
 package main
 
 import (
