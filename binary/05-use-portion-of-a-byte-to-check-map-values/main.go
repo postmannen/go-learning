@@ -16,10 +16,10 @@ const (
 )
 
 var m map[binaryValue]string = map[binaryValue]string{
-	0: "null",
-	1: "one",
-	2: "two",
-	3: "three",
+	null:  "null",
+	one:   "one",
+	two:   "two",
+	three: "three",
 }
 
 func main() {
