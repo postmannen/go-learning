@@ -40,7 +40,7 @@ func convert(b []bool) uint8 {
 	}
 
 	//instead of checking for the end after each iteration to handle the last bit,
-	// we do it after, and go from 14.2 ns/op to 12.0 ns/op
+	// we do it after, and go from 16.3 ns/op to 12.0 ns/op
 	if b[len(b)-1] == true {
 		n = n | 1
 	}
