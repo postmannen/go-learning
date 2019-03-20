@@ -1,3 +1,12 @@
+/*
+	Turn a slice of 8 boolean values into a byte (uint8).
+	Checks the first value of the bool slice, if true set
+	the least significant bit to 1, and shift all bits 1
+	to the left.
+	If the value from the bool slice is false, we just keep
+	the default value added by the bit shift which is 0,
+	and do another bit shift. No need to set a 0 value to 0.
+*/
 package main
 
 import (
