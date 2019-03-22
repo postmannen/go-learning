@@ -1,6 +1,8 @@
-// The idea here is to learn and test out the concept of having local variables and methods in a package (lexml),
-// and only expose what we want to the caller (main.go).
-//
+/*
+	The idea here is to learn and test out the concept of having
+	local variables and methods in a package (lexml), and only
+	expose what we want to the caller (main.go).
+*/
 package main
 
 import (

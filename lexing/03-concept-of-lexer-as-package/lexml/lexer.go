@@ -1,3 +1,12 @@
+/*
+	lexml is a package that will take a file, lex it line by line,
+	and return each line back to the caller on a channel.
+	The only thing that should be exposed from this package is
+	the StartLexing method.
+	The channel do not need to be Exposed since it is returned to
+	the caller when calling StartLexing, and we can return not Exported
+	variables from functions and methods.
+*/
 package lexml
 
 import (
