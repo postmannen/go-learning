@@ -1,3 +1,8 @@
+/*
+ Make a buffered reader of channel.
+ Will keep the next input values read in a buffer where size if defined by b.size.
+ Will release a new value with the readNext method.
+*/
 package main
 
 import (
@@ -5,17 +10,21 @@ import (
 )
 
 func main() {
+	//fake an input channel, and make it feed values to it.
 	chIn := make(chan int)
 	go func() {
-		for i := 1; i <= 10; i++ {
+		for i := 1; i <= 20; i++ {
 			chIn <- i
 		}
 		close(chIn)
 	}()
 
-	b := NewBuffer()
+	b := NewBuffer(5)
 	b.start(chIn)
 
+	//loop and read a value from the out channel, and also show the content
+	// of the buffer. The amout of values should be specified with the size
+	// parameter to the buffer
 	for v := range b.chOut {
 		fmt.Println("client : Read from chout : ", v)
 		fmt.Println("client : Content of b.slice : ", b.slice)
@@ -25,24 +34,25 @@ func main() {
 
 //buffer is a buffer
 type buffer struct {
-	chOut          chan int
-	slice          []int
-	confirmNewRead chan bool
+	chOut          chan int  //chout, the channel out to be read by client
+	slice          []int     //slice which is the actual buffer
+	confirmNewRead chan bool //used to wait for confirmation of grabbing the next value from input channel.
+	size           int       //size of buffer
 }
 
 //NewBuffer create a new buffer
-func NewBuffer() *buffer {
+func NewBuffer(m int) *buffer {
 	return &buffer{
 		chOut:          make(chan int),
 		confirmNewRead: make(chan bool),
+		size:           m,
 	}
 }
 
 //start will start filling the buffer, to continue filling buffer  use the readNext method.
 func (b *buffer) start(chIn chan int) {
-	var max = 3
 	go func() {
-		for len(b.slice) < max-1 {
+		for len(b.slice) < b.size-1 {
 			v, ok := <-chIn
 			if !ok {
 				//log.Println("SERVER: done reading chIn in the slice filling loop at the top")
@@ -50,35 +60,38 @@ func (b *buffer) start(chIn chan int) {
 			}
 			b.slice = append(b.slice, v)
 		}
-		//fmt.Println("SERVER: done with the first fill, slice looks like , ", b.slice)
-		//fmt.Println("-------------------------------------------------------------------")
 
+		//Loop and read another value as long as the slice is > 0.
+		// Since we fill the buffer when we start as the first thing
+		// the only reason for the length of the slice is 0 is that
+		// the input channel is closed, and the decrement of the channel
+		// value by value have started.
 		for len(b.slice) > 0 {
 			v, ok := <-chIn
-			//fmt.Println("SERVER: just read chIn = ", v)
 
+			//input channel closed ?
 			if !ok {
-				//fmt.Println("SERVER: IF 1, done reading chIn,removing first item from slice")
 				b.slice = b.slice[1:]
 			}
 
-			if len(b.slice) == 3 {
-				//fmt.Println("SERVER: IF 2, removing first of slice, adding to the end of slice, ", v)
+			//length of slice already full ?
+			if len(b.slice) == b.size {
 				b.slice = b.slice[1:]
 				b.slice = append(b.slice, v)
 			}
 
-			if ok && len(b.slice) < max {
-				//fmt.Println("SERVER: IF 3, appending to slice, ", v)
+			//input channel not closed, and slice buffer not filled to size.
+			if ok && len(b.slice) < b.size {
 				b.slice = append(b.slice, v)
 			}
 
+			//slice have been emptied, break out of for loop.
 			if len(b.slice) == 0 {
-				//fmt.Println("SERVER: IF 4, length of slice = 0, breaking out of for loop")
 				break
 			}
-			//fmt.Printf("SERVER: END OF FOR: before sending %v to client, slice contains = %v\n", b.slice[0], b.slice)
+
 			b.chOut <- b.slice[0]
+			//Wait for confirmation for another read from main.
 			<-b.confirmNewRead
 		}
 		close(b.chOut)
