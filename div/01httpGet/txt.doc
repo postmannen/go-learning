@@ -1,0 +1,19 @@
+1.
+What might have gone wrong:
+All seems to work, except that the user does not get the confirmation from the backend system that the transaction finalised. This might be caused by a network issue, or the process that handles the communication from Backend->UI times out for some reason.
+Possible solution:
+Make sure that a confirmation message is delivered to the user before finalising the transaction.  Implement error checking on the communication from Backend to UI, and abort transaction if confirmation was not successfully delivered to the user. The client software should also report back to the backend as an extra measure that the message was received, then the backend can do the transaction. Maybe implement a processing payment popup/widget, which will show "waiting for finializing transaction", and if failure it will be replaced with the error. To sum up, no transactions should be allowed to fulfill unless we can guarantee proper communication with both backend and UI.
+Benchmark your system, and set a timer for how long a transaction can take. If it takes too long, fail with an understandable error to the user like "Transaction timeout, please......", and abort transaction. Both the client and the server should be aware of the timeout threshold, so it can be canceled from either end if it takes to long.
+
+2.
+What might have gone wrong:
+There seems to be no limit for how many times a transaction can be processed.
+Possible solution:
+Make sure that all transactions only can be processed once. This can be done by giving each order a unique ID, and having a record in the db for a transaction linked to the specific order. and putting a flag in for example the DB about the status of the transaction, then before any transaction is attempted it should check the db first, and if no active transaction exists, we can proceed and create a new one.
+Also make sure to put a mutex on the flag so no other process can update it, if there have spawned several processes doing the same order.
+Also as in solution for customer 1, never allow a transaction to be completed unless the "successful" message is confirmed delivered to the user UI, also implement solution proposed for the client 1 issue.
+
+3. What might have gone wrong:
+Seems this is a mix of both 1 & 2 above. The system lets the user process the same transaction ID twice, there is no checking in place to check if the user got the the  message before finalising the order payment, and there is no checking for only having one transaction per order.
+Possible solution:
+Implement both solutions in 1 and 2. 
