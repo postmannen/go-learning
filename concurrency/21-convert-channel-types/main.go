@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"log"
 	"reflect"
-	"time"
 )
 
 //incommingSignal will be the remote system that sends us some values
@@ -34,7 +33,7 @@ func incommingSignal() chan int {
 }
 
 //convToOpenInterface will take any value as input, and convert it to a `chan interface{}`
-// It check if it is a channel, if it is a channel we take the current value
+// It checks if it is a channel, if it is a channel we take the current value
 // of the in channel of type int and put it on the out channel which is of type interface{}
 func convToOpenInterface(ci interface{}) chan interface{} {
 	cin := reflect.ValueOf(ci)
@@ -50,8 +49,7 @@ func convToOpenInterface(ci interface{}) chan interface{} {
 				break
 			}
 			fmt.Printf("* Converting to x %v %T, and putting on cout channel\n", x, x)
-			//fmt.Printf("x=%#v\n", x)
-			time.Sleep(time.Millisecond * 100)
+
 			cout <- x
 		}
 	}()
