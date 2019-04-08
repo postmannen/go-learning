@@ -6,9 +6,7 @@ import (
 
 func BenchmarkNormalIteration(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-
 		checkForChrAfter(myString, 1, "</")
-
 	}
 }
 
