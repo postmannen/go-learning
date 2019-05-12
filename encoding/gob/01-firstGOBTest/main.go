@@ -40,16 +40,30 @@ func main() {
 		fmt.Printf("encoding failed : %v\n", err)
 	}
 
-	fmt.Println(b.String())
+	fmt.Println("The binary representation of what is in the buffer : ", b)
 
-	animals := []Person{}
+	//animals := []Person{}
+	////NewDecoder. Since bytes.Buffer's read method got a pointer receiver we have to pass a pointer
+	//// to the bytes buffer with &b
+	//d := gob.NewDecoder(&b)
+	////Decode what is in the buffer b into &animals
+	//err = d.Decode(&animals)
+	//if err != nil {
+	//	fmt.Printf("decoding failed : %v\n", err)
+	//}
+	//fmt.Printf("%#v\n", animals)
+
+	type Alien struct {
+		FirstName string
+	}
+	aliens := []Alien{}
 	//NewDecoder. Since bytes.Buffer's read method got a pointer receiver we have to pass a pointer
 	// to the bytes buffer with &b
-	d := gob.NewDecoder(&b)
+	dA := gob.NewDecoder(&b)
 	//Decode what is in the buffer b into &animals
-	err = d.Decode(&animals)
+	err = dA.Decode(&aliens)
 	if err != nil {
 		fmt.Printf("decoding failed : %v\n", err)
 	}
-	fmt.Printf("%#v\n", animals)
+	fmt.Printf("%#v\n", aliens)
 }
