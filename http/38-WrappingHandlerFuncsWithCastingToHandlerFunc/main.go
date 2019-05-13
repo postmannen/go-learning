@@ -12,7 +12,7 @@ func testHandler(s string) http.HandlerFunc {
 	}
 	//The conversion is not needed since the signature of the function is matching the signature
 	// needed for the http.HandlerFunc function type, but it was added in this example for
-	// testing and clarity.
+	// testing and learning.
 	return http.HandlerFunc(fn)
 }
 
