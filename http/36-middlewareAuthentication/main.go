@@ -18,6 +18,9 @@ func authHandler(hf http.HandlerFunc, u string, pw string) http.HandlerFunc {
 	//If authentication fails we return only a failed message, and not the main page.
 	if u != "me" || pw != "pw" {
 		return func(w http.ResponseWriter, r *http.Request) {
+			//Writing a response code have to be done before the actual write happens, cause the
+			// buffers gets flushed upon write.
+			w.WriteHeader(http.StatusUnauthorized)
 			fmt.Fprintln(w, "Authentication failed !!")
 		}
 
