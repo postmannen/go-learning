@@ -10,6 +10,9 @@ func testHandler(s string) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "The string passed in was : ", s)
 	}
+	//The conversion is not needed since the signature of the function is matching the signature
+	// needed for the http.HandlerFunc function type, but it was added in this example for
+	// testing and clarity.
 	return http.HandlerFunc(fn)
 }
 
