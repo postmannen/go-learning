@@ -18,8 +18,6 @@ type Person struct {
 }
 
 //PersonRPC is a type to tie the RPC exposed methods to.
-// Not sure if it is correct to make it's own type for the RPC exposed methods, or if they should be
-// placed on the data structure Person instead. Have to investigate further on that in another example.
 type PersonRPC int
 
 //Print
