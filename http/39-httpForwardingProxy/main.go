@@ -8,7 +8,8 @@ import (
 )
 
 func pageHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get("http://vg.no" + r.RequestURI)
+	//remAdr := strings.Split(r.RemoteAddr, "http")
+	resp, err := http.Get(r.RequestURI)
 	if err != nil {
 		log.Println("error: get: ", err)
 	}
