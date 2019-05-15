@@ -8,14 +8,11 @@ import (
 )
 
 func pageHandler(w http.ResponseWriter, r *http.Request) {
-	//fmt.Fprintf(w, "%#v\n", r)
-	resp, err := http.Get("http://vg.no")
+	resp, err := http.Get("http://vg.no" + r.RequestURI)
 	if err != nil {
 		log.Println("error: get: ", err)
 	}
 	defer resp.Body.Close()
-
-	fmt.Println("*****************************1")
 
 	//The header is a map, we take all the pieces from the received header, and put the same
 	// key's and values into our own header.
