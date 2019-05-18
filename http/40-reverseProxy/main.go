@@ -19,6 +19,8 @@ func forwarder(f forwarders) http.HandlerFunc {
 			return
 		}
 
+		//We need to do ask for the complete path since many sites don't use the full path in they're
+		// pages, just relative path like "/blah/blah", and not "mysite.no/blah/blah"
 		resp, err := http.Get(extUrl + r.URL.RequestURI())
 		if err != nil {
 			log.Printf("error: http.Get: %v\n", err)
