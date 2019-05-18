@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-//forwarders is a map where the key is the internal URL's, and the Key is the external URL.
+//forwarders is a map where the key is the internal URL's, and the value is the external URL.
 type forwarders map[string]string
 
 func forwarder(f forwarders) http.HandlerFunc {
