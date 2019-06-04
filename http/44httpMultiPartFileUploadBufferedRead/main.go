@@ -41,27 +41,23 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 	defer tempFile.Close()
 
-	inScanner := bufio.NewScanner(inFile)
-	//outWriter := bufio.NewWriter(tempFile)
+	inReader := bufio.NewReader(inFile)
+	outWriter := bufio.NewWriter(tempFile)
 
 	for {
-		v := inScanner.Scan()
-		if err := inScanner.Err(); err != nil {
-			log.Println("error: scanner: ", err)
+		b, rerr := inReader.ReadBytes('\n')
+
+		_, err := outWriter.Write(b)
+		if err != nil {
+			log.Println("error: write failed : ", err)
 		}
+		outWriter.Flush()
 
-		fmt.Println(len(inScanner.Bytes()))
-
-		//_, err := outWriter.Write(inScanner.Bytes())
-		//if err != nil {
-		//	log.Println("error: write failed : ", err)
-		//}
-		//outWriter.Flush()
-
-		if !v {
-			log.Println("done scanning")
+		if rerr != nil {
+			log.Println("error: failed reading: ", err)
 			break
 		}
+
 	}
 
 	//http.Redirect(w, r, r.Header.Get("Referer"), 302)
