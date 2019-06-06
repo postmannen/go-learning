@@ -60,7 +60,7 @@ func uploadFile(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("File MIME header : %v\n", inFileHeader.Header)
 
 	// ------------------------- Creating main image ----------------------------------
-
+	
 	mainOutFile, err := ioutil.TempFile("./", "tmp100-*.jpg")
 	if err != nil {
 		log.Println("error: creating TempFile: ", err)
