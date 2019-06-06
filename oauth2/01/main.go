@@ -16,7 +16,7 @@ import (
 
 var (
 	googleOauthConfig = &oauth2.Config{
-		RedirectURL:  "http://localhost:3000/GoogleCallback",
+		RedirectURL:  "http://localhost:8080/callback",
 		ClientID:     os.Getenv("googlekey"),    // from https://console.developers.google.com/project/<your-project-id>/apiui/credential
 		ClientSecret: os.Getenv("googlesecret"), // from https://console.developers.google.com/project/<your-project-id>/apiui/credential
 		Scopes:       []string{"https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/drive.file"},
@@ -34,8 +34,8 @@ const htmlIndex = `<html><body>
 func main() {
 	http.HandleFunc("/", handleMain)
 	http.HandleFunc("/GoogleLogin", handleGoogleLogin)
-	http.HandleFunc("/GoogleCallback", handleGoogleCallback)
-	fmt.Println(http.ListenAndServe(":3000", nil))
+	http.HandleFunc("/callback", handleGoogleCallback)
+	fmt.Println(http.ListenAndServe(":8080", nil))
 }
 func handleMain(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, htmlIndex)
