@@ -42,6 +42,7 @@ func putInDB(db *bolt.DB, p Person) error {
 		}
 
 		//Put the byte values of the buffer into the value with buf.Bytes.
+		//NB: Using a static key for this test.
 		err = bu.Put([]byte("1"), buf.Bytes())
 		if err != nil {
 			return fmt.Errorf("error: put failed: %v\n", err)
