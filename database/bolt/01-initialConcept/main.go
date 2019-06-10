@@ -86,15 +86,6 @@ func main() {
 		for k, v := cursor.First(); k != nil; k, v = cursor.Next() {
 			fmt.Printf("key=%s, value=%s\n", k, v)
 		}
-		//for {
-		//	k, v := cursor.Next()
-		//	if k != nil {
-		//		//If the key = nil then we have looped all the items and break out.
-		//		log.Println("k = nil")
-		//		break
-		//	}
-		//	fmt.Println("the rest of the key/values = ", string(k), string(v))
-		//}
 
 		return nil
 	})
