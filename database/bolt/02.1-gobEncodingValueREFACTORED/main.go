@@ -12,6 +12,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/boltdb/bolt"
 )
@@ -23,7 +24,8 @@ type Person struct {
 }
 
 //putInDB will take a Person, encode it to gob, and put it into the db.
-func putInDB(db *bolt.DB, p Person) error {
+func putInDB(db *bolt.DB, p Person, key int) error {
+	k := strconv.Itoa(key)
 	//create a buffer with which is an io.Writer to satisfy gob.NewEncoder
 	buf := &bytes.Buffer{}
 	enc := gob.NewEncoder(buf)
@@ -43,7 +45,7 @@ func putInDB(db *bolt.DB, p Person) error {
 
 		//Put the byte values of the buffer into the value with buf.Bytes.
 		//NB: Using a static key for this test.
-		err = bu.Put([]byte("1"), buf.Bytes())
+		err = bu.Put([]byte(k), buf.Bytes())
 		if err != nil {
 			return fmt.Errorf("error: put failed: %v\n", err)
 		}
@@ -60,7 +62,8 @@ func putInDB(db *bolt.DB, p Person) error {
 }
 
 //getOutOfDB will read the value from the db, decode it from gob to []byte.
-func getOutOfDB(db *bolt.DB) (Person, error) {
+func getOutOfDB(db *bolt.DB, key int) (Person, error) {
+	k := strconv.Itoa(key)
 	var err error
 	p := Person{}
 
@@ -68,7 +71,7 @@ func getOutOfDB(db *bolt.DB) (Person, error) {
 		//Open the bucket named "persons"
 		bu := tx.Bucket([]byte("persons"))
 		//Get the value of the key "1"
-		v := bu.Get([]byte("1"))
+		v := bu.Get([]byte(k))
 		if v == nil {
 			return fmt.Errorf("No such key\n")
 		}
@@ -110,13 +113,14 @@ func main() {
 
 	//Creating a Person to put into the DB.
 	p := Person{"Askeladden", 100}
-	err = putInDB(db, p)
+	key := 1
+	err = putInDB(db, p, key)
 	if err != nil {
 		log.Println("error: putInDB: ", err)
 	}
 
 	//Get'ing a Person out of the DB
-	newP, err := getOutOfDB(db)
+	newP, err := getOutOfDB(db, key)
 	if err != nil {
 		log.Println("error: getOutOfDB failed: ", err)
 	}
