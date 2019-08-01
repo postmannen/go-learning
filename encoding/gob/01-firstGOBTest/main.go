@@ -11,7 +11,8 @@ import (
 	"fmt"
 )
 
-//Person describes a person
+// Person describes a person, and will be the format to
+// encode the data in the GOB.
 type Person struct {
 	FirstName string
 	LastName  string
