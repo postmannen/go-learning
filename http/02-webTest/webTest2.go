@@ -3,10 +3,12 @@ package main
 import "fmt"
 import "net/http"
 
+// Create a HandlerFunc, and use fmt.Fprintf to directly write
+// some content to our webpage.
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, `<h1>En header</h1>
-		<p>og en linje </p>
-		<p>og en linje til </p>
+	fmt.Fprint(w, `<h1>A header</h1>
+		<p>A line </p>
+		<p>and another line </p>
 	`)
 }
 
