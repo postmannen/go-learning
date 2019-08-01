@@ -1,3 +1,7 @@
+/*
+	Getting values out of a web form.
+*/
+
 package main
 
 import "fmt"
@@ -6,7 +10,7 @@ import "net/http"
 func indexHandler(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println(r.Form["username"])
 	fmt.Fprint(w, `
-    <h1>En header</h1>
+    <h1>A header</h1>
     <form>
       <div>
         <input type="text" name="navn">
@@ -18,8 +22,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	myName := r.FormValue("navn")
 	mySurName := r.FormValue("etternavn")
-	fmt.Println("Navnet som er skrevet inn = ", myName)
-	fmt.Println("Etternavnet = ", mySurName)
+	fmt.Println("Name given  = ", myName)
+	fmt.Println("Surname = ", mySurName)
 }
 
 func main() {

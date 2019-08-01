@@ -1,9 +1,14 @@
+/*
+	Using methods on a type as HandlerFunc. This will give us the
+	ability to store data (state) for the web page.
+*/
+
 package main
 
 import (
 	"fmt"
 
-	"github.com/postmannen/training/web/04-metod-handler-2nd/web"
+	"github.com/postmannen/go-learning/web/04-methodHandler/web"
 
 	"net/http"
 )
