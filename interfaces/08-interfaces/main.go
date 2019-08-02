@@ -2,10 +2,13 @@ package main
 
 import "fmt"
 
+//fuelType is an interface for any type that have a fuelTypePrinter() method.
 type fuelTyper interface {
 	fuelTypePrinter()
 }
 
+// Create a bunch of types, and make a fuelTypePrinter() on all of them.
+// This will make all of them fullfill the fuelTyper interface.
 type car struct {
 	name string
 	fuel string
@@ -29,6 +32,7 @@ type vehicle struct {
 	tractor
 }
 
+// runsOn takes an interface type of fuelTyper as input.
 func runsOn(f fuelTyper) {
 	f.fuelTypePrinter()
 }

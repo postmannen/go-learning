@@ -1,3 +1,6 @@
+/*
+	Test of the Barebones html/css framework.
+*/
 package main
 
 import (

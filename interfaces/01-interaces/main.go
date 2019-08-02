@@ -2,6 +2,7 @@ package main
 
 import "fmt"
 
+// An interface for all types that have a speak() method.
 type thing interface {
 	speak()
 }
@@ -16,10 +17,12 @@ type animal struct {
 	age       int
 }
 
+// person will have a speak method.
 func (s person) speak() {
 	fmt.Println("Personens navn er : ", s.firstName, s.lastName)
 }
 
+// animal will have a speak method.
 func (a animal) speak() {
 	fmt.Println("The characteristics of the animal is : ", a.firstName, ", and age : ", a.age)
 }
@@ -44,4 +47,5 @@ func main() {
 	}
 
 	ix.speak()
+	fmt.Printf("The type of ix = %T\n", ix)
 }
