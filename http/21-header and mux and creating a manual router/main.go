@@ -1,3 +1,8 @@
+/*
+	Create one HandleFunc that will check the URL path of the incomming
+	request and do the proper routing based on the value it contains.
+*/
+
 package main
 
 import (

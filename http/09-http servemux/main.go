@@ -17,27 +17,28 @@ func anotherHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-	//lage en ny mux som skal ta seg av routinga av requests til riktig handler.
+	// Create a new multiplexer that will take care of the routing.
 	mux := http.NewServeMux()
 	server := http.Server{
 		Addr: "127.0.0.1:8080",
-		//setter man en handler på server, så vil den bare kunne hoste en handler
-		//for å kunne ha flere handlere setter vi den til 'nil', som er DefaultServerMux
-		//og spesifiserer handlerene utenfor.
-		//Vi bruker da DefaultServeMux sin handler methode
+		// If only one handler is directly attacked to a http.ListenAndServe
+		// then only that single Handle (page) can be served from that server.
+		// To be able to serve more handles we need a multiplexer to do the
+		// routing between the different Handles for us. We could use the default
+		// multiplexer by specifying nil as the handler in our http.ListenAndServe
+		// statement, or we could create our own
+
 		Handler: mux,
 	}
 
 	var myHandlerA aType
-	//sette hvilken handler mux skal sende en path request til
-	//med Handle så trenger man en  variabel som er av en type, som igjen har method som heter ServeHTTP med writer og request som input
+	// Set the routing for the different Handlers.
 	mux.Handle("/", myHandlerA)
-	//med HandleFunc så trenger man ikke å ha en type med en method ServeHTTP, det holder med å ha en vanlig func
-	//som tar http.ResponseWriter, og *http.Request som input
 	mux.HandleFunc("/hf", anotherHandler)
 
-	//parameterene for ListenAndServe er satt i server variabelen som er av typen http.Server som er en struct
-	//Ved å opprette en struct på denne måten så kan man legge fler instillinger på ListenAndServe
+	// The parameters for the ListenAndServe are set in the http.Server struct.
+	// By creating a server object like this we can put more parameters on the
+	// web server.
 	server.ListenAndServe()
 
 }

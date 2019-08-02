@@ -9,12 +9,12 @@ import (
 type aType string
 
 func (a aType) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//sjekk hva url path inneholder, og kjør en switch på det
+	// Check what the path contains, and do a switch on it...
 	switch r.URL.Path {
 	case "/a":
-		io.WriteString(w, "Du er nå på /a")
+		io.WriteString(w, "You are now at /a")
 	case "/b":
-		io.WriteString(w, "Du er nå på /b")
+		io.WriteString(w, "You are now at /b")
 	}
 	fmt.Fprintln(w, "\n----------------------------")
 	fmt.Fprintln(w, "Path", r.URL.Path)

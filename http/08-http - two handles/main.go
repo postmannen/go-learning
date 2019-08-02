@@ -5,8 +5,11 @@ import "net/http"
 
 type aType string
 
-//ServeHTTP : Interfacet Handler inneholder metoden ServeHTTP(w http.ResponseWriter, r *http.Request)
-//Hvis en hvilken som helst type har en slik ServeHTTP metode så tilfredstiller typen interfacet som heter Handler.
+// Any type that have a method with the following signature....
+// ServeHTTP(w http.ResponseWriter, r *http.Request)
+// is fullfilling the Handler interface, and can be used to
+// serve a webpage.
+
 func (a aType) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Utskrift fra ServeHTTP funksjon for aType")
 }
@@ -19,10 +22,10 @@ func (b bType) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	var aVar aType = "Apekatt"
+	var aVar aType = "Monkey"
 	http.Handle("/", aVar)
 
-	var bVar bType = "Grevling"
+	var bVar bType = "Badger"
 	http.Handle("/b", bVar)
 	http.ListenAndServe(":8080", nil)
 
