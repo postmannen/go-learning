@@ -1,3 +1,6 @@
+/*
+Using functions as map values with and without predefined values.
+*/
 package main
 
 import (
@@ -20,10 +23,10 @@ func main() {
 	// as input.
 	fmt.Println(m1["ape"](10))
 
-	// If we want to predefine some values for the function we need to
+	// If we want to predefine some values for the function, we need to
 	// change the function signature for the map. The reason is that we
 	// no longer have a function which takes an int as input and returns
-	// and int, we only care about a function who returns an int valie.
+	// and int, we only care about a function who returns an int value.
 	// Since we're filling in the input values for the function directly
 	// we leave out the input field for the function in the map declaration,
 	// and instead returning a function with the value wanted given as input.
