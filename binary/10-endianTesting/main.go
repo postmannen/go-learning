@@ -7,18 +7,15 @@ import (
 	"math"
 )
 
-func withReader(in []byte) float32 {
+func convWithReader(in []byte) float32 {
 	var f32 float32
 	binary.Read(bytes.NewReader(in), binary.LittleEndian, &f32)
 	return f32
 }
 
-func withoutReader(in []byte) uint16 {
-	var ui16 uint16
-	ui16 = binary.LittleEndian.Uint16(in)
-	return ui16
-}
-
+// convLittleEndian takes a []byte, and an *out variable of type
+// uint8/int8/uint16/int16/uint32/int32/uint64/int64/float32/float64
+// and convert the []byte, and places the result into the *out variable.
 func convLittleEndian(in []byte, out interface{}) {
 	switch out := out.(type) {
 	case *uint8:
@@ -54,21 +51,21 @@ func main() {
 	data := []byte{121, 230, 52, 64}
 	var o float32
 
-	fmt.Println("withReader = ", withReader(data))
+	fmt.Println("withReader = ", convWithReader(data))
 	convLittleEndian(data, &o)
 	fmt.Printf("In main after calling function o = %+v\n", o)
 
 	data = []byte{102, 159, 199, 40, 207, 156, 6, 64}
 	var o2 float64
 
-	fmt.Println("withReader = ", withReader(data))
+	fmt.Println("withReader = ", convWithReader(data))
 	convLittleEndian(data, &o2)
 	fmt.Printf("In main after calling function o = %+v\n", o2)
 
 	data = []byte{0, 0, 0, 1}
 	var o3 int32
 
-	fmt.Println("withReader = ", withReader(data))
+	fmt.Println("withReader = ", convWithReader(data))
 	convLittleEndian(data, &o3)
 	fmt.Printf("In main after calling function o = %+v\n", o3)
 }

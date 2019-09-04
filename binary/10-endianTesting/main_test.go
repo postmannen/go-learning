@@ -15,23 +15,15 @@ import (
 	"testing"
 )
 
-func BenchmarkWithoutReaderBenchmark(b *testing.B) {
+func BenchmarkConvWithReader(b *testing.B) {
 	by := []byte{60, 70}
 	for n := 0; n < b.N; n++ {
-		_ = withoutReader(by)
+		_ = convWithReader(by)
 		//_ = fmt.Sprint(s)
 	}
 }
 
-func BenchmarkWithReader(b *testing.B) {
-	by := []byte{60, 70}
-	for n := 0; n < b.N; n++ {
-		_ = withReader(by)
-		//_ = fmt.Sprint(s)
-	}
-}
-
-func BenchmarkNewIdeaUint16(b *testing.B) {
+func BenchmarkConvLittleEndianUint16(b *testing.B) {
 	by := []byte{60, 70}
 
 	for n := 0; n < b.N; n++ {
@@ -41,7 +33,7 @@ func BenchmarkNewIdeaUint16(b *testing.B) {
 	}
 }
 
-func BenchmarkNewIdeaInt32(b *testing.B) {
+func BenchmarkConvLittleEndianInt32(b *testing.B) {
 	by := []byte{0, 0, 0, 1}
 
 	for n := 0; n < b.N; n++ {
