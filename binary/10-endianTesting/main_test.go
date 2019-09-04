@@ -31,13 +31,21 @@ func BenchmarkWithReader(b *testing.B) {
 	}
 }
 
-func BenchmarkNewIdea(b *testing.B) {
+func BenchmarkNewIdeaUint16(b *testing.B) {
 	by := []byte{60, 70}
 
 	for n := 0; n < b.N; n++ {
 		var o uint16
 
-		newIdea(by, &o)
+		convLittleEndian(by, &o)
 	}
+}
 
+func BenchmarkNewIdeaInt32(b *testing.B) {
+	by := []byte{0, 0, 0, 1}
+
+	for n := 0; n < b.N; n++ {
+		var o int32
+		convLittleEndian(by, &o)
+	}
 }
