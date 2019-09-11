@@ -4,7 +4,7 @@
 // state, and in the end each method will report the next
 // method to be executed on the channel.
 // When the last method is done, the channel will be closed,
-// the for loop ranging over the channel will stop,  and we 
+// the for loop ranging over the channel will stop,  and we
 // exit back to main and end the program.
 
 package main
@@ -12,16 +12,14 @@ package main
 import (
 	"fmt"
 	"strings"
-	"sync"
 )
 
 type animalParser struct {
-	dataSource    []string // The input data
-	indexPosition int      // indexPosition for where the position we're working in the dataSource slice.
-	names         []string // The processed data
-	currentName   string   // The current name from the datasource we're working with
-	ch            chan func()
-	wg            sync.WaitGroup
+	dataSource    []string    // The input data
+	indexPosition int         // indexPosition for where the position we're working in the dataSource slice.
+	names         []string    // The processed data
+	currentName   string      // The current name from the datasource we're working with
+	funcCh        chan func() // channel used to send the next function to be executed.
 }
 
 // newAnimal will take a []string with animal names as input,
@@ -32,7 +30,7 @@ func newAnimal(d []string) *animalParser {
 		indexPosition: 0,
 		// Set buffer to one so we can put one value on the channel
 		// before have anything reading from it to avoid deadlock.
-		ch: make(chan func(), 1),
+		funcCh: make(chan func(), 1),
 	}
 
 }
@@ -42,9 +40,9 @@ func (a *animalParser) start() {
 	// from the input slice. This is also why we need a channel
 	// with the buffer of 1 since nothing is yet reading from that
 	// channel. If the buffer was set to zero it would deadlock here.
-	a.ch <- a.readNext
+	a.funcCh <- a.readNext
 
-	for fn := range a.ch {
+	for fn := range a.funcCh {
 		// execute the current function, and put the return value
 		// into fn, so we can exexute that on the next iteration.
 		go fn()
@@ -64,7 +62,7 @@ func (a *animalParser) readNext() {
 	// Check if we have reached the end of the input slice,
 	// and close the channel, indicating no more functions to execute.
 	if a.indexPosition == len(a.dataSource) {
-		close(a.ch)
+		close(a.funcCh)
 		return
 	}
 
@@ -74,14 +72,14 @@ func (a *animalParser) readNext() {
 	// next time.
 	a.indexPosition++
 
-	a.ch <- a.title
+	a.funcCh <- a.title
 }
 
 // title will make the first letter of the animal name capitalized.
 func (a *animalParser) title() {
 	a.currentName = strings.Title(a.currentName)
 
-	a.ch <- a.currentAnimalDone
+	a.funcCh <- a.currentAnimalDone
 }
 
 // currentAnimalDone will append the current animal to the output slice,
@@ -89,11 +87,11 @@ func (a *animalParser) title() {
 func (a *animalParser) currentAnimalDone() {
 	a.names = append(a.names, a.currentName)
 
-	a.ch <- a.readNext
+	a.funcCh <- a.readNext
 }
 
 func main() {
-	// Create som input animal data
+	// Create some input animal data
 	animals := []string{"rhino", "sparrow", "snake", "ant", "fly", "hippo"}
 
 	// Create a new variable of type animal, and prepare it with the
