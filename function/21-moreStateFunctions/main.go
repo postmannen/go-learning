@@ -1,4 +1,11 @@
 // Small example for a state machine.
+// We create a struct which holds all the states in fields,
+// We then create methods on that struct to manipulate the
+// state, and in the end the method will return the next
+// method to be executed.
+// When the last method is received the loop method will
+// receive a function value == <nil> and exit back to main,
+// and end the program.
 
 package main
 
