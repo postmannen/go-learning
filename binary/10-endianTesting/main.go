@@ -68,4 +68,11 @@ func main() {
 	fmt.Println("withReader = ", convWithReader(data))
 	convLittleEndian(data, &o3)
 	fmt.Printf("In main after calling function o = %+v\n", o3)
+
+	data = []byte("This is some string for this test")
+	var o4 string
+
+	fmt.Println("withReader = ", convWithReader(data))
+	convLittleEndian(data, &o4)
+	fmt.Printf("In main after calling function o = %+v\n", o4)
 }
