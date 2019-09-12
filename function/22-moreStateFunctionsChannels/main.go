@@ -45,7 +45,7 @@ func (a *animalParser) start() {
 	for fn := range a.funcCh {
 		// execute the current function, and put the return value
 		// into fn, so we can exexute that on the next iteration.
-		go fn()
+		fn()
 
 		//// If no function was returned, and we received the value
 		//// <nil> we know that we are done, and can return to main.
