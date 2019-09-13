@@ -92,6 +92,7 @@ func (s *storage) get() string {
 		dataC <- s.data
 	}
 
+	fmt.Println("*** waiting at 'return <-dataC'")
 	return <-dataC
 }
 
