@@ -6,7 +6,6 @@ package main
 
 import (
 	"fmt"
-	"time"
 )
 
 type storage struct {
@@ -85,14 +84,16 @@ func (s *storage) add(text string) {
 }
 
 func (s *storage) get() string {
+	// create a channel for receiving values from the function
 	dataC := make(chan string)
+	// since the anonymous function below will be executed in the loop go routine
+	// there will be no deadlock, and we can use an unbuffered dataC channel.
 	s.actionCh <- func() {
 		fmt.Println("*** putting data on the dataC channel")
 		dataC <- s.data
 	}
 
-	time.Sleep(time.Second * 3)
-	fmt.Println("*** waiting at 'return <-dataC'")
+	fmt.Printf("*** waiting at 'return <-dataC'\n\n")
 	return <-dataC
 }
 
