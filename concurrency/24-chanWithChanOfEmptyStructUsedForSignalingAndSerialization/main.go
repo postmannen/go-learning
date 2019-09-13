@@ -37,7 +37,6 @@ func (s *storage) loop() {
 		select {
 		case f := <-s.actionCh:
 			fmt.Println("executing storage function ")
-			time.Sleep(time.Second * 3)
 			f()
 		case q := <-s.quitCh:
 			// We have got the value 'chan struct{}' from the channel, and q now contains
@@ -92,6 +91,7 @@ func (s *storage) get() string {
 		dataC <- s.data
 	}
 
+	time.Sleep(time.Second * 3)
 	fmt.Println("*** waiting at 'return <-dataC'")
 	return <-dataC
 }
