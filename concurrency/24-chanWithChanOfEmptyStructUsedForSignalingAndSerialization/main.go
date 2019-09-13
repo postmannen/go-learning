@@ -20,7 +20,8 @@ type storage struct {
 func newstorage() *storage {
 
 	s := &storage{
-		quitCh: make(chan chan struct{}),
+		actionCh: make(chan func()),
+		quitCh:   make(chan chan struct{}),
 	}
 	// Start the loop which will check the channel
 	go s.loop()
@@ -31,14 +32,14 @@ func newstorage() *storage {
 
 // loop will do select on a time.Tick channel, and also check if we have
 // received a quit signal in the form of a chan struct{}
-func (m *storage) loop() {
+func (s *storage) loop() {
 	for {
 		select {
-		case <-time.Tick(time.Second):
-			// time.Tick have a time.Time channel, and we will now receive
-			// a value there every second.
-			fmt.Println("--- loop method: time...")
-		case q := <-m.quitCh:
+		case f := <-s.actionCh:
+			fmt.Println("executing storage function ")
+			time.Sleep(time.Second * 3)
+			f()
+		case q := <-s.quitCh:
 			// We have got the value 'chan struct{}' from the channel, and q now contains
 			// another channel of struct{}
 			// We then close the channel that was put on the channel
@@ -53,7 +54,7 @@ func (m *storage) loop() {
 	}
 }
 
-func (m *storage) stop() {
+func (s *storage) stop() {
 	// to stop the loop method we create a new variable of type chan struct{}
 	// which we will put on the quitCh.
 	q := make(chan struct{})
@@ -61,7 +62,7 @@ func (m *storage) stop() {
 	fmt.Println("*** stop method: put 'chan struct{}' on 'm.quitCh'")
 
 	// we put a chan struct{} on the channel,
-	m.quitCh <- q
+	s.quitCh <- q
 
 	fmt.Println("*** stop method: right after put chan struct{} on m.quitCh, then let's wait for  <-q")
 
@@ -78,13 +79,28 @@ func (m *storage) stop() {
 	fmt.Println("*** stop method: inner chan is now closed, and we received a close of the main quitCh , leaving stop() method, so we can be sure for loop in the loop method is broken, and we've returned from the loop method")
 }
 
+func (s *storage) add(text string) {
+	s.actionCh <- func() {
+		s.data = text
+	}
+}
+
+func (s *storage) get() string {
+	dataC := make(chan string)
+	s.actionCh <- func() {
+		fmt.Println("*** putting data on the dataC channel")
+		dataC <- s.data
+	}
+
+	return <-dataC
+}
+
 func main() {
-	m := newstorage()
-	time.Sleep(time.Second * 3)
-	m.stop()
+	s := newstorage()
 
-	fmt.Println("----------------2nd run-------------------------")
+	s.add("monkey")
+	fmt.Println(s.get())
 
-	time.Sleep(time.Second * 3)
-	m.stop()
+	s.stop()
+
 }
