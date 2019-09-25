@@ -1,0 +1,9 @@
+Things to look at:
+- Make
+
+Things to read:
+- A plea for Lean software, Niklaus Wirth
+- The Empereror's old clothes - ACM turing award lecture, Tony Hoare
+- Books recommended by Joe Armstrong:
+    - Algorithms + Data Structures = Programs, Niklaus Wirth
+    - The Mythical Man Month, Brooks
