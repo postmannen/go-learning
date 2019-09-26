@@ -52,8 +52,7 @@ func startWebSevers() {
 }
 
 func findFastestWeb(ch chan *http.Response) {
-	var found bool
-	var mu sync.Mutex
+	var once sync.Once
 
 	go func() {
 		resp, err := http.Get("http://localhost:8080/")
@@ -61,13 +60,10 @@ func findFastestWeb(ch chan *http.Response) {
 			log.Println("error: http.Get for one", err)
 		}
 
-		if !found {
-			mu.Lock()
-			found = true
-			mu.Unlock()
-
+		once.Do(func() {
 			ch <- resp
-		}
+		})
+
 	}()
 
 	go func() {
@@ -76,13 +72,10 @@ func findFastestWeb(ch chan *http.Response) {
 			log.Println("error: http.Get for one", err)
 		}
 
-		if !found {
-			mu.Lock()
-			found = true
-			mu.Unlock()
-
+		once.Do(func() {
 			ch <- resp
-		}
+		})
+
 	}()
 
 }

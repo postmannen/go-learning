@@ -12,8 +12,8 @@ import (
 // and return back the response of the webserver that returned the
 // complete page first as respData
 func findFastestWeb(url []string) respData {
-	var found bool
-	var mu sync.Mutex // mutex to protect the first to update the found variable.
+	var once sync.Once
+
 	ch := make(chan respData, 1)
 
 	// Loop over all the url's given as input, and start a go routine
@@ -26,21 +26,16 @@ func findFastestWeb(url []string) respData {
 				log.Println("error: http.Get for one", err)
 			}
 
-			mu.Lock()
-			if !found {
-				found = true
-
-				totalTime := time.Until(t)
-
+			once.Do(func() {
+				totalTime := time.Since(t)
 				ch <- respData{time: totalTime, resp: resp}
-				return
-			}
-			mu.Unlock()
+			})
+
 		}(u)
 
 	}
-	r := <-ch
-	return r
+
+	return <-ch
 }
 
 type respData struct {
