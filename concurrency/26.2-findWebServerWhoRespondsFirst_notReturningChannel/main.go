@@ -26,16 +26,16 @@ func findFastestWeb(url []string) respData {
 				log.Println("error: http.Get for one", err)
 			}
 
+			mu.Lock()
 			if !found {
-				mu.Lock()
 				found = true
-				mu.Unlock()
 
 				totalTime := time.Until(t)
 
 				ch <- respData{time: totalTime, resp: resp}
 				return
 			}
+			mu.Unlock()
 		}(u)
 
 	}

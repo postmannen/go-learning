@@ -14,7 +14,6 @@ import (
 func findFastestWeb(url []string) []respData {
 	var r []respData
 	var wg sync.WaitGroup
-	var found bool
 	var mu sync.Mutex // mutex to protect the first to update the found variable.
 
 	// Loop over all the url's given as input, and start a go routine
@@ -28,15 +27,15 @@ func findFastestWeb(url []string) []respData {
 				log.Println("error: http.Get for one", err)
 			}
 
-			if !found {
-				mu.Lock()
-				totalTime := time.Until(t)
-				r = append(r, respData{time: totalTime, resp: resp})
-				mu.Unlock()
+			totalTime := time.Since(t)
 
-				wg.Done()
-				return
-			}
+			mu.Lock()
+			r = append(r, respData{time: totalTime, resp: resp})
+			mu.Unlock()
+
+			wg.Done()
+			return
+
 		}(u)
 
 	}
