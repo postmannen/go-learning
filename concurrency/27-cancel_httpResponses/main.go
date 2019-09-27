@@ -1,3 +1,11 @@
+/*
+The purpose of this test is to learn more on context and
+cancelation of http request and responses.
+In real life this example could have been done a lot easier
+without waitgroup's etc, but they are put in here to be able
+to see that the context done channels shut's down all the
+go routines.
+*/
 package main
 
 import (
@@ -21,7 +29,13 @@ func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string
 
 	for _, url := range urls {
 		wg.Add(1)
+
+		// Start a goroutine to process the the request, and read the response
+		// for each url.
 		go func(url string) {
+			// There is actually no need to use a waitgroup in this example,
+			// but it is used to wait for all goroutines to be canceled
+			// by the context.
 			defer wg.Done()
 
 			fmt.Printf("Starting download of %v\n", url)
@@ -29,14 +43,18 @@ func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string
 
 			req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 			if err != nil {
-				log.Println(err)
+				log.Println("error: NewRequestWithContext: ", err)
 			}
 
 			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
-				log.Println(err)
+				log.Println("error: DefaultClient: ", err)
 			}
 
+			// Instead of using ioutils.Readall we have to divide up the reading
+			// in smaller chunk's so we are able to check if there have been
+			// sent a cancelation signal inbetween, and then exit the whole
+			// go routine.
 			body := []byte{}
 			b := make([]byte, 64)
 
@@ -60,11 +78,6 @@ func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string
 					break
 				}
 			}
-
-			//body, err := ioutil.ReadAll(resp.Body)
-			//if err != nil {
-			//	log.Println(err)
-			//}
 
 			_ = fmt.Sprint(body)
 
