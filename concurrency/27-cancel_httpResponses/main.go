@@ -24,6 +24,9 @@ type webResponse struct {
 }
 
 func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string) {
+	// There is actually no need to use a waitgroup in this example,
+	// but it is used to wait for all goroutines to be canceled
+	// by the context.
 	var wg sync.WaitGroup
 	fastestCh := make(chan webResponse, 1)
 
@@ -33,9 +36,6 @@ func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string
 		// Start a goroutine to process the the request, and read the response
 		// for each url.
 		go func(url string) {
-			// There is actually no need to use a waitgroup in this example,
-			// but it is used to wait for all goroutines to be canceled
-			// by the context.
 			defer wg.Done()
 
 			fmt.Printf("Starting download of %v\n", url)
