@@ -19,8 +19,9 @@ import (
 )
 
 type webResponse struct {
-	server string
-	time   time.Duration
+	server   string
+	time     time.Duration
+	bodySize int
 }
 
 func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string) {
