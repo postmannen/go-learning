@@ -61,6 +61,8 @@ func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string
 			var loopExit bool
 
 			for {
+				// Check if we have received a cancelation signal,
+				// if not read a chunk of data from the response.Body.
 				select {
 				case <-ctx.Done():
 					fmt.Printf("received done for url = %v, and returning out early, no further downloading of page\n", url)
