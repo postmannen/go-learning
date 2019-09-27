@@ -74,6 +74,7 @@ func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string
 
 					body = append(body, b...)
 				}
+
 				if loopExit {
 					break
 				}
@@ -87,14 +88,18 @@ func getFastestWeb(ctx context.Context, cancel context.CancelFunc, urls []string
 				server: resp.Request.URL.Hostname(),
 				time:   tSince,
 			}
-			log.Printf("Before calling cancel in the goroutine for %v\n", url)
-			cancel()
-			log.Printf("done with go routine for %v\n", url)
+
 		}(url)
 	}
 
 	f := <-fastestCh
-	fmt.Printf("*** Fastest was %v, and it took %v ***\n\n", f.server, f.time)
+	// We have found our fastest web server, send the cancel signal
+	// to all the RequestsWithContext.
+	cancel()
+
+	fmt.Printf("\n*** Fastest was %v, and it took %v ***\n\n", f.server, f.time)
+
+	// We want to wait to see that all the other requests also are canceled.
 	wg.Wait()
 }
 
@@ -102,7 +107,7 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 
-	urls := []string{"https://vg.no", "https://dagbladet.no", "https://dl.google.com/go/go1.13.1.src.tar.gz"}
+	urls := []string{"https://vg.no", "https://dagbladet.no", "https://dl.google.com/go/go1.13.1.src.tar.gz", "https://digi.no", "https://itavisen.no", "https://wikipedia.no", "https://facebook.com", "https://twitter.com", "https://dn.no"}
 
 	getFastestWeb(ctx, cancel, urls)
 }
