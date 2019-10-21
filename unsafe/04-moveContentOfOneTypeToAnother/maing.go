@@ -1,3 +1,4 @@
+// https://golang.org/pkg/unsafe/#Pointer
 package main
 
 import (
