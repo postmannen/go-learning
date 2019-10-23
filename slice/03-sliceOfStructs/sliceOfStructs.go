@@ -10,8 +10,10 @@ type customer struct {
 }
 
 func main() {
+	// Create a slice of type customer
 	p := []customer{}
 
+	// Append values of type customer to the slice p.
 	p = append(p, customer{"bob", "bobson"})
 	p = append(p, customer{"arne", "arneson"})
 	p = append(p, customer{"knut", "knutson"})
@@ -25,7 +27,4 @@ func main() {
 	for i := 0; i < lengthOfSlice; i++ {
 		fmt.Println(p[i].name, p[i].surname)
 	}
-
-	//test
-
 }
