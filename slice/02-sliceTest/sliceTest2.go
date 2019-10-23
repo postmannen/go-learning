@@ -8,17 +8,21 @@ func main() {
 	fmt.Println(x)
 	fmt.Println(y)
 
-	x = append(x[:1], x[2:]...) //:1 tar med seg index 0, men dropper index 1. [:1 går til 1 man tar ikke med 1]
-	//,og fortsetter så fra Index 2 med [2:]
-	//Resultatet er at du slicer bort index nr. 1 siden alt igjen blir appended til x.
-	fmt.Println("Fjerner index nr.1 som er etternavnet = ", x)
+	// x[:1] will keep just the first field,
+	// x[2:] will keep everything after slice index 2,
+	// The result will be that you throw away the first item of the slice.
+	x = append(x[:1], x[2:]...)
 
-	x = append(x, y...) //Husk ... hvis man appender en annen slice
-	fmt.Println("Etter at y er appended til x, så er x = ", x)
+	fmt.Println("Removing index 0 = ", x)
+
+	// Remember ... if you want to append one slice to another.
+	x = append(x, y...)
+	fmt.Println("When y is appended to x, x becomes : ", x)
 
 	fmt.Println("´n")
 
-	for i, v := range x { //range gir samme funksjonalitet som foreach i perl
+	// Range is the same as foreach in Perl.
+	for i, v := range x {
 		fmt.Printf("%v\t%v\n", i, v)
 	}
 
