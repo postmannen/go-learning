@@ -1,0 +1,13 @@
+{
+    "window": [{
+            "addButton": "buttonTemplate1",
+            "addHeader": "socketTemplate1",
+            "addParagraph": "paragraphTemplate1"
+        },
+        {
+            "addButton": "buttonTemplate2",
+            "addHeader": "socketTemplate2",
+            "addParagraph": "paragraphTemplate2"
+        }
+    ]
+}
