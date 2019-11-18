@@ -7,3 +7,9 @@ Things to read:
 - Books recommended by Joe Armstrong:
     - Algorithms + Data Structures = Programs, Niklaus Wirth
     - The Mythical Man Month, Brooks
+
+go list -e -json -export runtime/volatile
+GOROOT=$PWD go list -e -json -export runtime/volatile
+
+See what escapes to the heap:
+go build -gcflags "-m -m"
