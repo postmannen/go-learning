@@ -13,3 +13,12 @@ GOROOT=$PWD go list -e -json -export runtime/volatile
 
 See what escapes to the heap:
 go build -gcflags "-m -m"
+
+Dont create alias's for builtin types unless they are for something new.
+For example, don't do 
+    type counter int
+counter should rather be an argument in a function with the name counter and of type int.
+example
+    type time int64
+is ok since it doesn't represent an int64 but nanoseconds, and it also have methods
+to work with that value of nanoseconds.
