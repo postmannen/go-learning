@@ -22,3 +22,5 @@ example
     type time int64
 is ok since it doesn't represent an int64 but nanoseconds, and it also have methods
 to work with that value of nanoseconds.
+
+Packages should provide, not contain. They should have a clear API.
