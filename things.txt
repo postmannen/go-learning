@@ -14,6 +14,19 @@ GOROOT=$PWD go list -e -json -export runtime/volatile
 See what escapes to the heap:
 go build -gcflags "-m -m"
 
+Literal - means unnamed.
+
+Go routines. Shared resource in memory can cause cache coherency problems if one
+go routine updates one of the values of the stack line, the other go routines cores
+need to update they're cache lines too so they see the changes.
+Watch out for for example counters placed in an array, where each counter is give'n
+it's own counter to update. If one get's updated, all the other cache lines for the
+other cores needs to be updated as well since they share the same allocation in memory.
+Cache lines are marked dirty if it is working on a shared memory, and one of the cores
+working on that memory is updated. When a cache line is marked dirty it will have to
+get updated from the cache line of the core who got the correct value.
+A system call will put the go routine in a wait state.
+
 Dont create alias's for builtin types unless they are for something new.
 For example, don't do 
     type counter int
@@ -24,3 +37,23 @@ is ok since it doesn't represent an int64 but nanoseconds, and it also have meth
 to work with that value of nanoseconds.
 
 Packages should provide, not contain. They should have a clear API.
+
+#VSCode : If it does not automatically import a package while typing the packagename.something,
+you can press alt+enter to import it.
+
+When a function returns a function being called with parantheses and arguments set, it will return the return values of that function being called and not the function itself. That means the function being called by return can be local to the package, but the values it returns will returned will be returned out of the package:
+func Sum(a int,b int) int{
+    return sum(a int, b int)
+}
+
+-------------------------------------------------------------------------
+#GRPC
+------------
+#Install GRPC
+go get -u google.golang.org/grpc
+
+#Install protobuf
+go get -u github.com/golang/protobuf/protoc-gen-go
+
+#To create a .go file from a proto file
+protoc greet/greetpb/greet.proto --go_out=plugins=grpc:.
