@@ -1,0 +1,23 @@
+// To compile the proto file :
+// protoc ./messagingpb/messaging.proto --go_out=plugins=grpc:.
+syntax="proto3";
+
+package messaging;
+option go_package="messagingpb";
+
+// ChatRequest is the request being sent from a client including some text.
+message ChatRequest {
+    string text = 1;
+}
+
+// ChatResponse are the response given back after a ChatRequest have been sent.
+message ChatResponse {
+    bool ok = 1;
+}
+
+// Chatter will do some chat'ing.
+service Chatter {
+    // Chat will take a ChatRequest and return a ChatResponse.
+    rpc Chat (ChatRequest) returns (ChatResponse);
+}
+
