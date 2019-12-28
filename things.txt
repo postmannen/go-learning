@@ -16,6 +16,15 @@ go build -gcflags "-m -m"
 
 Literal - means unnamed.
 
+Processors are really good on doing the same thing over and over again, so by giving components a single responsibility they can do that really well, and things will stay on the stack etc.
+
+Modern processors bets in 3 ways of how to access memory to speed things up.
+There is typically an 2 orders of magnitude slowdown in performance if you work outside of the 3 mentioned below.
+1. Temporal : Things that have been used recently gets ahead in the cache.
+2. Spatial : Things that are used together and are close together, tend to be used together.
+3. Predictable : Hardware prefetchers will look for predictable patterns, so if you move forward in a predictable pattern the hardware prefetchers will be able to hide the latency.
+
+
 Go routines. Shared resource in memory can cause cache coherency problems if one
 go routine updates one of the values of the stack line, the other go routines cores
 need to update they're cache lines too so they see the changes.
