@@ -6,6 +6,8 @@ require (
 	gioui.org v0.0.0-20200418182442-2b1935d65747 // indirect
 	github.com/Ullaakut/nmap v2.0.0+incompatible
 	github.com/a-urth/go-bindata v0.0.0-20180209162145-df38da164efc // indirect
+	github.com/dgraph-io/badger v1.6.1 // indirect
+	github.com/go-acme/lego v2.7.2+incompatible // indirect
 	github.com/go-acme/lego/v3 v3.6.0 // indirect
 	github.com/golang/protobuf v1.3.4
 	github.com/prometheus/client_golang v1.5.0
