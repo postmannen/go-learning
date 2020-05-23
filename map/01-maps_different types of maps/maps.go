@@ -90,7 +90,7 @@ func main() {
 
 	//map of slice
 	map6 := map[string]int{}
-	map6["apekattObservert"] = []int{}
+	map6["apekattObservert"] = 1
 
 	fmt.Println(map6)
 

@@ -8,9 +8,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/postmannen/go-learning/web/04-methodHandler/web"
-
 	"net/http"
+
+	"github.com/postmannen/go-learning/http/04-methodHandler/web"
 )
 
 func main() {
@@ -19,7 +19,7 @@ func main() {
 	}
 
 	myWeb := web.DataStruct{}
-	myWeb.Data1 = "Apen hoppet opp i busken"
+	myWeb.Data1 = "The monkey jumped into the bush"
 
 	http.HandleFunc("/a", myWeb.IndexA)
 	http.HandleFunc("/b", myWeb.IndexB)

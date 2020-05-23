@@ -3,7 +3,7 @@ package web
 import (
 	"fmt"
 
-	"github.com/postmannen/training/package/test1/db"
+	"github.com/postmannen/go-learning/package/01-test/db"
 )
 
 //Print function

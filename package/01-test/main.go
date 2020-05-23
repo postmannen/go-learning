@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/postmannen/training/package/test1/house"
-
-	"github.com/postmannen/training/package/test1/db"
-	"github.com/postmannen/training/package/test1/web"
+	"github.com/postmannen/go-learning/package/01-test/db"
+	"github.com/postmannen/go-learning/package/01-test/house"
+	"github.com/postmannen/go-learning/package/01-test/web"
 )
 
 func main() {

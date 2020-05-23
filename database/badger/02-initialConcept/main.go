@@ -10,9 +10,7 @@ import (
 func main() {
 	// A default badger config is provided in the DefaultOptions.
 	// We use that, and just add where to store the files.
-	opts := badger.DefaultOptions
-	opts.Dir = "./db"
-	opts.ValueDir = "./db"
+	opts := badger.DefaultOptions("./db")
 
 	db, err := badger.Open(opts)
 	if err != nil {

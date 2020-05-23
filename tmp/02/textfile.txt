@@ -1,0 +1,42 @@
+wg-quick@wg0.service - WireGuard via wg-quick(8) for wg0
+
+   Loaded: loaded (/usr/lib/systemd/system/wg-quick@.service; enabled; vendor preset: disabled)
+
+   Active: failed (Result: exit-code) since Thu 2020-05-14 18:31:28 UTC; 1min 32s ago
+
+     Docs: man:wg-quick(8)
+
+           man:wg(8)
+
+           https://www.wireguard.com/
+
+           https://www.wireguard.com/quickstart/
+
+           https://git.zx2c4.com/WireGuard/about/src/tools/man/wg-quick.8
+
+           https://git.zx2c4.com/WireGuard/about/src/tools/man/wg.8
+
+  Process: 333 ExecStart=/usr/bin/wg-quick up wg0 (code=exited, status=1/FAILURE)
+
+ Main PID: 333 (code=exited, status=1/FAILURE)
+
+
+ 
+
+May 14 18:31:19 clr-815315dff691444f8b758b73e0ad47a0 systemd[1]: Starting WireGuard via wg-quick(8) for wg0...
+
+May 14 18:31:19 clr-815315dff691444f8b758b73e0ad47a0 wg-quick[333]: [#] ip link add wg0 type wireguard
+
+May 14 18:31:19 clr-815315dff691444f8b758b73e0ad47a0 wg-quick[333]: [#] wg setconf wg0 /dev/fd/63
+
+May 14 18:31:28 clr-815315dff691444f8b758b73e0ad47a0 wg-quick[333]: Name or service not known: `onevpn.raalabs.tech:5560'
+
+May 14 18:31:28 clr-815315dff691444f8b758b73e0ad47a0 wg-quick[333]: Configuration parsing error
+
+May 14 18:31:28 clr-815315dff691444f8b758b73e0ad47a0 wg-quick[333]: [#] ip link delete dev wg0
+
+May 14 18:31:28 clr-815315dff691444f8b758b73e0ad47a0 systemd[1]: wg-quick@wg0.service: Main process exited, code=exited, status=1/FAILURE
+
+May 14 18:31:28 clr-815315dff691444f8b758b73e0ad47a0 systemd[1]: wg-quick@wg0.service: Failed with result 'exit-code'.
+
+May 14 18:31:28 clr-815315dff691444f8b758b73e0ad47a0 systemd[1]: Failed to start WireGuard via wg-quick(8) for wg0.
