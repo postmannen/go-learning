@@ -1,8 +1,10 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
@@ -14,10 +16,23 @@ const (
 	snapLen = int32(1600)
 	promisc = false
 	timeout = pcap.BlockForever
-	filter  = "tcp and port 502"
 )
 
 func main() {
+	port := flag.String("port", "", "the port number to listen to, eg. -port 502")
+	flag.Parse()
+
+	if *port == "" {
+		log.Println("error: you need to provide a port with the -port flag")
+	}
+
+	filter := "port " + *port
+
+	if os.Getgid() != 0 {
+		log.Println("error: Need root privileges")
+		return
+	}
+
 	// Check if the interface exists, or is set to "any"
 	ifs, err := pcap.FindAllDevs()
 	if err != nil {
