@@ -103,7 +103,6 @@ func main() {
 		log.Printf("%v\n", err)
 	}
 
-	//s.mux.HandleFunc("/all", s.mainPage)
 	s.mux.HandleFunc("/", s.selectLanguage)
 
 	http.Serve(s.listener, s.mux)
