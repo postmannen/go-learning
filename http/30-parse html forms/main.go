@@ -1,13 +1,35 @@
+package main
+
 import (
+	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 )
 
+func main() {
+	http.HandleFunc("/", billCreateWeb)
+	http.ListenAndServe(":8080", nil)
+}
+
 func billCreateWeb(w http.ResponseWriter, r *http.Request) {
-	err := tmpl["init.html"].ExecuteTemplate(w, "createBillCompletePage", "SOME DATA HERE ????")
+	tplData := `<!DOCTYPE html>
+					<form>
+    				    <input type="text" name="tekstboks" value="tekstverdi">
+    				    <input type="submit" name="knapp" value="verdi">
+    				</form>
+				`
+
+	tpl, err := template.New("page").Parse(tplData)
 	if err != nil {
-		log.Println("createBillCompletePage: template execution error = ", err)
+		log.Printf("error: 1. failed parsing template : %v\n", err)
 	}
+
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		log.Printf("error: 2. failed executing template : %v\n", err)
+	}
+
 	r.ParseForm()
 	//r.FormValue("value_of_name=XXXX>") to get the value of name=XXX. Returns only a single value
 	//r.Form["<value_of_name=XXXX>"]	to get the value of name=XXX . Can get multiple values and stores them in a slice
@@ -16,18 +38,6 @@ func billCreateWeb(w http.ResponseWriter, r *http.Request) {
 
 	//Check if a string of values are parsed from form. Will return runtime error if not checked since the slice is not created.
 	if minInput != nil && minInput[0] == "verdi" {
-		err := tmpl["init.html"].ExecuteTemplate(w, "createBillLine", "SOME DATA HERE ????")
-		if err != nil {
-			log.Println("createBillCompletePage: template execution error = ", err)
-		}
+		fmt.Fprintf(w, "%v\n", r.Form["tekstboks"])
 	}
 }
-
-/* HTML Example for the code above
-{{define "createBillLine"}}
-    <form>
-            <input type="text" name="tekstboks" value="tekstverdi">
-        <input type="submit" name="knapp" value="verdi">
-    </form>
-{{end}
-*/

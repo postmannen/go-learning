@@ -9,6 +9,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/cavaliercoder/grab v2.0.0+incompatible
 	github.com/dgraph-io/badger v1.6.1
+	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/faiface/pixel v0.9.0
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/golang/protobuf v1.4.2
