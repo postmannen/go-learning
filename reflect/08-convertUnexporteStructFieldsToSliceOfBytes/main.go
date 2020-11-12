@@ -1,3 +1,6 @@
+// Convert all numeric types to []byte
+// Does not work with strings
+
 package main
 
 import (
@@ -12,13 +15,17 @@ type data struct {
 	a uint8
 	b uint8
 	c uint8
-	d uint8
+	d uint16
 }
 
 func main() {
-	var buf bytes.Buffer
-
 	d := data{5, 6, 7, 8}
+
+	fmt.Printf("%#v\n", convert(d))
+}
+
+func convert(d interface{}) []byte {
+	var buf bytes.Buffer
 
 	rv := reflect.ValueOf(d)
 
@@ -29,7 +36,7 @@ func main() {
 		binary.Write(&buf, binary.LittleEndian, f.Interface())
 	}
 
-	fmt.Println(buf.Bytes())
+	return buf.Bytes()
 }
 
 type value struct {
