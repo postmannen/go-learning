@@ -8,6 +8,8 @@ require (
 	github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca
 	github.com/boltdb/bolt v1.3.1
 	github.com/cavaliercoder/grab v2.0.0+incompatible
+	github.com/davecheney/gmx v0.0.0-20180109053550-1b0ba6eee1a1 // indirect
+	github.com/davecheney/mdns v0.0.0-20151031101852-92644c59e7ce
 	github.com/dgraph-io/badger v1.6.1
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/faiface/pixel v0.9.0
@@ -22,6 +24,7 @@ require (
 	github.com/gorilla/securecookie v1.1.1
 	github.com/gorilla/sessions v1.2.0
 	github.com/gorilla/websocket v1.4.2
+	github.com/hashicorp/mdns v1.0.3
 	github.com/icholy/slippy v0.5.0
 	github.com/jung-kurt/gofpdf v1.16.2
 	github.com/manifoldco/promptui v0.7.0
