@@ -41,19 +41,17 @@ func main() {
 				log.Printf("error: publish failed: %v\n", err)
 			}
 
-			go func() {
-				subRepl, err := nc.SubscribeSync(msg.Reply)
-				if err != nil {
-					log.Printf("error: nc.SubscribeSync failed: %v\n", err)
-				}
-				for {
-					msgRepl, err := subRepl.NextMsg(time.Second * 10)
-					if err != nil {
-						log.Printf("error: subRepl.NextMsg failed: %v\n", err)
-					}
-					fmt.Printf("publisher: received: %s\n", msgRepl.Data)
-				}
-			}()
+			subRepl, err := nc.SubscribeSync(msg.Reply)
+			if err != nil {
+				log.Printf("error: nc.SubscribeSync failed: %v\n", err)
+			}
+
+			msgRepl, err := subRepl.NextMsg(time.Second * 10)
+			if err != nil {
+				log.Printf("error: subRepl.NextMsg failed: %v\n", err)
+				// did not receive a repply, continuing from top again
+			}
+			fmt.Printf("publisher: received: %s\n", msgRepl.Data)
 
 			counter++
 			time.Sleep(time.Second * 1)

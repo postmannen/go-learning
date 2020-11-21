@@ -1,0 +1,19 @@
+{
+    "records": [
+        {
+            "name":"ws.local",
+            "ip":"10.0.0.2",
+            "ttl":"60"
+        },
+        {
+            "name":"router.local",
+            "ip":"10.0.0.1",
+            "ttl":"60"
+        },
+        {
+            "name":"nas.local",
+            "ip":"10.0.0.3",
+            "ttl":"60"
+        }
+    ]
+}
