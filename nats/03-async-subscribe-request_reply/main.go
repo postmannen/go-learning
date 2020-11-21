@@ -39,17 +39,23 @@ func main() {
 			//msg, err := nc.Request("subject1", []byte("just some data "+strconv.Itoa(counter)), time.Second*2)
 			if err != nil {
 				log.Printf("error: publish failed: %v\n", err)
+				continue
 			}
 
+			// Create a subscriber for the reply message.
 			subRepl, err := nc.SubscribeSync(msg.Reply)
 			if err != nil {
 				log.Printf("error: nc.SubscribeSync failed: %v\n", err)
+				continue
 			}
 
+			// Wait up until 10 seconds for a reply,
+			// continue and resend if to reply received.
 			msgRepl, err := subRepl.NextMsg(time.Second * 10)
 			if err != nil {
 				log.Printf("error: subRepl.NextMsg failed: %v\n", err)
 				// did not receive a repply, continuing from top again
+				continue
 			}
 			fmt.Printf("publisher: received: %s\n", msgRepl.Data)
 
