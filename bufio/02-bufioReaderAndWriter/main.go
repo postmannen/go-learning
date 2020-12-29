@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+// Example of reading the content of one file, and then after each
+// line read, write that line into a new file.
 func main() {
 	inFile, err := os.Open("bt-mini-2.jpg")
 	if err != nil {
@@ -23,6 +25,8 @@ func main() {
 	inReader := bufio.NewReader(inFile)
 	outWriter := bufio.NewWriter(outFile)
 
+	// Read bytes up until the occurence of a lineshift, and then
+	// write the data read out to the output file.
 	for {
 		bs, rerr := inReader.ReadBytes('\n')
 

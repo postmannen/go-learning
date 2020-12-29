@@ -11,6 +11,7 @@ require (
 	github.com/davecheney/gmx v0.0.0-20180109053550-1b0ba6eee1a1 // indirect
 	github.com/davecheney/mdns v0.0.0-20151031101852-92644c59e7ce
 	github.com/dgraph-io/badger v1.6.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/faiface/pixel v0.9.0
 	github.com/fsnotify/fsnotify v1.4.9

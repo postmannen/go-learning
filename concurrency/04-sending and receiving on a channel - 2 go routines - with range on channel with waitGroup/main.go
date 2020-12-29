@@ -22,6 +22,11 @@ func main() {
 	wg.Wait()
 }
 
+// put will put some values on the channel, and close the channel
+// when done.
+// Closing a channel will make it impossible to put more values on
+// that channel, but reading of values that are still remaining on
+// the channel is allowed.
 func put(c1 chan<- int) {
 	for i := 1; i <= 5; i++ {
 		c1 <- i
@@ -30,6 +35,7 @@ func put(c1 chan<- int) {
 	close(c1)
 }
 
+// get will range over the channel until the channel is closed.
 func get(c1 <-chan int) {
 	for v := range c1 {
 		fmt.Println("func 'get' received = ", v)
