@@ -22,6 +22,7 @@ func (n node) do() error {
 	}
 }
 
+// This is our custom error type.
 // errNode will promote the inner fields of a node by just
 // specifying the value as we've done here.
 // Then when we reference the error values later we can just
