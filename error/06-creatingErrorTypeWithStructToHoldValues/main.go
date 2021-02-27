@@ -14,12 +14,8 @@ type node struct {
 // do will just return an error value so we have something
 // to do some checking on.
 func (n node) do() error {
-	return errNode{
-		node: node{
-			id:      10,
-			subject: "some subject",
-		},
-	}
+
+	return &errNode{n}
 }
 
 // This is our custom error type.
@@ -31,11 +27,16 @@ type errNode struct {
 	node
 }
 
+func (e *errNode) New(n node) error {
+	en := errNode{node: n}
+	return &en
+}
+
 // Error, by assigning an error method which returns a string
 // we also become a type of the Error interface type.
 // This method is also what decides how the output should look
 // like when printing the error out.
-func (e errNode) Error() string {
+func (e *errNode) Error() string {
 	return fmt.Sprintf("problem with node id=%v, subject=%v", e.id, e.subject)
 }
 
@@ -55,7 +56,8 @@ func main() {
 		// Then we do a type check on the error, and if
 		// it is we print out the struct values of that
 		// error type.
-		if e := err; e == err.(errNode) {
+		switch e := err.(type) {
+		case *errNode:
 			fmt.Printf("the whole structure: %#v\n", e)
 		}
 
