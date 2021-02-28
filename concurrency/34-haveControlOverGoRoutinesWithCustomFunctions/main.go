@@ -10,6 +10,7 @@ import (
 // processes holds the general structure for controlling the
 // go routines started.
 type processes struct {
+	id int
 	// register of started and active go routines
 	active map[int]struct{}
 	wg     sync.WaitGroup
@@ -24,6 +25,7 @@ type processes struct {
 // also start the checking that all processes have been done.
 func newProcesses() *processes {
 	ps := processes{
+		id:             0,
 		active:         make(map[int]struct{}),
 		allDoneCh:      make(chan chan int),
 		newProcessesCh: make(chan procFunc),
@@ -32,12 +34,24 @@ func newProcesses() *processes {
 	return &ps
 }
 
+// NewProcFunc will prepare a new function that can be executed
+func (ps *processes) NewProcFunc(f func() error) procFunc {
+	ps.id++
+
+	pf := procFunc{process: process{
+		id:     ps.id,
+		doneCh: ps.allDoneCh,
+		fønk:   f,
+	}}
+	return pf
+}
+
 // start will kick off the process allowing to register and
 // start new processes.
 func (ps *processes) start() {
 	ps.wg.Add(1)
 	ps.checkAllDone()
-	ps.execute()
+	ps.executeNew()
 }
 
 // done are called when we are done orchestrating the go routines
@@ -69,7 +83,7 @@ func (p *processes) checkAllDone() {
 
 // Execute the functions 'do' methods on all the 'doer' comming in on the
 // newProcesses channel.
-func (p *processes) execute() {
+func (p *processes) executeNew() {
 	go func() {
 
 		// We need to use a WaitGroup here so we know that all the go
@@ -97,12 +111,12 @@ type process struct {
 	fønk   func() error
 }
 
-// ProcOne is a single process type to be run.
+// procFunc is a single process type to be run.
 type procFunc struct {
 	process process
 }
 
-// do is the function who prepare a function to be executed
+// prepareFunction is the function who prepare a function to be executed
 func (p procFunc) prepareFunction(wg *sync.WaitGroup) func() error {
 	// Prepare a function that should be executed at the end of the return function to
 	// signal back to the calling parrent function that we are done.
@@ -137,52 +151,37 @@ func main() {
 	ps := newProcesses()
 	ps.start()
 
-	var id int
-
 	// Create a couple of processes, and send them to be
 	// scheduled for execution.
-	id = 1
 	f := func() error {
 		for i := 1; i <= 5; i++ {
-			fmt.Printf("procOne %v, %v\n", id, i)
+			fmt.Printf("procOne %v\n", i)
 			time.Sleep(time.Millisecond * 50)
 		}
 
 		return nil
 	}
 
-	ps.newProcessesCh <- procFunc{process: process{
-		id:     id,
-		doneCh: ps.allDoneCh,
-		fønk:   f,
-	}}
-	id = 2
-	ps.newProcessesCh <- procFunc{process: process{
-		id:     id,
-		doneCh: ps.allDoneCh,
-		fønk: func() error {
-			for i := 1; i <= 5; i++ {
-				fmt.Printf("procOne %v, %v\n", id, i)
-				time.Sleep(time.Millisecond * 50)
-			}
+	ps.newProcessesCh <- ps.NewProcFunc(f)
 
-			return nil
-		},
-	}}
+	ps.newProcessesCh <- ps.NewProcFunc(func() error {
+		for i := 1; i <= 10; i++ {
+			fmt.Printf("procTwo %v\n", i)
+			time.Sleep(time.Millisecond * 50)
+		}
+
+		return nil
+	})
+
 	time.Sleep(time.Second * 3)
-	id = 3
-	ps.newProcessesCh <- procFunc{process: process{
-		id:     id,
-		doneCh: ps.allDoneCh,
-		fønk: func() error {
-			for i := 1; i <= 5; i++ {
-				fmt.Printf("procOne %v, %v\n", id, i)
-				time.Sleep(time.Millisecond * 50)
-			}
+	ps.newProcessesCh <- ps.NewProcFunc(func() error {
+		for i := 1; i <= 5; i++ {
+			fmt.Printf("procThree %v\n", i)
+			time.Sleep(time.Millisecond * 50)
+		}
 
-			return nil
-		},
-	}}
+		return nil
+	})
 
 	ps.done()
 }
