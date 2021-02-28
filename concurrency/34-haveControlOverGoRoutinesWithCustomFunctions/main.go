@@ -69,7 +69,7 @@ func (ps *processes) done() {
 	close(ps.newProcessesCh)
 	ps.wg.Wait()
 
-	fmt.Printf("map content when done: %#v\n", ps.active)
+	log.Printf("info: map content when done: %#v\n", ps.active)
 }
 
 // checkAllDone will check the allDoneCh for incomming 'chan int'
@@ -80,8 +80,8 @@ func (p *processes) checkAllDone() {
 		fmt.Printf("Before ranging allDoneCh\n")
 		for doneCh := range p.allDoneCh {
 			pID := <-doneCh
-			fmt.Printf("map content before delete: %#v\n", p.active)
-			fmt.Printf("deleting pID: %v\n", pID)
+			log.Printf("info: map content before delete: %#v\n", p.active)
+			log.Printf("info: deleting pID: %v\n", pID)
 			delete(p.active, pID)
 
 		}
@@ -169,7 +169,7 @@ func main() {
 	// scheduled for execution.
 	f := func() error {
 		for i := 1; i <= 5; i++ {
-			fmt.Printf("procOne %v\n", i)
+			fmt.Printf("procOne: %v\n", i)
 			time.Sleep(time.Millisecond * 50)
 		}
 
@@ -180,19 +180,18 @@ func main() {
 
 	ps.newProcessesCh <- ps.NewProcFunc(func() error {
 		for i := 1; i <= 10; i++ {
-			fmt.Printf("procTwo %v\n", i)
+			fmt.Printf("procTwo: %v\n", i)
 			time.Sleep(time.Millisecond * 50)
 		}
 
 		return nil
 	})
 
-	time.Sleep(time.Second * 3)
+	//time.Sleep(time.Second * 3)
 	ps.newProcessesCh <- ps.NewProcFunc(func() error {
 		return func() error {
-			fmt.Println("--- Reading files in current directory")
 			filepath.Walk("./", func(path string, info fs.FileInfo, err error) error {
-				fmt.Printf("filename : %v\n", info.Name())
+				fmt.Printf("procThree: filename : %v\n", info.Name())
 				return nil
 			})
 
