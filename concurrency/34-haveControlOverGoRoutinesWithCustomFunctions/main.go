@@ -1,8 +1,17 @@
+// Orchestrating Go routines in a way so we can know what
+// go routines are started and are currently running.
+// functions to be executed as go routines should have
+// the signature 'func() error', so by wrapping what we
+// want inside a function with that signature we can
+// execute what we want. Example are in the main() function.
+
 package main
 
 import (
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"sync"
 	"time"
 )
@@ -39,9 +48,9 @@ func (ps *processes) NewProcFunc(f func() error) procFunc {
 	ps.id++
 
 	pf := procFunc{process: process{
-		id:     ps.id,
-		doneCh: ps.allDoneCh,
-		fønk:   f,
+		id:        ps.id,
+		allDoneCh: ps.allDoneCh,
+		fønk:      f,
 	}}
 	return pf
 }
@@ -106,9 +115,9 @@ func (p *processes) executeNew() {
 
 // The control structure of a single process.
 type process struct {
-	id     int
-	doneCh chan chan int
-	fønk   func() error
+	id        int
+	allDoneCh chan chan int
+	fønk      func() error
 }
 
 // procFunc is a single process type to be run.
@@ -125,7 +134,7 @@ func (p procFunc) prepareFunction(wg *sync.WaitGroup) func() error {
 		// can be cleaned up.
 		c := make(chan int, 1)
 		c <- p.process.id
-		p.process.doneCh <- c
+		p.process.allDoneCh <- c
 
 		// We need to signal here back to function where this function was called from,
 		// since it is ran as a go routine, and the parent function will exit
@@ -175,12 +184,24 @@ func main() {
 
 	time.Sleep(time.Second * 3)
 	ps.newProcessesCh <- ps.NewProcFunc(func() error {
-		for i := 1; i <= 5; i++ {
-			fmt.Printf("procThree %v\n", i)
-			time.Sleep(time.Millisecond * 50)
-		}
+		u := "https://ubuntu.raalabs.tech/packages/amd64/"
 
-		return nil
+		return func() error {
+			fmt.Println("--- Doing a http.Get https://ubuntu.raalabs.tech")
+			r, err := http.Get(u)
+			if err != nil {
+				return err
+			}
+
+			b, err := io.ReadAll(r.Body)
+			if err != nil {
+				return err
+			}
+
+			fmt.Printf("Content of http get:\n%s", b)
+
+			return nil
+		}()
 	})
 
 	ps.done()
