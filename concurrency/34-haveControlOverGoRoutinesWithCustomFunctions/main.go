@@ -9,9 +9,9 @@ package main
 
 import (
 	"fmt"
-	"io"
+	"io/fs"
 	"log"
-	"net/http"
+	"path/filepath"
 	"sync"
 	"time"
 )
@@ -102,11 +102,16 @@ func (p *processes) executeNew() {
 
 			p.active[v.process.id] = struct{}{}
 			wg.Add(1)
+			// Get the actual function to execute
 			f := v.prepareFunction(&wg)
-			err := f()
-			if err != nil {
-				log.Printf("error: executing function: %v\n", err)
-			}
+			// We need to execute the got'n function as a Go routine so
+			// this don't become a sequential program.
+			go func() {
+				err := f()
+				if err != nil {
+					log.Printf("error: executing function: %v\n", err)
+				}
+			}()
 		}
 		wg.Wait()
 		close(p.allDoneCh)
@@ -184,21 +189,12 @@ func main() {
 
 	time.Sleep(time.Second * 3)
 	ps.newProcessesCh <- ps.NewProcFunc(func() error {
-		u := "https://ubuntu.raalabs.tech/packages/amd64/"
-
 		return func() error {
-			fmt.Println("--- Doing a http.Get https://ubuntu.raalabs.tech")
-			r, err := http.Get(u)
-			if err != nil {
-				return err
-			}
-
-			b, err := io.ReadAll(r.Body)
-			if err != nil {
-				return err
-			}
-
-			fmt.Printf("Content of http get:\n%s", b)
+			fmt.Println("--- Reading files in current directory")
+			filepath.Walk("./", func(path string, info fs.FileInfo, err error) error {
+				fmt.Printf("filename : %v\n", info.Name())
+				return nil
+			})
 
 			return nil
 		}()
