@@ -5,75 +5,87 @@ import (
 	"log"
 )
 
-// structure to hold the wrapped function
-type funcRunner struct {
-	// We want to Run any function that takes no inputs,
-	// and return an error
-	fønk func() error
+// structure to execute handler functions
+type handlerRunner struct {
+	runs int
 }
 
 // Return a new funcRunner type with a Run method to start
-// the wrapped function.
-func newFuncRunner(f wrapperFunc) funcRunner {
-	fr := funcRunner{
-		fønk: f,
-	}
-	return fr
+// a handler function.
+func newHandlerRunner() *handlerRunner {
+	fr := handlerRunner{}
+	return &fr
 }
 
-// Run method to start the wrapped function.
-func (f funcRunner) Run() error {
-	err := f.fønk()
+// Run a handler takes a handler function as input, and
+// returns an error indicating of the run where succesful
+// or not.
+func (f *handlerRunner) Run(w handler) error {
+	err := w()
 	if err != nil {
 		return err
 	}
+	f.runs++
 
 	return nil
 }
 
+// Format the output when printing the handlerRunner struct.
+func (f *handlerRunner) String() string {
+	return fmt.Sprintf("functions executed = %v", f.runs)
+}
+
 // Describe the signature of a wrapper func. It takes no
 // inputs, and only returns an error.
-type wrapperFunc func() error
+type handler func() error
 
 // adder orchestrates and returns a function with the signature
-// of a wrapperFunc.
-func adder(a int, b int) wrapperFunc {
-	// We define even another funtion to be wrapped inside
-	// the wrapperFunc returned.
-	fToWrap := func() {
-		log.Printf("Executing wrapped function\n")
+// of a handler which we can feed to the handlerRunner.Run
+func adder(a int, b int) handler {
+	// We can define even another funtion to be wrapped inside
+	// the handler returned, that will be executed when the
+	// handler function is executed.
+	logFunc := func() {
+		log.Printf("Executing some log function here.............\n")
 	}
 
+	// Return a function with the signature of a handler function type.
 	return func() error {
 		// Add the numbers.
 		fmt.Printf("adding %v+%v=%v\n", a, b, a+b)
-		// Execute the other function we also wrapped in.
-		fToWrap()
+		// Add other function we also wrapped in to be executed.
+		logFunc()
 		return nil
 	}
 }
 
 func main() {
-	// Use a predefined wrapper function called adder.
-	{
-		fr := newFuncRunner(adder(10, 10))
+	hr := newHandlerRunner()
 
-		err := fr.Run()
+	// --- Example 1
+
+	// Use a predefined handler function called adder, to be called via
+	// the handlerRunner.
+	{
+		err := hr.Run(adder(10, 10))
 		if err != nil {
 			log.Printf("error: %v\n", err)
 		}
 	}
 
-	// Create a literal wrapper function where we wrap a channel
-	// into the function to feed the function a value.
+	// --- Example 2
+
+	// Use a literal handler function called adder, to be called via
+	// the handlerRunner, where we wrap a channel into the function
+	// to feed the function a value when it is executed.
 	{
-		var wf wrapperFunc
+		var h handler
 		// Prepare a channel to feed values into the function later.
 		ch := make(chan int)
 		// This wrapperFunction starts a Go routine when called,
 		// which will read a value from the channel, do some, and
 		// terminate.
-		wf = func() error {
+		h = func() error {
 			go func() {
 				v := <-ch
 				fmt.Printf("adding %v + %v = %v\n", v, v, v+v)
@@ -81,14 +93,14 @@ func main() {
 			return nil
 		}
 
-		fr := newFuncRunner(wf)
-		err := fr.Run()
+		err := hr.Run(h)
 		if err != nil {
 			log.Printf("error: %v\n", err)
 		}
 
 		// Feed some value into the function we wrapped earlier.
-		ch <- 10
+		ch <- 20
 	}
 
+	fmt.Println(hr)
 }
