@@ -14,7 +14,7 @@ func main() {
 			Name: "hd_errors_total",
 			Help: "Number of hard-disk errors.",
 		},
-		[]string{"device"},
+		[]string{"device", "something"},
 	)
 
 	// Metrics have to be registered to be exposed:
@@ -25,8 +25,8 @@ func main() {
 	go func() {
 		for {
 
-			hdFailures.With(prometheus.Labels{"device": "/dev/sda"}).Set(10 + counter)
-			hdFailures.With(prometheus.Labels{"device": "/dev/sdb"}).Set(20 + counter)
+			hdFailures.With(prometheus.Labels{"device": "/dev/sda", "something": "something1"}).Set(10 + counter)
+			hdFailures.With(prometheus.Labels{"device": "/dev/sdb", "something": "something2"}).Set(20 + counter)
 			time.Sleep(time.Second * 2)
 			counter++
 		}

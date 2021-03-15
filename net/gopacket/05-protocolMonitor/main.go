@@ -7,11 +7,13 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -74,7 +76,9 @@ func createMapValue(ipLayer gopacket.Layer, packet gopacket.Packet, IPMap map[st
 		// Declare the inner map, and then store it in the outer map.
 		protoMap := map[string]data{}
 		protoMap[key2portInfo] = d
+		mu1.Lock()
 		IPMap[key1srcDst] = protoMap
+		mu1.Unlock()
 	}
 }
 
@@ -104,7 +108,6 @@ func startPrometheus() {
 }
 
 func main() {
-
 	go startPrometheus()
 
 	filter := flag.String("filter", "", "filter to use, same as nmap filters")
@@ -143,7 +146,9 @@ func main() {
 
 	IPMap := map[string]map[string]data{}
 
-	timeStart := time.Now()
+	go doMetrics(IPMap)
+
+	// timeStart := time.Now()
 
 	// gopacket.NetPacketSource will return a channel that we range over
 	src := gopacket.NewPacketSource(handle, handle.LinkType())
@@ -155,6 +160,35 @@ func main() {
 			createMapValue(ipLayer, packet, IPMap)
 		}
 
-		printMap(IPMap, timeStart)
+		// printMap(IPMap, timeStart)
 	}
 }
+
+// doMetrics will register all the metrics for IPMap
+func doMetrics(IPMap map[string]map[string]data) {
+	hosts := prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "hosts_src_dst",
+			Help: "Number of bytes transfered between hosts",
+		},
+		[]string{"addr", "port", "firstSeen", "srcPort", "dstPort"},
+	)
+
+	// Metrics have to be registered to be exposed:
+	prometheus.MustRegister(hosts)
+
+	for {
+		mu1.Lock()
+		for k1, v1 := range IPMap {
+			// fmt.Printf("addr: %v", k1)
+			for k2, v2 := range v1 {
+				hosts.With(prometheus.Labels{"addr": k1, "port": k2, "firstSeen": v2.firstSeen.String(), "srcPort": v2.srcPort, "dstPort": v2.dstPort}).Set(float64(v2.totalAmount))
+			}
+		}
+		mu1.Unlock()
+
+		time.Sleep(time.Second * 10)
+	}
+}
+
+var mu1 sync.Mutex
