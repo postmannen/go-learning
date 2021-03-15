@@ -53,6 +53,7 @@ require (
 	github.com/pkg/sftp v1.11.0
 	github.com/postmannen/parrotbebop v0.0.0-20200708124706-5d41829efe16
 	github.com/prometheus/client_golang v1.6.0
+	github.com/prometheus/client_model v0.2.0 // indirect
 	github.com/soniah/gosnmp v1.26.0
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
 	github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635 // indirect
