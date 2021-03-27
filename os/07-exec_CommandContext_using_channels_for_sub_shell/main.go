@@ -12,10 +12,9 @@ import (
 )
 
 func main() {
-	ctx, cancel := context.WithTimeout(context.Background(), 7*time.Second)
-	defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
 
-	outCh := make(chan []byte)
+	outCh := make(chan []byte, 1)
 
 	go func() {
 		cmd := exec.CommandContext(ctx, "bash", "-c", "sleep 5 && ls -l")
@@ -28,6 +27,7 @@ func main() {
 
 	select {
 	case <-ctx.Done():
+		cancel()
 		fmt.Printf("done received\n")
 	case o := <-outCh:
 		log.Printf("o: %s\n", o)
