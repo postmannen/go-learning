@@ -1,6 +1,9 @@
 // When using exec.CommandContext and executing a command with
 // "bash -c" it seems that the timeout of of the context do
-// not cancel the
+// not cancel the command with the godoc example by just defering
+// the cancel.
+// Instead by checking for the ctx.Done we can call cancel() when
+// the timeout is reached.
 package main
 
 import (
