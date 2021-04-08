@@ -57,4 +57,6 @@ func main() {
 
 	conn.Write([]byte("a horse jumped over the hill"))
 
+	select {}
+
 }
