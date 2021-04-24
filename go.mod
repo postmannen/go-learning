@@ -10,7 +10,7 @@ require (
 	github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca
 	github.com/boltdb/bolt v1.3.1
 	github.com/cavaliercoder/grab v2.0.0+incompatible
-	github.com/containerd/containerd v1.4.3 // indirect
+	github.com/containerd/containerd v1.4.4 // indirect
 	github.com/containerd/continuity v0.0.0-20210208174643-50096c924a4e // indirect
 	github.com/containerd/fifo v0.0.0-20210129194248-f8e8fdba47ef // indirect
 	github.com/containerd/ttrpc v1.0.2 // indirect

@@ -15,7 +15,7 @@ import (
 
 func readCSR() {
 	// Read the Certificate Request (CSR) from file
-	csrBytes, err := os.ReadFile("/Users/bt/tmp/ca/ship3/test.csr")
+	csrBytes, err := os.ReadFile("/Users/bt/tmp/ca/ship3/ship3.csr")
 	if err != nil {
 		log.Printf("error: failed to read csr: %v\n", err)
 		return
@@ -97,7 +97,7 @@ func readCSR() {
 	}
 
 	// Open a file to write the new certificate into.
-	fh, err := os.OpenFile("/Users/bt/tmp/ca/ship3/test.pem", os.O_RDWR|os.O_CREATE, 0600)
+	fh, err := os.OpenFile("/Users/bt/tmp/ca/ship3/ship3.pem", os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		log.Printf("error: failed to write pem file: %v\n", err)
 		return

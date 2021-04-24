@@ -54,7 +54,7 @@ func main() {
 
 	// Encode the Certificate Request to PEM format
 	// Write the PEM encoded Certificate Request to file
-	fh, err := os.OpenFile("/Users/bt/tmp/ca/ship3/test.csr", os.O_RDWR|os.O_CREATE, 0600)
+	fh, err := os.OpenFile("/Users/bt/tmp/ca/ship3/ship3.csr", os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
 		log.Printf("error: failed to write csr file: %v\n", err)
 		return
