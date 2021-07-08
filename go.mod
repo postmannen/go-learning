@@ -5,6 +5,7 @@ go 1.14
 require (
 	fyne.io/fyne v1.2.4
 	gioui.org v0.0.0-20200523211446-d8000880c3b4
+	github.com/RaaLabs/steward v0.1.4 // indirect
 	github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca
 	github.com/boltdb/bolt v1.3.1
 	github.com/cavaliercoder/grab v2.0.0+incompatible
