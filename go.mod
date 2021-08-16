@@ -47,6 +47,7 @@ require (
 	github.com/rivo/tview v0.0.0-20210608105643-d4fb0348227b
 	github.com/soniah/gosnmp v1.26.0
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
+	github.com/traefik/yaegi v0.9.21 // indirect
 	github.com/veandco/go-sdl2 v0.4.4
 	golang.org/x/crypto v0.0.0-20210415154028-4f45737414dc
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a
