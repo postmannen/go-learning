@@ -15,7 +15,7 @@ func main() {
 	outCh := make(chan []byte)
 
 	go func() {
-		cmd := exec.CommandContext(ctx, "bash", "-c", "timeout 2 tcpdump -nni any > dump.txt")
+		cmd := exec.CommandContext(ctx, "bash", "-c", "tcpdump -nni any > dump.txt")
 
 		// Using cmd.StdoutPipe here so we are continuosly
 		// able to read the out put of the command.
@@ -24,14 +24,28 @@ func main() {
 			er := fmt.Errorf("error: methodREQCliCommandCont: cmd.StdoutPipe failed : %v", err)
 			log.Printf("error: %v\n", er)
 		}
+		defer func() {
+			err := outReader.Close()
+			fmt.Printf(" * closing outReader\n")
+			if err != nil {
+				log.Printf("error: failed to close errorReader: %v\n", err)
+			}
+		}()
 
-		ErrorReader, err := cmd.StderrPipe()
+		errorReader, err := cmd.StderrPipe()
 		if err != nil {
 			er := fmt.Errorf("error: methodREQCliCommandCont: cmd.StderrPipe failed : %v", err)
 			log.Printf("%v\n", er)
 
 			log.Printf("error: %v\n", err)
 		}
+		defer func() {
+			fmt.Printf(" * closing errorReader\n")
+			err := errorReader.Close()
+			if err != nil {
+				log.Printf("error: failed to close outReader: %v\n", err)
+			}
+		}()
 
 		if err := cmd.Start(); err != nil {
 			er := fmt.Errorf("error: methodREQCliCommandCont: cmd.Start failed : %v", err)
@@ -47,7 +61,7 @@ func main() {
 		go func() {
 			errCh := make(chan string, 1)
 
-			scanner := bufio.NewScanner(ErrorReader)
+			scanner := bufio.NewScanner(errorReader)
 			for scanner.Scan() {
 				select {
 				case errCh <- scanner.Text():
