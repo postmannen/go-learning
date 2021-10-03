@@ -9,6 +9,7 @@ require (
 	github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca
 	github.com/boltdb/bolt v1.3.1
 	github.com/cavaliercoder/grab v2.0.0+incompatible
+	github.com/cockroachdb/pebble v0.0.0-20210930201120-c73841491dd5 // indirect
 	github.com/containerd/containerd v1.5.1
 	github.com/davecheney/gmx v0.0.0-20180109053550-1b0ba6eee1a1 // indirect
 	github.com/davecheney/mdns v0.0.0-20151031101852-92644c59e7ce
@@ -54,7 +55,6 @@ require (
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	golang.org/x/sys v0.0.0-20210403161142-5e06dd20ab57 // indirect
 	google.golang.org/api v0.25.0
 	google.golang.org/grpc v1.33.2
 	gopl.io v0.0.0-20200323155855-65c318dde95e

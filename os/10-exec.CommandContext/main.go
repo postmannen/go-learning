@@ -17,58 +17,49 @@ func main() {
 	var cmd *exec.Cmd
 
 	go func() {
-		cmd = exec.CommandContext(ctx, "bash", "-c", "tcpdump -nni any")
+		cmd = exec.CommandContext(ctx, "bash", "-c", "tcpdump -nni any -l")
 
 		// Using cmd.StdoutPipe here so we are continuosly
 		// able to read the out put of the command.
 		outReader, err := cmd.StdoutPipe()
 		if err != nil {
-			er := fmt.Errorf("error: methodREQCliCommandCont: cmd.StdoutPipe failed : %v", err)
-			log.Printf("error: %v\n", er)
+			log.Printf("error: cmd.StdoutPipe failed:%v\n", err)
 		}
-		defer func() {
-			err := outReader.Close()
-			fmt.Printf(" * closing outReader\n")
-			if err != nil {
-				log.Printf("error: failed to close errorReader: %v\n", err)
-			}
-		}()
 
 		errorReader, err := cmd.StderrPipe()
 		if err != nil {
-			er := fmt.Errorf("error: methodREQCliCommandCont: cmd.StderrPipe failed : %v", err)
-			log.Printf("%v\n", er)
+			log.Printf("error: cmd.StderrPipe failed:%v\n", err)
 
 			log.Printf("error: %v\n", err)
 		}
-		defer func() {
-			fmt.Printf(" * closing errorReader\n")
-			err := errorReader.Close()
-			if err != nil {
-				log.Printf("error: failed to close outReader: %v\n", err)
-			}
-		}()
 
 		if err := cmd.Start(); err != nil {
-			er := fmt.Errorf("error: methodREQCliCommandCont: cmd.Start failed : %v", err)
-			log.Printf("%v\n", er)
+			log.Printf("error: cmd.Start failed:%v\n", err)
 		}
 
 		go func() {
-			scanner := bufio.NewScanner(errorReader)
-			for scanner.Scan() {
-				errCh <- scanner.Text()
+			buf := bufio.NewReader(errorReader)
+			for {
+				s, err := buf.ReadString('\n')
+				if err != nil {
+					log.Printf("error: reading errorReader: %v\n", err)
+					break
+				}
+				errCh <- s
 			}
 			fmt.Printf("* DEBUG 4\n")
 		}()
 
 		go func() {
-			scanner := bufio.NewScanner(outReader)
-			for scanner.Scan() {
-
-				text := scanner.Text()
-				fmt.Println(text)
-				outCh <- []byte(text + "\n")
+			buf := bufio.NewReader(outReader)
+			for {
+				s, err := buf.ReadString('\n')
+				fmt.Println("apekatt: ", s)
+				if err != nil {
+					log.Printf("error: reading outReader: %v\n", err)
+					break
+				}
+				errCh <- s
 			}
 			fmt.Printf("* DEBUG 3\n")
 
@@ -78,8 +69,11 @@ func main() {
 		defer func() {
 			fmt.Printf("* DEBUG 2\n")
 		}()
-		<-ctx.Done()
 
+		err = cmd.Wait()
+		if err != nil {
+			log.Printf("error: cmd.Wait: %v\n", err)
+		}
 	}()
 
 	// Check if context timer or command output were received.
