@@ -5,12 +5,11 @@ go 1.14
 require (
 	fyne.io/fyne v1.2.4
 	gioui.org v0.0.0-20200523211446-d8000880c3b4
-	github.com/RaaLabs/steward v0.1.4 // indirect
 	github.com/ajstarks/svgo v0.0.0-20200320125537-f189e35d30ca
 	github.com/boltdb/bolt v1.3.1
 	github.com/cavaliercoder/grab v2.0.0+incompatible
-	github.com/cockroachdb/pebble v0.0.0-20210930201120-c73841491dd5 // indirect
-	github.com/containerd/containerd v1.5.1
+	github.com/cockroachdb/pebble v0.0.0-20210930201120-c73841491dd5
+	github.com/containerd/containerd v1.5.4
 	github.com/davecheney/gmx v0.0.0-20180109053550-1b0ba6eee1a1 // indirect
 	github.com/davecheney/mdns v0.0.0-20151031101852-92644c59e7ce
 	github.com/dgraph-io/badger v1.6.1
@@ -35,8 +34,10 @@ require (
 	github.com/manifoldco/promptui v0.7.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/miekg/dns v1.1.27
+	github.com/nats-io/jwt v1.2.2 // indirect
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
 	github.com/nats-io/nats.go v1.10.0
+	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/stan.go v0.7.0
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/nsf/termbox-go v0.0.0-20200418040025-38ba6e5628f1
@@ -48,7 +49,7 @@ require (
 	github.com/rivo/tview v0.0.0-20210608105643-d4fb0348227b
 	github.com/soniah/gosnmp v1.26.0
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
-	github.com/traefik/yaegi v0.9.21 // indirect
+	github.com/traefik/yaegi v0.9.21
 	github.com/veandco/go-sdl2 v0.4.4
 	golang.org/x/crypto v0.0.0-20210415154028-4f45737414dc
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a
