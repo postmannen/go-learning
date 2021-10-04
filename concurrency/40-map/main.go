@@ -25,6 +25,7 @@ type cMap struct {
 	m      map[string]string
 	mInCh  chan kvCh
 	mGetCh chan getValue
+	mDelCh chan kvCh
 }
 
 func newCMap() *cMap {
@@ -32,6 +33,7 @@ func newCMap() *cMap {
 		m:      map[string]string{},
 		mInCh:  make(chan kvCh),
 		mGetCh: make(chan getValue),
+		mDelCh: make(chan kvCh),
 	}
 	return &cM
 }
@@ -44,9 +46,12 @@ func (c *cMap) run(ctx context.Context) {
 			c.m[kv.k] = kv.v
 
 		case gv := <-c.mGetCh:
-
 			v, ok := c.m[gv.k]
 			gv.kvCh <- keyValue{gv.k, v, ok}
+
+		case kvCh := <-c.mDelCh:
+			kv := <-kvCh
+			delete(c.m, kv.k)
 
 		case <-ctx.Done():
 			log.Printf("info: cMap: got ctx.Done\n")
@@ -73,6 +78,13 @@ func (c *cMap) get(key string) keyValue {
 	c.mGetCh <- gv
 
 	return <-kvCh
+}
+
+func (c *cMap) del(kv keyValue) {
+	kvCh := make(chan keyValue, 1)
+	kvCh <- kv
+	c.mDelCh <- kvCh
+
 }
 
 func main() {
@@ -117,6 +129,18 @@ func main() {
 		}
 
 		wg.Wait()
+	}
+
+	{
+		// Deletion of key
+		cM.del(keyValue{k: "50"})
+		kv := cM.get("50")
+		if !kv.ok {
+			fmt.Printf("info: no value found when key = %v\n", kv.k)
+			return
+		}
+
+		fmt.Printf("key: %v, value: %v\n", kv.k, kv.v)
 	}
 
 	cancel()
