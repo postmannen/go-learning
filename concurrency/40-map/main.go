@@ -11,7 +11,7 @@ import (
 )
 
 type keyValue struct {
-	k  string
+	k  int
 	v  string
 	ok bool
 }
@@ -19,12 +19,12 @@ type keyValue struct {
 type kvCh chan keyValue
 
 type getValue struct {
-	k    string
+	k    int
 	kvCh kvCh
 }
 
 type cMap struct {
-	m         map[string]string
+	m         map[int]string
 	mInCh     chan kvCh
 	mGetCh    chan getValue
 	mDelCh    chan kvCh
@@ -33,7 +33,7 @@ type cMap struct {
 
 func newCMap() *cMap {
 	cM := cMap{
-		m:         map[string]string{},
+		m:         map[int]string{},
 		mInCh:     make(chan kvCh),
 		mGetCh:    make(chan getValue),
 		mDelCh:    make(chan kvCh),
@@ -80,7 +80,7 @@ func (c *cMap) put(kv keyValue) {
 	c.mInCh <- kvCh
 }
 
-func (c *cMap) get(key string) keyValue {
+func (c *cMap) get(key int) keyValue {
 	kvCh := make(chan keyValue, 1)
 
 	gv := getValue{
@@ -110,6 +110,8 @@ func (c *cMap) getAll() []keyValue {
 
 func main() {
 	runtime.GOMAXPROCS(1)
+	const times = 3
+	const numKeys = 20
 
 	var wg sync.WaitGroup
 	cM := newCMap()
@@ -124,8 +126,6 @@ func main() {
 	// Fill and read concurrently.
 	{
 		var wg sync.WaitGroup
-		const times = 3
-		const keysValues = 20
 
 		fmt.Println("-----------------------concurrently put and get--------------------------------------")
 
@@ -133,26 +133,25 @@ func main() {
 			// Fill values
 			wg.Add(1)
 			go func() {
-				for ii := 0; ii < keysValues; ii++ {
-					s := strconv.Itoa(ii)
+				for ii := 0; ii < numKeys; ii++ {
 					sTen := strconv.Itoa(ii * 10)
-					cM.put(keyValue{k: s, v: sTen})
+					cM.put(keyValue{k: ii, v: sTen})
 				}
 				wg.Done()
 			}()
 
 			wg.Add(1)
-			go func() {
+			go func(i int) {
 				defer wg.Done()
 				time.Sleep(time.Millisecond * 100)
-				kv := cM.get("5")
+				kv := cM.get(numKeys / (i + 1))
 				if !kv.ok {
-					fmt.Printf("info: no value found when key = %v\n", kv.k)
+					fmt.Printf("info: no value found when key = %v, probably not set yet\n", kv.k)
 					return
 				}
 
 				fmt.Printf("key: %v, value: %v\n", kv.k, kv.v)
-			}()
+			}(i)
 		}
 
 		wg.Wait()
@@ -161,9 +160,9 @@ func main() {
 	{
 		// Deletion of key
 		fmt.Println("-----------------------key deletion--------------------------------------")
-		fmt.Println("deleting key")
-		cM.del(keyValue{k: "5"})
-		kv := cM.get("5")
+		fmt.Println("deleting key =", numKeys/2)
+		cM.del(keyValue{k: numKeys / 2})
+		kv := cM.get(numKeys / 2)
 		if !kv.ok {
 			fmt.Printf("info: delete, no value found when key = %v\n", kv.k)
 		} else {
