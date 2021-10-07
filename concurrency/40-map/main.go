@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"runtime"
 	"strconv"
 	"sync"
@@ -68,7 +67,7 @@ func (c *cMap) run(ctx context.Context) {
 			gaCh <- kvSlice
 
 		case <-ctx.Done():
-			log.Printf("info: cMap: got ctx.Done\n")
+			// log.Printf("info: cMap: got ctx.Done\n")
 			return
 		}
 	}
