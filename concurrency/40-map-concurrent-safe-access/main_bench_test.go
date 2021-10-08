@@ -8,7 +8,7 @@ import (
 
 var result string
 
-func BenchmarkPut(b *testing.B) {
+func BenchmarkPutChannels(b *testing.B) {
 	cM := newCMap()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer func() {
@@ -19,6 +19,15 @@ func BenchmarkPut(b *testing.B) {
 	go func() {
 		cM.run(ctx)
 	}()
+
+	for i := 0; i < b.N; i++ {
+		cM.put(keyValue{k: i, v: "a"})
+	}
+
+}
+
+func BenchmarkPutMutex(b *testing.B) {
+	cM := newCMapMutex()
 
 	for i := 0; i < b.N; i++ {
 		cM.put(keyValue{k: i, v: "a"})
@@ -40,7 +49,7 @@ func BenchmarkPutNormal(b *testing.B) {
 
 var resultKv keyValue
 
-func BenchmarkGet(b *testing.B) {
+func BenchmarkGetChannels(b *testing.B) {
 	cM := newCMap()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer func() {
@@ -51,6 +60,20 @@ func BenchmarkGet(b *testing.B) {
 	go func() {
 		cM.run(ctx)
 	}()
+
+	cM.put(keyValue{k: 1, v: "a"})
+
+	var kv keyValue
+	for i := 0; i < b.N; i++ {
+		kv = cM.get(1)
+
+	}
+	resultKv = kv
+
+}
+
+func BenchmarkGetMutex(b *testing.B) {
+	cM := newCMapMutex()
 
 	cM.put(keyValue{k: 1, v: "a"})
 
@@ -80,7 +103,7 @@ func BenchmarkGetNormal(b *testing.B) {
 	result = v
 }
 
-func BenchmarkGetWhileConcurrentPut(b *testing.B) {
+func BenchmarkGetChannelsWhileConcurrentPut(b *testing.B) {
 	cM := newCMap()
 	ctx, cancel := context.WithCancel(context.Background())
 	defer func() {
@@ -90,6 +113,33 @@ func BenchmarkGetWhileConcurrentPut(b *testing.B) {
 
 	go func() {
 		cM.run(ctx)
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				cM.put(keyValue{k: 1, v: "a"})
+			}
+		}
+	}()
+
+	var kv keyValue
+	for i := 0; i < b.N; i++ {
+		kv = cM.get(1)
+	}
+	resultKv = kv
+
+}
+
+func BenchmarkGetMutexWhileConcurrentPut(b *testing.B) {
+	cM := newCMapMutex()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer func() {
+		// fmt.Printf("Canceling context\n")
+		cancel()
 	}()
 
 	go func() {
