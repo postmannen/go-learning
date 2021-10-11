@@ -23,6 +23,7 @@ require (
 	github.com/google/goexpect v0.0.0-20191001010744-5b6988669ffa
 	github.com/google/gopacket v1.1.17
 	github.com/google/goterm v0.0.0-20190703233501-fc88cf888a3f
+	github.com/google/gousb v1.1.1 // indirect
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/schema v1.1.0
