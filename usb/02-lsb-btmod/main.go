@@ -44,6 +44,7 @@ func main() {
 		// The usbid package can be used to print out human readable information.
 		fmt.Printf("%03d.%03d %s:%s %s\n", desc.Bus, desc.Address, desc.Vendor, desc.Product, usbid.Describe(desc))
 		fmt.Printf("  Protocol: %s\n", usbid.Classify(desc))
+		fmt.Printf("  * Vendor: %v, Product: %v\n", desc.Vendor, desc.Product)
 
 		// The configurations can be examined from the DeviceDesc, though they can only
 		// be set once the device is opened.  All configuration references must be closed,
