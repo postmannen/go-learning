@@ -59,7 +59,7 @@ func main() {
 					fmt.Printf("    %s\n", ifSetting)
 					fmt.Printf("      %s\n", usbid.Classify(ifSetting))
 					for _, end := range ifSetting.Endpoints {
-						fmt.Printf("      %s\n", end)
+						fmt.Printf("      %s, maxPacketSize=%v\n", end, end.MaxPacketSize)
 					}
 				}
 			}
