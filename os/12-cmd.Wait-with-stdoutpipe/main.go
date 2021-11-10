@@ -1,11 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os/exec"
+	"sync"
 )
 
 func main() {
@@ -14,20 +15,31 @@ func main() {
 
 	cmd := exec.CommandContext(ctx, "bash", "-c", "uname -a")
 
-	var out bytes.Buffer
-	// var stderr bytes.Buffer
-	cmd.Stdout = &out
+	out, _ := cmd.StdoutPipe()
 	//cmd.Stderr = &stderr
-	err := cmd.Run()
+	err := cmd.Start()
 	if err != nil {
 		log.Printf("error: failed cmd.Run: %v\n", err)
 	}
 
-	fmt.Printf(" * cmd: %v\n", cmd)
+	var wg sync.WaitGroup
 
-	defer fmt.Println()
-	for _, b := range out.Bytes() {
-		fmt.Printf("%v", string(b))
-	}
+	wg.Add(1)
+	go func() {
+		defer fmt.Println()
+		for {
+			b := make([]byte, 1)
+			_, err := out.Read(b)
+			if err == io.EOF {
+				break
+			}
+			fmt.Printf("%v", string(b))
+		}
+		wg.Done()
+	}()
+
+	wg.Wait()
+
+	cmd.Wait()
 
 }
