@@ -15,11 +15,16 @@ func main() {
 
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", "uname -a")
 
-	out, _ := cmd.StdoutPipe()
+	out, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Printf("error: failed cmd.StdoutPipe: %v\n", err)
+		return
+	}
 	//cmd.Stderr = &stderr
-	err := cmd.Start()
+	err = cmd.Start()
 	if err != nil {
 		log.Printf("error: failed cmd.Run: %v\n", err)
+		return
 	}
 	defer cmd.Wait()
 
