@@ -13,7 +13,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "bash", "-c", "uname -a")
+	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", "uname -a")
 
 	out, _ := cmd.StdoutPipe()
 	//cmd.Stderr = &stderr
@@ -21,6 +21,7 @@ func main() {
 	if err != nil {
 		log.Printf("error: failed cmd.Run: %v\n", err)
 	}
+	defer cmd.Wait()
 
 	var wg sync.WaitGroup
 
@@ -39,7 +40,5 @@ func main() {
 	}()
 
 	wg.Wait()
-
-	cmd.Wait()
 
 }
