@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ajstarks/svgo"
+	svg "github.com/ajstarks/svgo"
 )
 
 func main() {
@@ -18,7 +18,10 @@ func main() {
 func circle(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "image/svg+xml")
 	s := svg.New(w)
-	s.Start(500, 500)
-	s.Circle(250, 250, 125, "fill:none;stroke:black")
+	s.Start(1000, 1000)
+	s.Circle(250, 250, 100, "fill:none;stroke:black")
+	s.Text(250, 250, "Hello, SVG", "text-anchor:middle;font-size:30px;fill:blue")
+	s.Circle(500, 250, 100, "fill:none;stroke:black")
+	s.Line(350, 250, 400, 250, "fill:none;stroke:black")
 	s.End()
 }
