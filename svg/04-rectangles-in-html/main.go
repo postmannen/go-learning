@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	svg "github.com/ajstarks/svgo"
 )
@@ -52,23 +53,24 @@ func firstRect() *rect {
 }
 
 func (r *rect) draw(s *svg.SVG, text string) {
-	// Draw a rectangle.
-	s.Roundrect(r.xRect, r.yRect, r.wRect, r.hRect, 10, 10, "fill:none;stroke:black")
 
-	// Put text in the rectangle
+	// Put text for the rectangle
 
-	//maxChr := r.wRect / r.fontSize
-	maxChr := 10
-
-	textSlice := sliceNString(text, maxChr)
+	textSlice, longest := sliceNString(text, " ")
 	fSize := strconv.Itoa(r.fontSize)
 	textStyle := fmt.Sprintf("text-anchor:left;font-size:%spx;fill:black", fSize)
 	lineSize := 0
 
+	//set the width of the rectangle according to longest slice element.
 	for _, v := range textSlice {
 		s.Text(r.xRect+r.textPaddingX, r.yRect+r.textPaddingY+lineSize, v, textStyle)
 		lineSize += 15
 	}
+
+	r.wRect = longest * r.fontSize
+
+	// Draw a rectangle.
+	s.Roundrect(r.xRect, r.yRect, r.wRect, r.hRect, 10, 10, "fill:none;stroke:black")
 
 	if r.amount != 0 {
 		s.Line(r.xRect, r.yRect+(r.hRect/2), r.xRect-r.distanceRect, r.yRect+(r.hRect/2), "fill:none;stroke:black")
@@ -80,31 +82,26 @@ func (r *rect) draw(s *svg.SVG, text string) {
 	r.xRect = r.xRect + r.wRect + r.distanceRect
 }
 
-func sliceNString(text string, n int) []string {
-	textSlice := []string{}
-	counter := 1
+// Will split string at every n character or space.
+// Will return a []string, and the length of the longest
+// slice element.
+func sliceNString(text string, splitStr string) ([]string, int) {
+	textSlice := strings.Split(text, splitStr)
 
-	var str string
-	for i, v := range text {
-		str = str + string(v)
+	var longest int
 
-		switch {
-		case i >= len(text)-1:
-			textSlice = append(textSlice, str)
-		case v == ' ':
-			textSlice = append(textSlice, str)
-			str = ""
-			counter = 1
-		case counter >= n:
-			textSlice = append(textSlice, str)
-			str = ""
-			counter = 1
-		case counter < n:
-			counter++
+	for _, v := range textSlice {
+		var runeSlice []rune
+		for _, vv := range v {
+			runeSlice = append(runeSlice, vv)
+		}
+
+		if len(v) > longest {
+			longest = len(runeSlice)
 		}
 	}
 
-	return textSlice
+	return textSlice, longest
 }
 
 func draw(w http.ResponseWriter, req *http.Request) {
@@ -114,7 +111,8 @@ func draw(w http.ResponseWriter, req *http.Request) {
 	defer s.End()
 
 	r := firstRect()
-	r.draw(s, "abcdefghijklmnopqrstuvwxyz")
-	r.draw(s, "123456789012345678901234567890")
+	r.draw(s, "abcdefghi jklmnopqr stuvwxyz")
+	r.draw(s, "1234567890 1234567890 1234567890")
 	r.draw(s, "this is an odd sentence")
+	r.draw(s, "世a界世bcd界efg 世h世i世j世k世l世")
 }
