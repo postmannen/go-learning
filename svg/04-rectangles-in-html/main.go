@@ -62,8 +62,9 @@ func (r *rect) draw(s *svg.SVG, text string) {
 	lineSize := 0
 
 	//set the width of the rectangle according to longest slice element.
-	for _, v := range textSlice {
-		s.Text(r.xRect+r.textPaddingX, r.yRect+r.textPaddingY+lineSize, v, textStyle)
+
+	for i := 0; i <= len(textSlice)-1; i++ {
+		s.Text(r.xRect+r.textPaddingX, r.yRect+r.textPaddingY+lineSize, textSlice[i], textStyle)
 		lineSize += 15
 	}
 
