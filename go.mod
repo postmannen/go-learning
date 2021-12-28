@@ -35,6 +35,7 @@ require (
 	github.com/hashicorp/mdns v1.0.3
 	github.com/icholy/slippy v0.5.0
 	github.com/jung-kurt/gofpdf v1.16.2
+	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/manifoldco/promptui v0.7.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/miekg/dns v1.1.27
@@ -54,6 +55,7 @@ require (
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
 	github.com/traefik/yaegi v0.9.21 // indirect
 	github.com/veandco/go-sdl2 v0.4.4
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
 	go.bug.st/serial v1.3.3 // indirect
 	golang.org/x/crypto v0.0.0-20210415154028-4f45737414dc
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a
