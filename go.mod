@@ -19,6 +19,7 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/faiface/pixel v0.9.0
 	github.com/fsnotify/fsnotify v1.4.9
+	github.com/fxamacker/cbor/v2 v2.3.0 // indirect
 	github.com/gdamore/tcell/v2 v2.3.3
 	github.com/goburrow/serial v0.1.0 // indirect
 	github.com/golang/protobuf v1.5.2

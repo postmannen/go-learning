@@ -8,6 +8,8 @@ import (
 	"log"
 	"unsafe"
 
+	"github.com/fxamacker/cbor/v2"
+	"github.com/klauspost/compress/zstd"
 	"github.com/vmihailenco/msgpack/v5"
 )
 
@@ -15,6 +17,7 @@ type Method string
 type Node string
 
 type Message struct {
+	_ struct{} `cbor:",toarray"`
 	// The node to send the message to.
 	ToNode Node `json:"toNode" yaml:"toNode"`
 	// ToNodes to specify several hosts to send message to in the
@@ -96,7 +99,7 @@ type Message struct {
 
 func main() {
 	mPrev := Message{
-		ToNode:          "somenode",
+		ToNode:          "prevsomenode",
 		ToNodes:         nil,
 		ID:              1000,
 		Data:            []string{"Dec 21 10:13:45 someship env[197267]: 2021/12/21 10:13:45 info: processBufferMessages: done with message, deleting key from bucket, 0"},
@@ -126,7 +129,7 @@ func main() {
 		PreviousMessage: &mPrev,
 	}
 
-	fmt.Printf("* length of m struct: %v\n", unsafe.Sizeof(m))
+	fmt.Printf(" * length of m struct, no serialization : %v\n", unsafe.Sizeof(m))
 
 	fmt.Println(" -------------------------MSGPACK------------------------ ")
 
@@ -136,7 +139,7 @@ func main() {
 			panic(err)
 		}
 
-		fmt.Printf("* length of b: %v\n", len(b))
+		fmt.Printf(" * length of b: %v\n", len(b))
 
 		var out Message
 		err = msgpack.Unmarshal(b, &out)
@@ -161,7 +164,7 @@ func main() {
 
 		// The second time GOB already have the information about the structure of the data
 		// so it no longer takes up much space to send more objects of the same type
-		fmt.Printf("* length of gob encoded data 2 : %v\n", bufGob.Len())
+		fmt.Printf(" * length of gob encoded data 2 : %v\n", bufGob.Len())
 
 		decoder := gob.NewDecoder(&bufGob)
 
@@ -185,7 +188,7 @@ func main() {
 			return
 		}
 
-		fmt.Printf("* length of mJson : %v\n", len(mJson))
+		fmt.Printf(" * length of mJson : %v\n", len(mJson))
 
 		var out Message
 		err = json.Unmarshal(mJson, &out)
@@ -195,6 +198,64 @@ func main() {
 		}
 
 		fmt.Printf("PreviousMessage test, id : %v\n", out.PreviousMessage.ID)
+	}
+
+	fmt.Println("------------------------------CBOR---------------------------------")
+
+	{
+		mCbor, err := cbor.Marshal(m)
+		if err != nil {
+			log.Printf("error: cbor marshal failed: %v\n", err)
+			return
+		}
+
+		fmt.Printf(" * length of mCbor : %v\n", len(mCbor))
+
+		var out Message
+		cbor.Unmarshal(mCbor, &out)
+
+		if err != nil {
+			log.Printf("error: failed unmarshaling cbor: %v\n", err)
+			return
+		}
+
+		fmt.Printf("PreviousMessage test : %v\n", out.PreviousMessage)
+
+		fmt.Println("---------------zstd compression of cbor----------------------")
+
+		zstdW, err := zstd.NewWriter(nil, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
+		if err != nil {
+			log.Printf("error: zstd new writer failed: %v\n", err)
+			return
+		}
+
+		b := zstdW.EncodeAll(mCbor, nil)
+		fmt.Printf(" * len of zstd compressed cbor data : %v\n", len(b))
+
+		// -------------- decode ------------
+
+		{
+			zstdR, err := zstd.NewReader(nil)
+			if err != nil {
+				log.Printf("error: zstd NewReader failed: %v\n", err)
+				return
+			}
+			out, err := zstdR.DecodeAll(b, nil)
+			if err != nil {
+				log.Printf("error: zstd decode failed: %v\n", err)
+				return
+			}
+
+			var m Message
+
+			err = cbor.Unmarshal(out, &m)
+			if err != nil {
+				log.Printf("error: cbor unmarshal failed: %v\n", err)
+				return
+			}
+
+			fmt.Printf("PreviousMessage test cbor : %v\n", m.PreviousMessage)
+		}
 	}
 
 }
