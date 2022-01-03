@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
@@ -221,41 +222,71 @@ func main() {
 
 		fmt.Printf("PreviousMessage test : %v\n", out.PreviousMessage)
 
-		fmt.Println("---------------zstd compression of cbor----------------------")
+		{
+			fmt.Println("---------------zstd SpeedBestCompression compression of cbor----------------------")
 
-		zstdW, err := zstd.NewWriter(nil, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
-		if err != nil {
-			log.Printf("error: zstd new writer failed: %v\n", err)
-			return
+			zstdW, err := zstd.NewWriter(nil, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
+			if err != nil {
+				log.Printf("error: zstd new writer failed: %v\n", err)
+				return
+			}
+
+			b := zstdW.EncodeAll(mCbor, nil)
+			fmt.Printf(" * len of zstd SpeedBestCompression cbor data : %v\n", len(b))
 		}
 
-		b := zstdW.EncodeAll(mCbor, nil)
-		fmt.Printf(" * len of zstd compressed cbor data : %v\n", len(b))
+		{
+			fmt.Println("---------------zstd std options compression of cbor----------------------")
+
+			zstdW, err := zstd.NewWriter(nil)
+			if err != nil {
+				log.Printf("error: zstd new writer failed: %v\n", err)
+				return
+			}
+
+			b := zstdW.EncodeAll(mCbor, nil)
+			fmt.Printf(" * len of zstd std compression cbor data : %v\n", len(b))
+		}
+
+		fmt.Println("---------------gzip compression of cbor----------------------")
+		{
+			var bufGzip bytes.Buffer
+			gzipW := gzip.NewWriter(&bufGzip)
+			n, err := gzipW.Write(mCbor)
+			if err != nil {
+				log.Printf("error: failed to write gzip: %v\n", err)
+			}
+			fmt.Printf(" * writer wrote %v number of charachters\n", n)
+			gzipW.Close()
+
+			fmt.Printf(" * length of gzipB: %v\n", len(bufGzip.Bytes()))
+
+		}
 
 		// -------------- decode ------------
 
-		{
-			zstdR, err := zstd.NewReader(nil)
-			if err != nil {
-				log.Printf("error: zstd NewReader failed: %v\n", err)
-				return
-			}
-			out, err := zstdR.DecodeAll(b, nil)
-			if err != nil {
-				log.Printf("error: zstd decode failed: %v\n", err)
-				return
-			}
-
-			var m Message
-
-			err = cbor.Unmarshal(out, &m)
-			if err != nil {
-				log.Printf("error: cbor unmarshal failed: %v\n", err)
-				return
-			}
-
-			fmt.Printf("PreviousMessage test cbor : %v\n", m.PreviousMessage)
-		}
+		//{
+		//	zstdR, err := zstd.NewReader(nil)
+		//	if err != nil {
+		//		log.Printf("error: zstd NewReader failed: %v\n", err)
+		//		return
+		//	}
+		//	out, err := zstdR.DecodeAll(b, nil)
+		//	if err != nil {
+		//		log.Printf("error: zstd decode failed: %v\n", err)
+		//		return
+		//	}
+		//
+		//	var m Message
+		//
+		//	err = cbor.Unmarshal(out, &m)
+		//	if err != nil {
+		//		log.Printf("error: cbor unmarshal failed: %v\n", err)
+		//		return
+		//	}
+		//
+		//	fmt.Printf("PreviousMessage test cbor : %v\n", m.PreviousMessage)
+		//}
 	}
 
 }
