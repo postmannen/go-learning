@@ -47,9 +47,10 @@ func forwarder(f forwarders) http.HandlerFunc {
 
 func main() {
 	forwarders := map[string]string{
-		"nrk.localhost":   "https://nrk.no",
-		"vg.localhost":    "https://vg.no",
-		"erter.localhost": "https://erter.org",
+		"nrk.localhost":      "https://nrk.no",
+		"vg.localhost":       "https://vg.no",
+		"erter.localhost":    "https://erter.org",
+		"registry.localhost": "https://registry.docker.io",
 	}
 
 	http.HandleFunc("/", forwarder(forwarders))
