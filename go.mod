@@ -23,7 +23,7 @@ require (
 	github.com/goburrow/serial v0.1.0
 	github.com/golang/protobuf v1.5.2
 	github.com/google/goexpect v0.0.0-20191001010744-5b6988669ffa
-	github.com/google/gopacket v1.1.17
+	github.com/google/gopacket v1.1.19
 	github.com/google/goterm v0.0.0-20190703233501-fc88cf888a3f
 	github.com/google/gousb v1.1.1
 	github.com/google/uuid v1.2.0
@@ -56,10 +56,10 @@ require (
 	go.bug.st/serial v1.3.3
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
-	golang.org/x/net v0.0.0-20220526153639-5463443f8c37
+	golang.org/x/net v0.0.0-20220622184535-263ec571b305
 	golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
+	golang.org/x/sys v0.0.0-20220622161953-175b2fd9d664
 	google.golang.org/api v0.30.0
 	google.golang.org/grpc v1.43.0
 	gopl.io v0.0.0-20200323155855-65c318dde95e
