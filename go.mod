@@ -51,7 +51,6 @@ require (
 	github.com/soniah/gosnmp v1.26.0
 	github.com/streadway/amqp v0.0.0-20200108173154-1c71cc93ed71
 	github.com/traefik/yaegi v0.9.21
-	github.com/veandco/go-sdl2 v0.4.21
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	go.bug.st/serial v1.3.3
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
