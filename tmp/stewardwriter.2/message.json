@@ -1,0 +1,18 @@
+[
+    {
+        "toNodes": ["central"],
+        "method": "REQHttpGet",
+        "methodArgs": [
+            "http://edgeos.raalabs.tech"
+        ],
+        "replyMethod": "REQToFile",
+        "ACKTimeout": 5,
+        "retries": 3,
+        "replyACKTimeout": 5,
+        "replyRetries": 5,
+        "methodTimeout": 5,
+        "replyMethodTimeout": 120,
+        "directory": "bttest",
+        "fileName": "test-raalabs.tech.txt"
+    }
+]
