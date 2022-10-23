@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"sync"
 	"time"
@@ -21,15 +22,25 @@ func newExpireMap() *expireMap {
 	return &e
 }
 
-func (e *expireMap) start() {
+func (e *expireMap) start(ctx context.Context, wg *sync.WaitGroup) {
+	wg.Add(1)
 	go func() {
-		for k := range e.deleteCh {
-			key := <-k
-			e.mu.Lock()
-			value := e.m[key]
-			delete(e.m, key)
-			e.mu.Unlock()
-			log.Printf("info: delete cache value %v with key %v\n", value, key)
+		for {
+			select {
+			case k := <-e.deleteCh:
+				go func(k chan int) {
+					key := <-k
+					e.mu.Lock()
+					value := e.m[key]
+					delete(e.m, key)
+					e.mu.Unlock()
+					log.Printf("info: delete cache value %v with key %v, len of map %v\n", value, key, len(e.m))
+				}(k)
+			case <-ctx.Done():
+				log.Printf("info: ctx.Done in start()\n")
+				wg.Done()
+				return
+			}
 		}
 	}()
 }
@@ -51,6 +62,7 @@ func newValue(deleteCh chan chan int, timeSeconds int, key int) func() {
 		ch <- key
 
 		ticker := time.NewTicker(time.Second * time.Duration(timeSeconds))
+		defer ticker.Stop()
 		// fmt.Printf(" * new.Ticker\n")
 		for range ticker.C {
 			// fmt.Printf(" * got ticker\n")
@@ -65,12 +77,15 @@ func newValue(deleteCh chan chan int, timeSeconds int, key int) func() {
 
 func main() {
 	em := newExpireMap()
-	em.start()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	var wg sync.WaitGroup
+	em.start(ctx, &wg)
 
 	em.add(2, 1, "horse")
 	em.add(4, 2, "sheep")
 	em.add(1, 3, "pig")
 
-	time.Sleep(time.Second * 5)
+	wg.Wait()
 
 }
