@@ -91,6 +91,7 @@ require (
 	github.com/davecheney/gmx v0.0.0-20180109053550-1b0ba6eee1a1 // indirect
 	github.com/dgraph-io/ristretto v0.0.2 // indirect
 	github.com/docker/go-events v0.0.0-20190806004212-e31b211e4f1c // indirect
+	github.com/dominikbraun/graph v0.13.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/faiface/glhf v0.0.0-20181018222622-82a6317ac380 // indirect
 	github.com/faiface/mainthread v0.0.0-20171120011319-8b78f0a41ae3 // indirect
