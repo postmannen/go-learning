@@ -41,9 +41,11 @@ require (
 	github.com/manifoldco/promptui v0.7.0
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/miekg/dns v1.1.27
-	github.com/nats-io/nats.go v1.16.0
+	github.com/nats-io/nats.go v1.25.0
+	github.com/nats-io/nkeys v0.4.4
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/nsf/termbox-go v0.0.0-20200418040025-38ba6e5628f1
+	github.com/pingcap/errors v0.11.4
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.11.0
 	github.com/pkg/term v1.1.0
@@ -55,15 +57,16 @@ require (
 	github.com/traefik/yaegi v0.9.21
 	github.com/vmihailenco/msgpack/v5 v5.3.5
 	go.bug.st/serial v1.3.3
-	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
+	golang.org/x/crypto v0.6.0
 	golang.org/x/image v0.0.0-20220722155232-062f8c9fd539
-	golang.org/x/net v0.0.0-20220622184535-263ec571b305
+	golang.org/x/net v0.6.0
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
-	golang.org/x/sys v0.0.0-20220913175220-63ea55921009
+	golang.org/x/sys v0.5.0
 	google.golang.org/api v0.30.0
 	google.golang.org/grpc v1.43.0
 	gopkg.in/fsnotify.v1 v1.4.7
+	gopkg.in/yaml.v3 v3.0.1
 	gopl.io v0.0.0-20200323155855-65c318dde95e
 )
 
@@ -130,7 +133,6 @@ require (
 	github.com/moby/sys/mountinfo v0.5.0 // indirect
 	github.com/moby/sys/signal v0.6.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.8.4 // indirect
-	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.0.3-0.20211202183452-c5a74bcca799 // indirect
@@ -150,8 +152,8 @@ require (
 	github.com/x448/float16 v0.8.4 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/exp v0.0.0-20210722180016-6781d3edade3 // indirect
-	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 // indirect
-	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/term v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.0.0-20220609170525-579cf78fd858 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect

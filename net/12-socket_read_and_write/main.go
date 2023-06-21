@@ -54,8 +54,25 @@ func main() {
 		log.Printf("error: net.Dial failed: %v\n", err)
 	}
 	defer conn.Close()
-
 	conn.Write([]byte("a horse jumped over the hill"))
+
+	{
+		conn, err := net.Dial("unix", socketFile)
+		if err != nil {
+			log.Printf("error: net.Dial failed: %v\n", err)
+		}
+		defer conn.Close()
+		conn.Write([]byte("a horse jumped over the hill"))
+	}
+
+	{
+		conn, err := net.Dial("unix", socketFile)
+		if err != nil {
+			log.Printf("error: net.Dial failed: %v\n", err)
+		}
+		defer conn.Close()
+		conn.Write([]byte("a horse jumped over the hill"))
+	}
 
 	select {}
 
