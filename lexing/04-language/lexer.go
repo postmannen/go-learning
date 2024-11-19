@@ -106,6 +106,9 @@ func (l *lineLexer) readNextChr() lexFunc {
 	if err != io.EOF {
 		return l.done()
 	}
+
+	// TODO: Just put nil here, to be contined from here..
+	return nil
 }
 
 func (l *lineLexer) done() lexFunc {
